@@ -1,4 +1,6 @@
-@import './base.css';
+@use "variables";
+@use "@mdi/font/scss/materialdesignicons";
+@use './base.css';
 
 #app {
   max-width: 1280px;
