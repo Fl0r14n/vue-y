@@ -1,3 +1,7 @@
+import OAuthLogin from '@/oauth/OAuthLogin.vue'
+import { useOAuthStore } from '@/oauth/store'
+import type { App } from 'vue'
+
 export interface ClientCredentialConfig {
   tokenPath: string
   revokePath?: string
@@ -84,6 +88,8 @@ export interface OAuthToken {
   type?: OAuthType
   expires?: number
 
+  code?: string
+
   [x: string]: any
 }
 
@@ -124,4 +130,22 @@ export interface IntrospectInfo extends UserInfo {
   client_id?: string
   username: string
   exp: number
+}
+
+export const oauthConfig: OAuthConfig = {
+  storage: localStorage,
+  storageKey: 'token',
+  ignorePaths: []
+}
+
+export const createOAuth = (config: OAuthConfig) => {
+  const install = (app: App, ...options: any[]) => {
+    Object.assign(oauthConfig, config)
+    const oauth = useOAuthStore()
+    const { login, logout } = oauth
+    app.provide('login', login)
+    app.provide('logout', logout)
+    app.component('v-oauth', OAuthLogin)
+  }
+  return { install }
 }

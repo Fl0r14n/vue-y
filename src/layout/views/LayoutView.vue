@@ -11,13 +11,12 @@
           :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           @click="theme = theme === 'light' ? 'dark' : 'light'"></v-btn>
         <v-btn icon="mdi-dots-vertical"></v-btn>
-        <OAuthLogin :state="'somme_dummy_state'" :type="OAuthType.RESOURCE" @update-msg="onChildMsg">
-          This is a child component
-        </OAuthLogin>
+        <OAuthLogin :state="'somme_dummy_state'" :type="OAuthType.AUTHORIZATION_CODE" :use-logout-url="true" />
       </template>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" location="bottom" v-if="mdAndDown">
       <v-list color="transparent">
+        <v-list-item></v-list-item>
         <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard"></v-list-item>
         <v-list-item prepend-icon="mdi-account-box" title="Account"></v-list-item>
         <v-list-item prepend-icon="mdi-gavel" title="Admin"></v-list-item>
@@ -48,33 +47,12 @@
   import { OAuthType } from '@/oauth'
   import OAuthLogin from '@/oauth/OAuthLogin.vue'
   import { ref } from 'vue'
-  import { useDisplay } from 'vuetify'
+  import { useDisplay, useTheme } from 'vuetify'
 
-  const theme = ref('light')
+  const theme = useTheme().name
   const drawer = ref(false)
 
   const { mdAndDown } = useDisplay()
 
   const links = ['Home', 'About Us', 'Team', 'Services', 'Blog', 'Contact Us']
-
-  const items = [
-    {
-      title: 'Foo',
-      value: 'foo'
-    },
-    {
-      title: 'Bar',
-      value: 'bar'
-    },
-    {
-      title: 'Fizz',
-      value: 'fizz'
-    },
-    {
-      title: 'Buzz',
-      value: 'buzz'
-    }
-  ]
-
-  const onChildMsg = (msg: string) => console.log(msg)
 </script>

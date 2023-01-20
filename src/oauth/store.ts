@@ -1,6 +1,5 @@
 import type {
   AuthorizationParameters,
-  OAuthConfig,
   OAuthParameters,
   OAuthToken,
   OAuthTypeConfig,
@@ -9,11 +8,11 @@ import type {
   ResourceParameters,
   UserInfo
 } from '@/oauth'
-import { OAuthStatus, OAuthType } from '@/oauth'
+import { oauthConfig, OAuthStatus, OAuthType } from '@/oauth'
 import type { AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios'
 import axios from 'axios'
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 
 const HEADER_APPLICATION = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -21,12 +20,6 @@ const HEADER_APPLICATION = {
 
 const HEADER_JSON = {
   'Content-Type': 'application/json'
-}
-
-const authConfig: OAuthConfig = {
-  storage: localStorage,
-  storageKey: 'token',
-  ignorePaths: []
 }
 
 const arrToString = (buf: Uint8Array) => buf.reduce((s, b) => s + String.fromCharCode(b), '')
@@ -93,12 +86,12 @@ const cleanHash = () => {
 const jwt = (token: string) => JSON.parse(atob(token.split('.')[1]))
 
 const getToken = () => {
-  const { storageKey, storage } = authConfig
+  const { storageKey, storage } = oauthConfig
   return (storageKey && storage && storage[storageKey] && JSON.parse(storage[storageKey])) || {}
 }
 
 const setToken = (token: OAuthToken) => {
-  const { storageKey, storage } = authConfig
+  const { storageKey, storage } = oauthConfig
   if (storage && storageKey) {
     if (token) {
       storage[storageKey] = JSON.stringify(token)
@@ -111,7 +104,7 @@ const setToken = (token: OAuthToken) => {
 const isExpiredToken = (token?: OAuthToken) => (token && token.expires && Date.now() > token.expires) || false
 
 const refreshToken = async (token?: OAuthToken) => {
-  const { tokenPath, clientId, clientSecret, scope } = authConfig.config || ({} as any)
+  const { tokenPath, clientId, clientSecret, scope } = oauthConfig.config || ({} as any)
   const { refresh_token } = token || {}
   if (refresh_token) {
     return await axios
@@ -135,7 +128,7 @@ const refreshToken = async (token?: OAuthToken) => {
 }
 
 const clientCredentialLogin = () => {
-  const { clientId, clientSecret, tokenPath, scope } = authConfig.config || ({} as any)
+  const { clientId, clientSecret, tokenPath, scope } = oauthConfig.config || ({} as any)
   return axios
     .post<OAuthToken>(
       tokenPath,
@@ -155,7 +148,7 @@ const clientCredentialLogin = () => {
 }
 
 const resourceLogin = (parameters: ResourceParameters) => {
-  const { clientId, clientSecret, tokenPath, scope } = authConfig.config as any
+  const { clientId, clientSecret, tokenPath, scope } = oauthConfig.config as any
   const { username, password } = parameters
   return axios
     .post<OAuthToken>(
@@ -178,7 +171,7 @@ const resourceLogin = (parameters: ResourceParameters) => {
 }
 
 const revoke = async (token?: OAuthToken) => {
-  const { revokePath, clientId, clientSecret } = authConfig.config as any
+  const { revokePath, clientId, clientSecret } = oauthConfig.config as any
   if (revokePath) {
     const { access_token, refresh_token } = token || {}
     if (access_token) {
@@ -206,18 +199,27 @@ const revoke = async (token?: OAuthToken) => {
 
 const authorize = (code: string, codeVerifier?: string) => {
   const { origin, pathname } = location
-  const { clientId, clientSecret, tokenPath, scope } = authConfig.config as any
+  const { clientId, clientSecret, tokenPath, scope } = oauthConfig.config as any
+  console.log(clientId, clientSecret, tokenPath, scope)
   return axios
-    .post<OAuthToken>(tokenPath, {
-      code,
-      client_id: clientId,
-      ...((clientSecret && { client_secret: clientSecret }) || {}),
-      redirect_uri: `${origin}${pathname}`,
-      grant_type: 'authorization_code',
-      ...((scope && { scope }) || {}),
-      ...((codeVerifier && { code_verifier: codeVerifier }) || {})
-    })
+    .post<OAuthToken>(
+      tokenPath,
+      {
+        code,
+        client_id: clientId,
+        ...((clientSecret && { client_secret: clientSecret }) || {}),
+        redirect_uri: `${origin}${pathname}`,
+        grant_type: 'authorization_code',
+        ...((scope && { scope }) || {}),
+        ...((codeVerifier && { code_verifier: codeVerifier }) || {})
+      },
+      {
+        headers: HEADER_APPLICATION
+      }
+    )
     .then(r => r.data)
+    .then(t => ({ ...t, type: OAuthType.AUTHORIZATION_CODE }))
+    .catch(err => err)
 }
 
 export const useOAuthStore = defineStore('oauth', () => {
@@ -241,26 +243,26 @@ export const useOAuthStore = defineStore('oauth', () => {
 
   const config = computed({
     get() {
-      return authConfig.config
+      return oauthConfig.config
     },
     set(config?: OAuthTypeConfig) {
       if (config) {
-        authConfig.config = {
-          ...authConfig.config,
+        oauthConfig.config = {
+          ...oauthConfig.config,
           ...config
         }
       }
     }
   })
 
-  const ignoredPaths = computed(() => authConfig.ignorePaths)
+  const ignoredPaths = computed(() => oauthConfig.ignorePaths)
 
   const storageKey = computed({
     get() {
-      return authConfig.storageKey || 'token'
+      return oauthConfig.storageKey || 'token'
     },
     set(storageKey: string) {
-      authConfig.storageKey = storageKey
+      oauthConfig.storageKey = storageKey
       token.value = getToken()
     }
   })
@@ -276,22 +278,20 @@ export const useOAuthStore = defineStore('oauth', () => {
 
   const isAuthorized = computed(() => status.value === OAuthStatus.AUTHORIZED)
 
-  const userInfo = computed(async () => {
+  const user = ref<UserInfo>({})
+
+  watch(isAuthorized, async authorized => {
     const { userPath } = config.value as any
-    let userInfo
-    if (isAuthorized.value && userPath) {
-      userInfo = await http.get<UserInfo>(userPath)
+    if (authorized && userPath) {
+      user.value = await http.get<UserInfo>(userPath).then(r => r.data)
     }
-    return userInfo
   })
 
   watch(
     () => (config.value as OpenIdConfig)?.issuerPath,
     async issuerPath => {
       const v = await axios.get<OpenIdConfiguration>(`${issuerPath}/.well-known/openid-configuration`).then(r => r.data)
-      const { config } = authConfig
-      authConfig.config = {
-        ...config,
+      config.value = {
         ...((v.authorization_endpoint && { authorizePath: v.authorization_endpoint }) || {}),
         ...((v.token_endpoint && { tokenPath: v.token_endpoint }) || {}),
         ...((v.revocation_endpoint && { revokePath: v.revocation_endpoint }) || {}),
@@ -299,9 +299,11 @@ export const useOAuthStore = defineStore('oauth', () => {
         ...((v.userinfo_endpoint && { userPath: v.userinfo_endpoint }) || {}),
         ...((v.introspection_endpoint && { introspectionPath: v.introspection_endpoint }) || {}),
         ...((v.end_session_endpoint && { logoutPath: v.end_session_endpoint }) || {}),
-        ...{ scope: config?.scope || 'openid' }
+        ...{ scope: config.value?.scope || 'openid' }
       } as OpenIdConfig
-    }
+      console.log(oauthConfig)
+    },
+    { immediate: true }
   )
 
   const login = async (parameters?: OAuthParameters) => {
@@ -330,7 +332,7 @@ export const useOAuthStore = defineStore('oauth', () => {
   }
 
   const toAuthorizationUrl = async (parameters: AuthorizationParameters) => {
-    const { config } = authConfig as any
+    const { config } = oauthConfig as any
     let authorizationUrl = `${config.authorizePath}`
     authorizationUrl += (config.authorizePath.includes('?') && '&') || '?'
     authorizationUrl += `client_id=${config.clientId}`
@@ -387,20 +389,23 @@ export const useOAuthStore = defineStore('oauth', () => {
         checkResponse(token.value, parameters)
       } else if (isAuthCodeRedirect) {
         const parameters = parseOauthUri((search && search.substring(1)) || (hash && hash.substring(1)))
-        if (!checkResponse(token.value, parameters)) {
-          token.value = parameters
-        } else {
-          const { codeVerifier } = token.value || {} //should be set by authorizationUrl construction
-          const t = await authorize(parameters?.['code'], codeVerifier)
-          token.value = {
-            ...t,
-            type: OAuthType.AUTHORIZATION_CODE
-          }
-          cleanSearch()
+        token.value = parameters
+        if (checkResponse(token.value, parameters)) {
+          // cleanSearch()
         }
       }
-    }
+    },
+    { immediate: true }
   )
+
+  watchEffect(async () => {
+    const { tokenPath } = (config.value as any) || {}
+    const { code, codeVerifier } = token.value || {} //should be set by authorizationUrl construction
+    console.log(code, (config.value as any)?.tokenPath)
+    if (code && tokenPath) {
+      token.value = await authorize(code, codeVerifier)
+    }
+  })
 
   const authInterceptor = async (req: AxiosRequestConfig) => {
     if (isExpiredToken(token.value)) {
@@ -426,7 +431,7 @@ export const useOAuthStore = defineStore('oauth', () => {
     accessToken,
     status,
     isAuthorized,
-    userInfo,
+    user,
     login,
     logout,
     authInterceptor
