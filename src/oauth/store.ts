@@ -274,11 +274,12 @@ export const useOAuthStore = defineStore('oauth', () => {
     return (value?.access_token && OAuthStatus.AUTHORIZED) || (value?.error && OAuthStatus.DENIED) || OAuthStatus.NOT_AUTHORIZED
   })
 
+  const isAuthorized = computed(() => status.value === OAuthStatus.AUTHORIZED)
+
   const userInfo = computed(async () => {
-    const s = await status.value
     const { userPath } = config.value as any
     let userInfo
-    if (s === OAuthStatus.AUTHORIZED && userPath) {
+    if (isAuthorized.value && userPath) {
       userInfo = await http.get<UserInfo>(userPath)
     }
     return userInfo
@@ -424,6 +425,7 @@ export const useOAuthStore = defineStore('oauth', () => {
     type,
     accessToken,
     status,
+    isAuthorized,
     userInfo,
     login,
     logout,

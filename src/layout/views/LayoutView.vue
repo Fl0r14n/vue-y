@@ -11,6 +11,9 @@
           :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           @click="theme = theme === 'light' ? 'dark' : 'light'"></v-btn>
         <v-btn icon="mdi-dots-vertical"></v-btn>
+        <OAuthLogin :state="'somme_dummy_state'" :type="OAuthType.RESOURCE" @update-msg="onChildMsg">
+          This is a child component
+        </OAuthLogin>
       </template>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" location="bottom" v-if="mdAndDown">
@@ -27,9 +30,6 @@
     </v-navigation-drawer>
     <v-main>
       <v-container>
-        <OAuthLogin :state="'somme_dummy_state'" :type="OAuthType.RESOURCE" @update-msg="onChildMsg">
-          This is a child component
-        </OAuthLogin>
         <RouterView />
       </v-container>
     </v-main>
