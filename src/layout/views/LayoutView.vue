@@ -11,7 +11,7 @@
           :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           @click="theme = theme === 'light' ? 'dark' : 'light'"></v-btn>
         <v-btn icon="mdi-dots-vertical"></v-btn>
-        <OAuthLogin :state="'somme_dummy_state'" :type="OAuthType.AUTHORIZATION_CODE" :use-logout-url="true" />
+        <OAuthLogin :state="'somme_dummy_state'" :type="OAuthType.AUTHORIZATION_CODE" :use-logout-url="true" :responseType="responseType" />
       </template>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" location="bottom" v-if="mdAndDown">
@@ -48,6 +48,9 @@
   import OAuthLogin from '@/oauth/OAuthLogin.vue'
   import { ref } from 'vue'
   import { useDisplay, useTheme } from 'vuetify'
+
+  // const responseType = 'code token id_token'
+  const responseType = 'code'
 
   const theme = useTheme().name
   const drawer = ref(false)

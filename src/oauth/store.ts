@@ -12,7 +12,8 @@ import { oauthConfig, OAuthStatus, OAuthType } from '@/oauth'
 import type { AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios'
 import axios from 'axios'
 import { defineStore } from 'pinia'
-import { computed, ref, watch, watchEffect } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const HEADER_APPLICATION = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -21,6 +22,23 @@ const HEADER_APPLICATION = {
 const HEADER_JSON = {
   'Content-Type': 'application/json'
 }
+
+const HASH_KEYS = [
+  'access_token',
+  'token_type',
+  'expires_in',
+  'scope',
+  'state',
+  'error',
+  'error_description',
+  'session_state',
+  'nonce',
+  'id_token',
+  'code',
+  'authuser',
+  'prompt',
+  'version_info'
+]
 
 const arrToString = (buf: Uint8Array) => buf.reduce((s, b) => s + String.fromCharCode(b), '')
 
@@ -47,51 +65,24 @@ const parseOauthUri = (hash: string) => {
   return (Object.keys(params).length && params) || {}
 }
 
-const cleanSearch = () => {
-  const { search } = location
-  let searchString = (search && search.substring(1)) || ''
-  const hashKeys = ['code', 'state', 'error', 'error_description', 'session_state', 'scope', 'authuser', 'prompt']
-  hashKeys.forEach(hashKey => {
-    const re = new RegExp('&' + hashKey + '(=[^&]*)?|^' + hashKey + '(=[^&]*)?&?')
-    searchString = searchString.replace(re, '')
-  })
-  if (searchString.length) {
-    location.search = `?${searchString}`
-  }
-}
-
-const cleanHash = () => {
-  const { hash } = location
-  let curHash = (hash && hash.substring(1)) || ''
-  const hashKeys = [
-    'access_token',
-    'token_type',
-    'expires_in',
-    'scope',
-    'state',
-    'error',
-    'error_description',
-    'session_state',
-    'nonce',
-    'id_token',
-    'code'
-  ]
-  hashKeys.forEach(hashKey => {
-    const re = new RegExp('&' + hashKey + '(=[^&]*)?|^' + hashKey + '(=[^&]*)?&?')
-    curHash = curHash.replace(re, '')
-  })
-  location.hash = curHash
-}
-
-const jwt = (token: string) => JSON.parse(atob(token.split('.')[1]))
+const jwt = (token?: string) =>
+  token
+    ? JSON.parse(
+        decodeURIComponent(
+          Array.from(atob(token.split('.')[1]))
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        )
+      )
+    : {}
 
 const getToken = () => {
-  const { storageKey, storage } = oauthConfig
+  const { storageKey, storage } = oauthConfig.value
   return (storageKey && storage && storage[storageKey] && JSON.parse(storage[storageKey])) || {}
 }
 
 const setToken = (token: OAuthToken) => {
-  const { storageKey, storage } = oauthConfig
+  const { storageKey, storage } = oauthConfig.value
   if (storage && storageKey) {
     if (token) {
       storage[storageKey] = JSON.stringify(token)
@@ -103,8 +94,22 @@ const setToken = (token: OAuthToken) => {
 
 const isExpiredToken = (token?: OAuthToken) => (token && token.expires && Date.now() > token.expires) || false
 
+const config = computed({
+  get() {
+    return oauthConfig.value.config as OAuthTypeConfig
+  },
+  set(config?: OAuthTypeConfig) {
+    if (config) {
+      oauthConfig.value.config = {
+        ...oauthConfig.value.config,
+        ...config
+      }
+    }
+  }
+})
+
 const refreshToken = async (token?: OAuthToken) => {
-  const { tokenPath, clientId, clientSecret, scope } = oauthConfig.config || ({} as any)
+  const { tokenPath, clientId, clientSecret, scope } = (config.value as any) || ({} as any)
   const { refresh_token } = token || {}
   if (refresh_token) {
     return await axios
@@ -121,14 +126,14 @@ const refreshToken = async (token?: OAuthToken) => {
           headers: HEADER_APPLICATION
         }
       )
-      .then(r => r.data as OAuthToken)
-      .catch(() => ({} as OAuthToken))
+      .catch(err => err.response)
+      .then(r => r.data)
   }
   return token
 }
 
 const clientCredentialLogin = () => {
-  const { clientId, clientSecret, tokenPath, scope } = oauthConfig.config || ({} as any)
+  const { clientId, clientSecret, tokenPath, scope } = (config.value as any) || ({} as any)
   return axios
     .post<OAuthToken>(
       tokenPath,
@@ -142,13 +147,13 @@ const clientCredentialLogin = () => {
         headers: HEADER_APPLICATION
       }
     )
+    .catch(err => err.response)
     .then(r => r.data)
     .then(t => ({ ...t, type: OAuthType.CLIENT_CREDENTIAL }))
-    .catch(err => err)
 }
 
 const resourceLogin = (parameters: ResourceParameters) => {
-  const { clientId, clientSecret, tokenPath, scope } = oauthConfig.config as any
+  const { clientId, clientSecret, tokenPath, scope } = config.value as any
   const { username, password } = parameters
   return axios
     .post<OAuthToken>(
@@ -165,33 +170,46 @@ const resourceLogin = (parameters: ResourceParameters) => {
         headers: HEADER_APPLICATION
       }
     )
+    .catch(err => err.response)
     .then(r => r.data)
     .then(t => ({ ...t, type: OAuthType.RESOURCE }))
-    .catch(err => err)
 }
 
 const revoke = async (token?: OAuthToken) => {
-  const { revokePath, clientId, clientSecret } = oauthConfig.config as any
+  const { revokePath, clientId, clientSecret } = config.value as any
   if (revokePath) {
     const { access_token, refresh_token } = token || {}
     if (access_token) {
       await axios
-        .post(revokePath, {
-          ...((clientId && { client_id: clientId }) || {}),
-          ...((clientSecret && { client_secret: clientSecret }) || {}),
-          token: access_token,
-          token_type_hint: 'access_token'
-        })
+        .post(
+          revokePath,
+          {
+            ...((clientId && { client_id: clientId }) || {}),
+            ...((clientSecret && { client_secret: clientSecret }) || {}),
+            token: access_token,
+            token_type_hint: 'access_token'
+          },
+          {
+            headers: HEADER_APPLICATION
+          }
+        )
         .then(r => r.data)
     }
     if (refresh_token) {
       await axios
-        .post({
-          ...((clientId && { client_id: clientId }) || {}),
-          ...((clientSecret && { client_secret: clientSecret }) || {}),
-          token: refresh_token,
-          token_type_hint: 'refresh_token'
-        })
+        .post(
+          revokePath,
+          {
+            ...((clientId && { client_id: clientId }) || {}),
+            ...((clientSecret && { client_secret: clientSecret }) || {}),
+            token: refresh_token,
+            token_type_hint: 'refresh_token'
+          },
+          {
+            headers: HEADER_APPLICATION
+          }
+        )
+        .catch(err => err.response)
         .then(r => r.data)
     }
   }
@@ -199,8 +217,7 @@ const revoke = async (token?: OAuthToken) => {
 
 const authorize = (code: string, codeVerifier?: string) => {
   const { origin, pathname } = location
-  const { clientId, clientSecret, tokenPath, scope } = oauthConfig.config as any
-  console.log(clientId, clientSecret, tokenPath, scope)
+  const { clientId, clientSecret, tokenPath, scope } = config.value as any
   return axios
     .post<OAuthToken>(
       tokenPath,
@@ -217,9 +234,9 @@ const authorize = (code: string, codeVerifier?: string) => {
         headers: HEADER_APPLICATION
       }
     )
+    .catch(err => err.response)
     .then(r => r.data)
     .then(t => ({ ...t, type: OAuthType.AUTHORIZATION_CODE }))
-    .catch(err => err)
 }
 
 export const useOAuthStore = defineStore('oauth', () => {
@@ -237,53 +254,60 @@ export const useOAuthStore = defineStore('oauth', () => {
     setToken(result)
   })
 
-  watch(token, t => console.log(t))
-
   const state = ref<string>()
 
-  const config = computed({
-    get() {
-      return oauthConfig.config
-    },
-    set(config?: OAuthTypeConfig) {
-      if (config) {
-        oauthConfig.config = {
-          ...oauthConfig.config,
-          ...config
-        }
-      }
-    }
-  })
-
-  const ignoredPaths = computed(() => oauthConfig.ignorePaths)
+  const ignoredPaths = computed(() => oauthConfig.value.ignorePaths)
 
   const storageKey = computed({
     get() {
-      return oauthConfig.storageKey || 'token'
+      return oauthConfig.value.storageKey || 'token'
     },
     set(storageKey: string) {
-      oauthConfig.storageKey = storageKey
+      oauthConfig.value.storageKey = storageKey
       token.value = getToken()
     }
   })
 
   const type = computed(() => token.value?.type)
 
-  const accessToken = computed(() => token.value?.access_token)
+  const accessToken = computed(() => {
+    const { token_type, access_token } = token.value || {}
+    return (token_type && access_token && `${token_type} ${access_token}`) || undefined
+  })
 
   const status = computed(() => {
     const { value } = token
-    return (value?.access_token && OAuthStatus.AUTHORIZED) || (value?.error && OAuthStatus.DENIED) || OAuthStatus.NOT_AUTHORIZED
+    return (value?.error && OAuthStatus.DENIED) || (value?.access_token && OAuthStatus.AUTHORIZED) || OAuthStatus.NOT_AUTHORIZED
   })
 
   const isAuthorized = computed(() => status.value === OAuthStatus.AUTHORIZED)
 
   const user = ref<UserInfo>({})
 
-  watch(isAuthorized, async authorized => {
-    const { userPath } = config.value as any
+  watch(
+    () => token.value?.id_token,
+    idToken => {
+      if (idToken) {
+        user.value = jwt(idToken)
+      }
+    },
+    { immediate: true }
+  )
+
+  watch([isAuthorized, () => (config.value as any)?.userPath], async ([authorized, userPath]) => {
     if (authorized && userPath) {
-      user.value = await http.get<UserInfo>(userPath).then(r => r.data)
+      user.value = await http
+        .get<UserInfo>(userPath)
+        .catch(err => err.response)
+        .then(r => r.data)
+    }
+  })
+
+  watch([() => (config.value as any)?.tokenPath, () => token.value?.code], async ([tokenPath, code]) => {
+    const { codeVerifier } = token.value || {} //should be set by authorizationUrl construction
+    if (code && tokenPath) {
+      const parameters = await authorize(code, codeVerifier)
+      token.value = checkNonce(parameters)
     }
   })
 
@@ -301,7 +325,6 @@ export const useOAuthStore = defineStore('oauth', () => {
         ...((v.end_session_endpoint && { logoutPath: v.end_session_endpoint }) || {}),
         ...{ scope: config.value?.scope || 'openid' }
       } as OpenIdConfig
-      console.log(oauthConfig)
     },
     { immediate: true }
   )
@@ -321,30 +344,32 @@ export const useOAuthStore = defineStore('oauth', () => {
   }
 
   const logout = async (useLogoutUrl?: boolean) => {
-    await revoke(token.value)
-    token.value = {}
     const { logoutPath, logoutRedirectUri } = config.value as any
     if (useLogoutUrl && logoutPath) {
+      token.value = {}
       const { origin, pathname } = location
       const currentPath = `${origin}${pathname}`
       location.replace(`${logoutPath}?post_logout_redirect_uri=${logoutRedirectUri || currentPath}`)
+    } else {
+      await revoke(token.value)
+      token.value = {}
     }
   }
 
   const toAuthorizationUrl = async (parameters: AuthorizationParameters) => {
-    const { config } = oauthConfig as any
-    let authorizationUrl = `${config.authorizePath}`
-    authorizationUrl += (config.authorizePath.includes('?') && '&') || '?'
-    authorizationUrl += `client_id=${config.clientId}`
+    const { authorizePath, clientId, scope, pkce } = config.value as any
+    let authorizationUrl = `${authorizePath}`
+    authorizationUrl += (authorizePath.includes('?') && '&') || '?'
+    authorizationUrl += `client_id=${clientId}`
     authorizationUrl += `&redirect_uri=${encodeURIComponent(parameters.redirectUri)}`
     authorizationUrl += `&response_type=${parameters.responseType}`
-    authorizationUrl += `&scope=${encodeURIComponent(config.scope || '')}`
+    authorizationUrl += `&scope=${encodeURIComponent(scope || '')}`
     authorizationUrl += `&state=${encodeURIComponent(parameters.state || '')}`
-    return location.replace(`${authorizationUrl}${generateNonce(config)}${await generateCodeChallenge(config)}`)
+    return location.replace(`${authorizationUrl}${generateNonce(scope)}${await generateCodeChallenge(pkce)}`)
   }
 
-  const generateCodeChallenge = async (config: any) => {
-    if (config.pkce) {
+  const generateCodeChallenge = async (doPkce: any) => {
+    if (doPkce) {
       const codeVerifier = randomString()
       token.value = { ...token.value, codeVerifier }
       return `&code_challenge=${await pkce(codeVerifier)}&code_challenge_method=S256`
@@ -352,8 +377,8 @@ export const useOAuthStore = defineStore('oauth', () => {
     return ''
   }
 
-  const generateNonce = (config: any) => {
-    if (config && config.scope && config.scope.indexOf('openid') > -1) {
+  const generateNonce = (scope: string) => {
+    if (scope.indexOf('openid') > -1) {
       const nonce = randomString(10)
       token.value = { ...token.value, nonce }
       return `&nonce=${nonce}`
@@ -361,17 +386,24 @@ export const useOAuthStore = defineStore('oauth', () => {
     return ''
   }
 
-  const checkResponse = (token?: OAuthToken, parameters?: Record<string, string>) => {
-    state.value = parameters?.state
-    cleanHash()
-    if (!parameters || parameters['error']) {
-      return false
+  const checkNonce = (parameters: Record<string, string>) => {
+    if (jwt(parameters.id_token)?.nonce !== token.value?.nonce) {
+      return {
+        error: 'Invalid nonce'
+      }
     }
-    if (token && token.nonce && parameters['access_token']) {
-      const jwtToken = jwt(parameters['access_token'])
-      return token.nonce === jwtToken.nonce
-    }
-    return parameters['access_token'] || parameters['code']
+    return parameters
+  }
+
+  const cleanUrl = async () => {
+    const { search, pathname } = location
+    let searchString = (search && search.substring(1)) || ''
+    HASH_KEYS.forEach(hashKey => {
+      const re = new RegExp('&' + hashKey + '(=[^&]*)?|^' + hashKey + '(=[^&]*)?&?')
+      searchString = searchString.replace(re, '')
+    })
+    // TODO
+    // await router.push(`${pathname}${search}`)
   }
 
   watch(
@@ -383,29 +415,24 @@ export const useOAuthStore = defineStore('oauth', () => {
       if (isImplicitRedirect) {
         const parameters = parseOauthUri(hash.substring(1))
         token.value = {
-          ...parameters,
+          ...checkNonce(parameters),
           type: OAuthType.IMPLICIT
         }
-        checkResponse(token.value, parameters)
+        state.value = parameters?.state
+        await cleanUrl()
       } else if (isAuthCodeRedirect) {
         const parameters = parseOauthUri((search && search.substring(1)) || (hash && hash.substring(1)))
-        token.value = parameters
-        if (checkResponse(token.value, parameters)) {
-          // cleanSearch()
+        token.value = {
+          ...token.value,
+          ...parameters,
+          type: OAuthType.AUTHORIZATION_CODE
         }
+        state.value = parameters?.state
+        await cleanUrl()
       }
     },
     { immediate: true }
   )
-
-  watchEffect(async () => {
-    const { tokenPath } = (config.value as any) || {}
-    const { code, codeVerifier } = token.value || {} //should be set by authorizationUrl construction
-    console.log(code, (config.value as any)?.tokenPath)
-    if (code && tokenPath) {
-      token.value = await authorize(code, codeVerifier)
-    }
-  })
 
   const authInterceptor = async (req: AxiosRequestConfig) => {
     if (isExpiredToken(token.value)) {
@@ -414,7 +441,7 @@ export const useOAuthStore = defineStore('oauth', () => {
     if (accessToken.value) {
       req.headers = {
         ...req.headers,
-        Authorization: `Bearer ${accessToken.value}`
+        Authorization: accessToken.value
       } as RawAxiosRequestHeaders
     }
     return req

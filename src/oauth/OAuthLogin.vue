@@ -1,58 +1,82 @@
 <template>
-  <v-menu v-model="menu" rounded :close-on-content-click="false" location="bottom" v-if="type === OAuthType.RESOURCE">
+  <v-menu v-model="menu" rounded :close-on-content-click="false" location="bottom">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" :icon="isAuthorized ? 'mdi-account' : 'mdi-account-outline'"></v-btn>
     </template>
 
-    <v-card min-width="300">
+    <v-card>
       <template v-if="isAuthorized">
-        <v-card-item>{{ JSON.stringify(user) }}</v-card-item>
+        <slot name="userInfo" :user="user" :logout="logout" v-if="$slots.user" />
+        <v-list v-else>
+          <v-list-item :title="user.name" :subtitle="user.email">
+            <template #prepend>
+              <v-avatar color="primary">
+                <v-img :src="user.picture" v-if="user.picture"></v-img>
+                <span class="text-h5" v-else v-html="user.initials"></span>
+              </v-avatar>
+            </template>
+          </v-list-item>
+        </v-list>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" variant="text" @click="logout"> Logout</v-btn>
+          <v-btn color="primary" variant="text" @click="logout()">{{ t('oauth.logout') }}</v-btn>
         </v-card-actions>
       </template>
       <template v-else>
-        <v-card-text class="pb-0">
-          <v-form ref="f" v-model="form.valid" lazy-validation autocomplete="on" @keyup.enter="form.valid && submit()">
-            <v-text-field
-              v-model="form.username"
-              name="username"
-              label="Username"
-              required
-              :counter="length"
-              :rules="form.usernameRules"></v-text-field>
-            <v-text-field
-              v-model="form.password"
-              name="password"
-              type="password"
-              label="Password"
-              required
-              :counter="length"
-              :rules="form.passwordRules"></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" variant="text" type="submit" :disabled="!form.valid" @click="submit"> Login</v-btn>
-        </v-card-actions>
+        <template v-if="type === OAuthType.RESOURCE">
+          <v-card-text class="pb-0">
+            <v-form ref="f" v-model="form.valid" lazy-validation autocomplete="on" @keyup.enter="form.valid && submit()">
+              <v-text-field
+                v-model="form.username"
+                name="username"
+                required
+                :label="t('oauth.username')"
+                :counter="length"
+                :rules="form.usernameRules"></v-text-field>
+              <v-text-field
+                v-model="form.password"
+                name="password"
+                type="password"
+                required
+                :label="t('oauth.password')"
+                :counter="length"
+                :rules="form.passwordRules"></v-text-field>
+            </v-form>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" variant="text" type="submit" :disabled="!form.valid" @click="submit">
+              {{ t('oauth.login') }}
+            </v-btn>
+          </v-card-actions>
+        </template>
+        <template v-else>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="primary"
+              variant="text"
+              @click="login({ responseType: responseType || type, redirectUri: getRedirectUri(), state })">
+              {{ t('oauth.login') }}
+            </v-btn>
+          </v-card-actions>
+        </template>
       </template>
     </v-card>
   </v-menu>
-  <v-btn
-    :icon="isAuthorized ? 'mdi-account' : 'mdi-account-outline'"
-    v-else
-    @click="isAuthorized ? logout() : login({ responseType: responseType || type, redirectUri: getRedirectUri(), state })"></v-btn>
 </template>
 
 <script setup lang="ts">
   import { OAuthType } from '@/oauth'
   import { useOAuthStore } from '@/oauth/store'
   import { storeToRefs } from 'pinia'
-  import { ref } from 'vue'
+  import { ref, watch } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import type { VForm } from 'vuetify/components'
 
   const length = 128
+
+  const { t } = useI18n()
 
   const props = withDefaults(
     defineProps<{
@@ -78,12 +102,12 @@
     username: '',
     password: '',
     usernameRules: [
-      (v: string) => !!v || 'Name is required',
-      (v: string) => (v && v.length <= length) || 'Name must be less than 64 characters'
+      (v: string) => !!v || t('oauth.usernameRequired'),
+      (v: string) => (v && v.length <= length) || t('oauth.usernameLength', [length])
     ],
     passwordRules: [
-      (v: string) => !!v || 'Password is required',
-      (v: string) => (v && v.length <= length) || 'Password must be less than 64 characters'
+      (v: string) => !!v || t('oauth.passwordRequired'),
+      (v: string) => (v && v.length <= length) || t('oauth.passwordLength', [length])
     ]
   })
 
@@ -93,11 +117,27 @@
     f.value.reset()
   }
 
-  const getRedirectUri = () => props.redirectUri || location.href
+  const logout = () => {
+    menu.value = false
+    const { logout } = oauth
+    logout(props.useLogoutUrl)
+  }
+
+  const getRedirectUri = () => {
+    const { origin, pathname, search } = location
+    return props.redirectUri || `${origin}${pathname}${search}`
+  }
 
   const oauth = useOAuthStore()
-  const { login, logout } = oauth
+  const { login } = oauth
   const { isAuthorized, user } = storeToRefs(oauth)
-</script>
 
-<style scoped lang="scss"></style>
+  watch(
+    user,
+    () => {
+      const { given_name, family_name } = user.value
+      user.value.initials = `${given_name?.charAt(0)}${family_name?.charAt(0)}`
+    },
+    { immediate: true }
+  )
+</script>

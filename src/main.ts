@@ -1,19 +1,30 @@
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
 import { createOAuth } from '@/oauth'
+
+import '@mdi/font/scss/materialdesignicons.scss'
 import { createPinia } from 'pinia'
-import { createApp } from 'vue'
+import { createApp, markRaw } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createVuetify } from 'vuetify'
 import { md1 } from 'vuetify/blueprints'
 import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n'
 import App from './App.vue'
-
-import '@mdi/font/scss/materialdesignicons.scss'
 import './assets/main.scss'
 
-const { BASE_URL, VITE_THEME, VITE_OAUTH_TOKEN_PATH, VITE_OAUTH_CLIENT_ID, VITE_OAUTH_CLIENT_SECRET } = import.meta.env
+const {
+  BASE_URL,
+  VITE_THEME,
+  VITE_OAUTH_ISSUER_PATH,
+  VITE_OAUTH_AUTHORIZE_PATH,
+  VITE_OAUTH_TOKEN_PATH,
+  VITE_OAUTH_LOGOUT_PATH,
+  VITE_OAUTH_LOGOUT_REDIRECT_URI,
+  VITE_OAUTH_CLIENT_ID,
+  VITE_OAUTH_CLIENT_SECRET,
+  VITE_OAUTH_SCOPE
+} = import.meta.env
 
 const i18n = createI18n({
   legacy: false,
@@ -23,28 +34,31 @@ const i18n = createI18n({
     de
   }
 })
-createApp(App)
-  .use(createPinia())
-  .use(i18n)
-  .use(
-    createRouter({
-      history: createWebHistory(BASE_URL),
-      routes: [
+
+const router = createRouter({
+  history: createWebHistory(BASE_URL),
+  routes: [
+    {
+      path: '',
+      name: 'layout',
+      component: () => import('./layout/views/LayoutView.vue'),
+      children: [
         {
           path: '',
-          name: 'layout',
-          component: () => import('./layout/views/LayoutView.vue'),
-          children: [
-            {
-              path: '',
-              name: 'home',
-              component: () => import('./home/views/HomeView.vue')
-            }
-          ]
+          name: 'home',
+          component: () => import('./home/views/HomeView.vue')
         }
       ]
-    })
-  )
+    }
+  ]
+})
+
+const pinia = createPinia().use(({ store }) => (store.router = markRaw(router)))
+
+createApp(App)
+  .use(pinia)
+  .use(i18n)
+  .use(router)
   .use(
     createVuetify({
       blueprint: md1,
@@ -67,12 +81,14 @@ createApp(App)
   .use(
     createOAuth({
       config: {
-        // tokenPath: VITE_OAUTH_TOKEN_PATH || '/authorizationserver/oauth/token',
-        // clientId: VITE_OAUTH_CLIENT_ID || 'clientid',
-        // clientSecret: VITE_OAUTH_CLIENT_SECRET
-        issuerPath: 'http://localhost:8080/auth/realms/commerce',
-        clientId: 'spartacus',
-        logoutRedirectUri: 'http://localhost:4200'
+        issuerPath: VITE_OAUTH_ISSUER_PATH,
+        authorizePath: VITE_OAUTH_AUTHORIZE_PATH,
+        tokenPath: VITE_OAUTH_TOKEN_PATH,
+        logoutPath: VITE_OAUTH_LOGOUT_PATH,
+        logoutRedirectUri: VITE_OAUTH_LOGOUT_REDIRECT_URI,
+        clientId: VITE_OAUTH_CLIENT_ID,
+        clientSecret: VITE_OAUTH_CLIENT_SECRET,
+        scope: VITE_OAUTH_SCOPE
       }
     })
   )

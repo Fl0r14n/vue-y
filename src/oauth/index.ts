@@ -1,6 +1,7 @@
 import OAuthLogin from '@/oauth/OAuthLogin.vue'
 import { useOAuthStore } from '@/oauth/store'
 import type { App } from 'vue'
+import { ref } from 'vue'
 
 export interface ClientCredentialConfig {
   tokenPath: string
@@ -57,7 +58,7 @@ export type OAuthTypeConfig =
   | ClientCredentialConfig
 
 export interface OAuthConfig {
-  config?: OAuthTypeConfig
+  config?: Partial<OAuthTypeConfig>
   storageKey?: string
   storage?: Storage
   ignorePaths?: RegExp[]
@@ -122,6 +123,8 @@ export interface UserInfo {
   address?: object
   picture?: string
   locale?: string
+
+  [x: string]: any
 }
 
 export interface IntrospectInfo extends UserInfo {
@@ -132,15 +135,18 @@ export interface IntrospectInfo extends UserInfo {
   exp: number
 }
 
-export const oauthConfig: OAuthConfig = {
+export const oauthConfig = ref<OAuthConfig>({
   storage: localStorage,
   storageKey: 'token',
   ignorePaths: []
-}
+})
 
 export const createOAuth = (config: OAuthConfig) => {
   const install = (app: App, ...options: any[]) => {
-    Object.assign(oauthConfig, config)
+    oauthConfig.value = {
+      ...oauthConfig.value,
+      ...config
+    }
     const oauth = useOAuthStore()
     const { login, logout } = oauth
     app.provide('login', login)
