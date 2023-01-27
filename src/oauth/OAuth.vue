@@ -6,7 +6,7 @@
 
     <v-card>
       <template v-if="isAuthorized">
-        <slot name="userInfo" :user="user" :logout="logout" v-if="$slots.user" />
+        <slot name="userInfo" :user="user" :logout="signOut" v-if="$slots.user" />
         <v-list v-else>
           <v-list-item :title="user.name" :subtitle="user.email">
             <template #prepend>
@@ -19,13 +19,13 @@
         </v-list>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" variant="text" @click="logout()">{{ t('oauth.logout') }}</v-btn>
+          <v-btn color="primary" variant="text" @click="signOut()">{{ t('oauth.logout') }}</v-btn>
         </v-card-actions>
       </template>
       <template v-else>
         <template v-if="type === OAuthType.RESOURCE">
           <v-card-text class="pb-0">
-            <v-form ref="f" v-model="form.valid" lazy-validation autocomplete="on" @keyup.enter="form.valid && submit()">
+            <v-form ref="f" v-model="form.valid" lazy-validation autocomplete="on" @keyup.enter="form.valid && signIn()">
               <v-text-field
                 v-model="form.username"
                 name="username"
@@ -45,7 +45,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" variant="text" type="submit" :disabled="!form.valid" @click="submit">
+            <v-btn color="primary" variant="text" type="submit" :disabled="!form.valid" @click="signIn">
               {{ t('oauth.login') }}
             </v-btn>
           </v-card-actions>
@@ -67,17 +67,16 @@
 </template>
 
 <script setup lang="ts">
-  import { OAuthType } from '@/oauth'
-  import { useOAuthStore } from '@/oauth/store'
-  import { storeToRefs } from 'pinia'
+  import { OAuthType } from '@/oauth/models'
+  import { useOAuth, useOAuthUser } from '@/oauth/module'
   import { ref, watch } from 'vue'
   import { useI18n } from 'vue-i18n'
   import type { VForm } from 'vuetify/components'
 
   const length = 128
-
   const { t } = useI18n()
-
+  const { login, logout, isAuthorized } = useOAuth()
+  const user = useOAuthUser()
   const props = withDefaults(
     defineProps<{
       type?: OAuthType | string
@@ -91,10 +90,6 @@
       useLogoutUrl: false
     }
   )
-  const emits = defineEmits<{
-    (event: 'update-msg', msg: string): void
-  }>()
-
   const f = ref<any>()
   const menu = ref(false)
   const form = ref({
@@ -111,15 +106,14 @@
     ]
   })
 
-  const submit = () => {
+  const signIn = () => {
     let { username, password } = form.value
     login({ username, password })
     f.value.reset()
   }
 
-  const logout = () => {
+  const signOut = () => {
     menu.value = false
-    const { logout } = oauth
     logout(props.useLogoutUrl)
   }
 
@@ -127,10 +121,6 @@
     const { origin, pathname, search } = location
     return props.redirectUri || `${origin}${pathname}${search}`
   }
-
-  const oauth = useOAuthStore()
-  const { login } = oauth
-  const { isAuthorized, user } = storeToRefs(oauth)
 
   watch(
     user,

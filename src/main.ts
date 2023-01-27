@@ -1,10 +1,10 @@
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
-import { createOAuth } from '@/oauth'
 
 import '@mdi/font/scss/materialdesignicons.scss'
+import { createOAuth } from '@/oauth'
 import { createPinia } from 'pinia'
-import { createApp, markRaw } from 'vue'
+import { createApp } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createVuetify } from 'vuetify'
