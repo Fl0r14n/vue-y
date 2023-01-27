@@ -53,7 +53,7 @@ const router = createRouter({
   ]
 })
 
-const pinia = createPinia().use(({ store }) => (store.router = markRaw(router)))
+const pinia = createPinia()
 
 createApp(App)
   .use(pinia)
@@ -89,7 +89,8 @@ createApp(App)
         clientId: VITE_OAUTH_CLIENT_ID,
         clientSecret: VITE_OAUTH_CLIENT_SECRET,
         scope: VITE_OAUTH_SCOPE
-      }
+      },
+      router
     })
   )
   .mount('#app')

@@ -13,7 +13,6 @@ import type { AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios'
 import axios from 'axios'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 
 const HEADER_APPLICATION = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -258,6 +257,21 @@ export const useOAuthStore = defineStore('oauth', () => {
 
   const ignoredPaths = computed(() => oauthConfig.value.ignorePaths)
 
+  const isPathIgnored = (req: AxiosRequestConfig) => {
+    if (ignoredPaths.value) {
+      for (const ignoredPath of ignoredPaths.value) {
+        try {
+          if (req.url?.match(ignoredPath)) {
+            return true
+          }
+        } catch {
+          /* empty */
+        }
+      }
+    }
+    return false
+  }
+
   const storageKey = computed({
     get() {
       return oauthConfig.value.storageKey || 'token'
@@ -402,8 +416,8 @@ export const useOAuthStore = defineStore('oauth', () => {
       const re = new RegExp('&' + hashKey + '(=[^&]*)?|^' + hashKey + '(=[^&]*)?&?')
       searchString = searchString.replace(re, '')
     })
-    // TODO
-    // await router.push(`${pathname}${search}`)
+    const rr = oauthConfig.value.router
+    await rr.push(`${pathname}${searchString}`)
   }
 
   watch(
@@ -434,20 +448,30 @@ export const useOAuthStore = defineStore('oauth', () => {
     { immediate: true }
   )
 
-  const authInterceptor = async (req: AxiosRequestConfig) => {
-    if (isExpiredToken(token.value)) {
-      token.value = await refreshToken(token.value)
-    }
-    if (accessToken.value) {
-      req.headers = {
-        ...req.headers,
-        Authorization: accessToken.value
-      } as RawAxiosRequestHeaders
+  const authorizationInterceptor = async (req: AxiosRequestConfig) => {
+    if (!isPathIgnored(req)) {
+      if (isExpiredToken(token.value)) {
+        token.value = await refreshToken(token.value)
+      }
+      if (accessToken.value) {
+        req.headers = {
+          ...req.headers,
+          Authorization: accessToken.value
+        } as RawAxiosRequestHeaders
+      }
     }
     return req
   }
 
-  http.interceptors.request.use(authInterceptor)
+  const unauthorizedInterceptor = (error: any) => {
+    if (401 === error.response.status) {
+      token.value = error.response.data
+    }
+    return error
+  }
+
+  http.interceptors.request.use(authorizationInterceptor)
+  http.interceptors.response.use(res => res, unauthorizedInterceptor)
 
   return {
     config,
@@ -461,6 +485,7 @@ export const useOAuthStore = defineStore('oauth', () => {
     user,
     login,
     logout,
-    authInterceptor
+    authorizationInterceptor,
+    unauthorizedInterceptor
   }
 })

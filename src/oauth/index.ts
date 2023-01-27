@@ -62,6 +62,7 @@ export interface OAuthConfig {
   storageKey?: string
   storage?: Storage
   ignorePaths?: RegExp[]
+  router?: any
 
   [x: string]: any
 }
