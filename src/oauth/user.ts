@@ -25,7 +25,7 @@ const isPathIgnored = (req: AxiosRequestConfig) => {
   return false
 }
 
-const http = axios.create({
+export const http = axios.create({
   headers: HEADER_JSON
 })
 

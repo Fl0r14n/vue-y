@@ -3,14 +3,15 @@ import type { OAuthConfig, OAuthParameters, OAuthStatus, OAuthToken, OAuthType, 
 import { login, logout } from '@/oauth/oauth'
 import OAuthLogin from '@/oauth/OAuth.vue'
 import { accessToken, isAuthorized, isExpired, status, storageKey, token, type } from '@/oauth/token'
-import { authorizationInterceptor, unauthorizedInterceptor, user } from '@/oauth/user'
-import type { AxiosRequestConfig } from 'axios'
+import { authorizationInterceptor, http, unauthorizedInterceptor, user } from '@/oauth/user'
+import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import type { App, ComputedRef, InjectionKey, WritableComputedRef } from 'vue'
 import { inject } from 'vue'
 
 export const OAUTH_CONFIG = Symbol('OAuthConfig') as InjectionKey<OAuthConfig>
 export const OAUTH_TOKEN = Symbol('OAuthToken') as InjectionKey<OAuthToken>
 export const OAUTH_USER = Symbol('OAuthUser') as InjectionKey<UserInfo>
+export const OAUTH_HTTP = Symbol('OAuthHttp') as InjectionKey<AxiosInstance>
 export const OAUTH_INTERCEPTORS = Symbol('OAuthInterceptors') as InjectionKey<{
   authorizationInterceptor: (req: AxiosRequestConfig<any>) => Promise<AxiosRequestConfig<any>>
   unauthorizedInterceptor: (error: any) => any
@@ -36,6 +37,7 @@ export const createOAuth = (cfg: OAuthConfig) => {
     app.provide(OAUTH_CONFIG, oauthConfig)
     app.provide(OAUTH_TOKEN, token)
     app.provide(OAUTH_USER, user)
+    app.provide(OAUTH_HTTP, http)
     app.provide(OAUTH_INTERCEPTORS, {
       authorizationInterceptor,
       unauthorizedInterceptor
@@ -52,6 +54,7 @@ export const createOAuth = (cfg: OAuthConfig) => {
       login,
       logout
     })
+    app.provide('http', http)
     app.provide('login', login)
     app.provide('logout', logout)
     app.component('v-oauth', OAuthLogin)
@@ -62,5 +65,6 @@ export const createOAuth = (cfg: OAuthConfig) => {
 export const useOAuthConfig = () => inject(OAUTH_CONFIG)!
 export const useOAuthToken = () => inject(OAUTH_TOKEN)!
 export const useOAuthUser = () => inject(OAUTH_USER)!
+export const useOAuthHttp = () => inject(OAUTH_HTTP)!
 export const useOAuthInterceptors = () => inject(OAUTH_INTERCEPTORS)!
 export const useOAuth = () => inject(OAUTH)!
