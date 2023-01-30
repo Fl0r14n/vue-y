@@ -5,12 +5,12 @@ import OAuthLogin from '@/oauth/OAuth.vue'
 import { accessToken, isAuthorized, isExpired, status, storageKey, token, type } from '@/oauth/token'
 import { authorizationInterceptor, http, unauthorizedInterceptor, user } from '@/oauth/user'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
-import type { App, ComputedRef, InjectionKey, WritableComputedRef } from 'vue'
+import type { App, ComputedRef, InjectionKey, Ref, WritableComputedRef } from 'vue'
 import { inject } from 'vue'
 
-export const OAUTH_CONFIG = Symbol('OAuthConfig') as InjectionKey<OAuthConfig>
-export const OAUTH_TOKEN = Symbol('OAuthToken') as InjectionKey<OAuthToken>
-export const OAUTH_USER = Symbol('OAuthUser') as InjectionKey<UserInfo>
+export const OAUTH_CONFIG = Symbol('OAuthConfig') as InjectionKey<Ref<OAuthConfig>>
+export const OAUTH_TOKEN = Symbol('OAuthToken') as InjectionKey<Ref<OAuthToken>>
+export const OAUTH_USER = Symbol('OAuthUser') as InjectionKey<Ref<UserInfo>>
 export const OAUTH_HTTP = Symbol('OAuthHttp') as InjectionKey<AxiosInstance>
 export const OAUTH_INTERCEPTORS = Symbol('OAuthInterceptors') as InjectionKey<{
   authorizationInterceptor: (req: AxiosRequestConfig<any>) => Promise<AxiosRequestConfig<any>>

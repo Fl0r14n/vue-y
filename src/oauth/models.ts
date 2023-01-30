@@ -84,7 +84,6 @@ export interface OAuthToken {
   nonce?: string
   type?: OAuthType
   expires?: number
-
   code?: string
 
   [x: string]: any
