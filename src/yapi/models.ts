@@ -169,6 +169,8 @@ export interface RequestData {
   curr?: string
   lang?: string
   fields?: FieldLevelMapping | string
+
+  [x: string]: any
 }
 
 export interface PageableRequestData extends RequestData {
