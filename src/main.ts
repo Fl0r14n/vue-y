@@ -1,8 +1,9 @@
+import { createY } from '@/api'
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
+import type { Config } from '@/api/config'
 
 import '@mdi/font/scss/materialdesignicons.scss'
-import { createOAuth } from '@/oauth'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'
@@ -26,15 +27,6 @@ const {
   VITE_OAUTH_SCOPE
 } = import.meta.env
 
-const i18n = createI18n({
-  legacy: false,
-  fallbackLocale: 'en',
-  messages: {
-    en,
-    de
-  }
-})
-
 const router = createRouter({
   history: createWebHistory(BASE_URL),
   routes: [
@@ -51,6 +43,32 @@ const router = createRouter({
       ]
     }
   ]
+})
+
+const config: Config = {
+  oauth: {
+    config: {
+      issuerPath: VITE_OAUTH_ISSUER_PATH,
+      authorizePath: VITE_OAUTH_AUTHORIZE_PATH,
+      tokenPath: VITE_OAUTH_TOKEN_PATH,
+      logoutPath: VITE_OAUTH_LOGOUT_PATH,
+      logoutRedirectUri: VITE_OAUTH_LOGOUT_REDIRECT_URI,
+      clientId: VITE_OAUTH_CLIENT_ID,
+      clientSecret: VITE_OAUTH_CLIENT_SECRET,
+      scope: VITE_OAUTH_SCOPE
+    },
+    router
+  },
+  i18n: {
+    en,
+    de
+  }
+}
+
+const i18n = createI18n({
+  legacy: false,
+  fallbackLocale: 'en',
+  messages: config.i18n
 })
 
 const pinia = createPinia()
@@ -78,19 +96,5 @@ createApp(App)
       }
     })
   )
-  .use(
-    createOAuth({
-      config: {
-        issuerPath: VITE_OAUTH_ISSUER_PATH,
-        authorizePath: VITE_OAUTH_AUTHORIZE_PATH,
-        tokenPath: VITE_OAUTH_TOKEN_PATH,
-        logoutPath: VITE_OAUTH_LOGOUT_PATH,
-        logoutRedirectUri: VITE_OAUTH_LOGOUT_REDIRECT_URI,
-        clientId: VITE_OAUTH_CLIENT_ID,
-        clientSecret: VITE_OAUTH_CLIENT_SECRET,
-        scope: VITE_OAUTH_SCOPE
-      },
-      router
-    })
-  )
+  .use(createY(config))
   .mount('#app')
