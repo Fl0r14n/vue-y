@@ -1,4 +1,3 @@
-import { createOAuth } from '@/oauth'
 import type {
   ApiConfig,
   AsmConfig,
@@ -25,26 +24,29 @@ import {
   i18nConfig,
   localeConfig,
   mediaConfig,
+  mergeDeep,
   siteConfig
 } from '@/api/config'
+import { createOAuth } from '@/oauth'
 import type { App, InjectionKey, Ref, WritableComputedRef } from 'vue'
 import { inject } from 'vue'
 
 export const CONFIG = Symbol('Config') as InjectionKey<Ref<Config>>
-export const AUTH_CONFIG = Symbol('AuthConfig') as InjectionKey<WritableComputedRef<AuthConfig>>
-export const SITE_CONFIG = Symbol('SiteConfig') as InjectionKey<WritableComputedRef<SiteConfig>>
-export const API_CONFIG = Symbol('ApiConfig') as InjectionKey<WritableComputedRef<ApiConfig>>
-export const MEDIA_CONFIG = Symbol('MediaConfig') as InjectionKey<WritableComputedRef<MediaConfig>>
-export const CART_CONFIG = Symbol('CartConfig') as InjectionKey<WritableComputedRef<CartConfig>>
-export const CHECKOUT_CONFIG = Symbol('CheckoutConfig') as InjectionKey<WritableComputedRef<CheckoutConfig>>
-export const LOCALE_CONFIG = Symbol('LocaleConfig') as InjectionKey<WritableComputedRef<LocaleConfig>>
-export const I18N_CONFIG = Symbol('I18nConfig') as InjectionKey<WritableComputedRef<I18nConfig>>
-export const ASM_CONFIG = Symbol('AsmConfig') as InjectionKey<WritableComputedRef<AsmConfig>>
-export const CMS_CONFIG = Symbol('CmsConfig') as InjectionKey<WritableComputedRef<CmsConfig>>
-export const CACHE_CONFIG = Symbol('CacheConfig') as InjectionKey<WritableComputedRef<CacheConfig>>
+export const AUTH_CONFIG = Symbol('AuthConfig') as InjectionKey<WritableComputedRef<AuthConfig['oauth']>>
+export const SITE_CONFIG = Symbol('SiteConfig') as InjectionKey<WritableComputedRef<SiteConfig['site']>>
+export const API_CONFIG = Symbol('ApiConfig') as InjectionKey<WritableComputedRef<ApiConfig['api']>>
+export const MEDIA_CONFIG = Symbol('MediaConfig') as InjectionKey<WritableComputedRef<MediaConfig['media']>>
+export const CART_CONFIG = Symbol('CartConfig') as InjectionKey<WritableComputedRef<CartConfig['cart']>>
+export const CHECKOUT_CONFIG = Symbol('CheckoutConfig') as InjectionKey<WritableComputedRef<CheckoutConfig['checkout']>>
+export const LOCALE_CONFIG = Symbol('LocaleConfig') as InjectionKey<WritableComputedRef<LocaleConfig['locale']>>
+export const I18N_CONFIG = Symbol('I18nConfig') as InjectionKey<WritableComputedRef<I18nConfig['i18n']>>
+export const ASM_CONFIG = Symbol('AsmConfig') as InjectionKey<WritableComputedRef<AsmConfig['asm']>>
+export const CMS_CONFIG = Symbol('CmsConfig') as InjectionKey<WritableComputedRef<CmsConfig['cms']>>
+export const CACHE_CONFIG = Symbol('CacheConfig') as InjectionKey<WritableComputedRef<CacheConfig['cache']>>
 
 export const createY = (cfg: Config) => {
   const install = (app: App) => {
+    config.value = mergeDeep(config.value, cfg)
     app.provide(CONFIG, config)
     app.provide(AUTH_CONFIG, authConfig)
     app.provide(SITE_CONFIG, siteConfig)

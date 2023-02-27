@@ -1,6 +1,7 @@
-import { OAuthType, useOAuthHttp, useOAuthToken } from '@/oauth'
 import { SiteChannel, UserType } from '@/api/models'
-import { useConfig } from '@/api/module'
+import { useApiConfig, useConfig, useSiteConfig } from '@/api/module'
+import { OAuthType, useOAuthHttp, useOAuthToken } from '@/oauth'
+import { computed, ref } from 'vue'
 
 export interface RequestOptions {
   params?: object
@@ -10,6 +11,100 @@ export interface RequestOptions {
 }
 
 const capitalize = (s: string) => s.replace(/^\w/, c => c.toUpperCase())
+
+export const useRestClient = () => {
+  const http = useOAuthHttp()
+  const site = useSiteConfig()
+  const api = useApiConfig()
+  const basePath = computed(() => `${api.value?.host}${api.value?.path}`)
+  const siteId = computed(() => site.value?.uid)
+  const sitePath = computed(() => `${basePath.value}/${siteId.value}`)
+  const endpoint = ref<string>('')
+  const isB2B = computed(() => site.value?.channel === SiteChannel.B2B)
+  const orgPrefix = (endpoint: string) => (api.value?.overlappingPaths && `org${capitalize(endpoint)}`) || endpoint
+
+  const query = <T>(options?: RequestOptions) => {
+    return http
+      .get<T>(endpoint.value, options)
+      .catch(err => err.response)
+      .then(r => r.data)
+  }
+
+  const get = <T>(id: number | string, options?: RequestOptions) => {
+    return http
+      .get<T>(`${endpoint.value}/${id}`, options)
+      .catch(err => err.response)
+      .then(r => r.data)
+  }
+
+  const head = <T>(id: number | string, options?: RequestOptions) => {
+    return http
+      .head<T>(`${endpoint.value}/${id}`, options)
+      .catch(err => err.response)
+      .then(r => r.data)
+  }
+
+  const postAt = <T>(id: number | string, body: any, options?: RequestOptions) => {
+    return http
+      .post<T>(`${endpoint.value}/${id}`, body, options)
+      .catch(err => err.response)
+      .then(r => r.data)
+  }
+
+  const post = <T>(body: any, options?: RequestOptions) => {
+    return http
+      .post<T>(endpoint.value, body, options)
+      .catch(err => err.response)
+      .then(r => r.data)
+  }
+
+  const put = <T>(id: number | string, body: any, options?: RequestOptions) => {
+    return http
+      .put<T>(`${endpoint.value}/${id}`, body, options)
+      .catch(err => err.response)
+      .then(r => r.data)
+  }
+
+  const patch = <T>(id: number | string, body: any, options?: RequestOptions) => {
+    return http
+      .patch<T>(`${endpoint.value}/${id}`, body, options)
+      .catch(err => err.response)
+      .then(r => r.data)
+  }
+
+  const del = <T>(id: number | string, options?: RequestOptions) => {
+    return http
+      .delete<T>(`${endpoint.value}/${id}`, options)
+      .catch(err => err.response)
+      .then(r => r.data)
+  }
+
+  return {
+    endpoint,
+    basePath,
+    siteId,
+    sitePath,
+    isB2B,
+    orgPrefix,
+    query,
+    get,
+    post,
+    postAt,
+    put,
+    patch,
+    del
+  }
+}
+
+export const useAuthRestClient = () => {
+  const token = useOAuthToken()
+  const isLoggedIn = computed(() => {
+    const { type, access_token } = token.value
+    return (access_token && type === OAuthType.RESOURCE) || type === OAuthType.IMPLICIT || type === OAuthType.AUTHORIZATION_CODE
+  })
+  const customerId = computed(() => token.value.asagent && (token.value.customerId || UserType.ANONYMOUS))
+  const userPath = computed(() => (isLoggedIn.value && (customerId.value || UserType.USER)) || UserType.ANONYMOUS)
+}
 
 export abstract class RestClient {
   protected http = useOAuthHttp()

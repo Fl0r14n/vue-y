@@ -211,24 +211,43 @@ export const config = ref<Config>({
   ...defaultCacheConfig
 })
 
+export const isObject = (item: any): boolean => item && typeof item === 'object' && !Array.isArray(item)
+export const mergeDeep = (target: any, source: any) => {
+  const output = Object.assign({}, target)
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      if (isObject(source[key])) {
+        if (!(key in target)) {
+          Object.assign(output, { [key]: source[key] })
+        } else {
+          output[key] = mergeDeep(target[key], source[key])
+        }
+      } else {
+        Object.assign(output, { [key]: source[key] })
+      }
+    })
+  }
+  return output
+}
+
 export const partialConfig = <T>(property: string) =>
   computed({
     get() {
       return config.value[property] as T
     },
     set(cfg) {
-      cfg && (config.value[property] = cfg)
+      cfg && (config.value[property] = mergeDeep(config.value[property], cfg))
     }
   })
 
-export const authConfig = partialConfig<AuthConfig>('oauth')
-export const siteConfig = partialConfig<SiteConfig>('site')
-export const apiConfig = partialConfig<ApiConfig>('api')
-export const mediaConfig = partialConfig<MediaConfig>('media')
-export const cartConfig = partialConfig<CartConfig>('cart')
-export const checkoutConfig = partialConfig<CheckoutConfig>('checkout')
-export const localeConfig = partialConfig<LocaleConfig>('locale')
-export const i18nConfig = partialConfig<I18nConfig>('i18n')
-export const asmConfig = partialConfig<AsmConfig>('asm')
-export const cmsConfig = partialConfig<CmsConfig>('cms')
-export const cacheConfig = partialConfig<CacheConfig>('cache')
+export const authConfig = partialConfig<AuthConfig['oauth']>('oauth')
+export const siteConfig = partialConfig<SiteConfig['site']>('site')
+export const apiConfig = partialConfig<ApiConfig['api']>('api')
+export const mediaConfig = partialConfig<MediaConfig['media']>('media')
+export const cartConfig = partialConfig<CartConfig['cart']>('cart')
+export const checkoutConfig = partialConfig<CheckoutConfig['checkout']>('checkout')
+export const localeConfig = partialConfig<LocaleConfig['locale']>('locale')
+export const i18nConfig = partialConfig<I18nConfig['i18n']>('i18n')
+export const asmConfig = partialConfig<AsmConfig['asm']>('asm')
+export const cmsConfig = partialConfig<CmsConfig['cms']>('cms')
+export const cacheConfig = partialConfig<CacheConfig['cache']>('cache')

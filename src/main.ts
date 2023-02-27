@@ -59,6 +59,9 @@ const config: Config = {
     },
     router
   },
+  api: {
+    host: 'https://localhost:9002'
+  },
   i18n: {
     en,
     de
