@@ -1,3 +1,4 @@
+import { createBaseSiteApi } from '@/api/base'
 import type {
   ApiConfig,
   AsmConfig,
@@ -60,6 +61,8 @@ export const createY = (cfg: Config) => {
     app.provide(CMS_CONFIG, cmsConfig)
     app.provide(CACHE_CONFIG, cacheConfig)
     cfg.oauth && app.use(createOAuth(cfg.oauth))
+
+    app.use(createBaseSiteApi())
   }
   return { install }
 }

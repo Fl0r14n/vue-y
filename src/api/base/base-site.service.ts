@@ -1,8 +1,14 @@
 import { useRestClient } from '@/api'
 import type { BaseSiteListData, RequestData } from '@/api/models'
 import { useOAuth } from '@/oauth'
+import type { App } from 'vue'
+import { inject } from 'vue'
 
-export const useBaseSiteApi = () => {
+export abstract class BaseSiteApi {
+  getBaseSites!: (queryParams?: RequestData) => Promise<BaseSiteListData>
+}
+
+const baseSiteApi = (): BaseSiteApi => {
   const rest = useRestClient()
   const oauth = useOAuth()
   rest.endpoint.value = `${rest.basePath.value}/basesites`
@@ -16,6 +22,16 @@ export const useBaseSiteApi = () => {
     getBaseSites
   }
 }
+
+export const createBaseSiteApi = () => ({
+  install(app: App) {
+    console.log('HERE')
+    app.provide(BaseSiteApi.name, baseSiteApi())
+    console.log(app)
+  }
+})
+
+export const useBaseSiteApi = () => inject<BaseSiteApi>(BaseSiteApi.name)!
 
 // export class BaseSiteService extends RestClient {
 //   // oauth = useOAuth()
