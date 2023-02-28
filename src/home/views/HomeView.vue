@@ -1,8 +1,10 @@
 <template>HomePage {{ $t('common.cancel') }}</template>
 
 <script setup lang="ts">
-  import { useBaseSiteApi } from '@/api/base'
+  import { useBaseSiteResource, useBaseStoreResource } from '@/api/base'
 
-  const siteApi = useBaseSiteApi()
-  siteApi.getBaseSites().then(s => console.log(s))
+  const siteResource = useBaseSiteResource()
+  const storeResource = useBaseStoreResource()
+  const sites = await siteResource.getBaseSites()
+  const stores = await storeResource.getBaseStore(sites.baseSites[0].uid)
 </script>

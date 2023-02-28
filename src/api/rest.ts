@@ -1,5 +1,5 @@
+import { useApiConfig, useConfig, useSiteConfig } from '@/api/config'
 import { SiteChannel, UserType } from '@/api/models'
-import { useApiConfig, useConfig, useSiteConfig } from '@/api/module'
 import { OAuthType, useOAuthHttp, useOAuthToken } from '@/oauth'
 import { computed, ref } from 'vue'
 
@@ -16,7 +16,7 @@ export const useRestClient = () => {
   const http = useOAuthHttp()
   const site = useSiteConfig()
   const api = useApiConfig()
-  console.log(http, site, api)
+  const host = computed(() => api.value?.host)
   const basePath = computed(() => `${api.value?.host}${api.value?.path}`)
   const siteId = computed(() => site.value?.uid)
   const sitePath = computed(() => `${basePath.value}/${siteId.value}`)
@@ -73,6 +73,7 @@ export const useRestClient = () => {
   }
   return {
     endpoint,
+    host,
     basePath,
     siteId,
     sitePath,
@@ -113,7 +114,9 @@ export abstract class RestClient {
   abstract getEndpoint(options?: RequestOptions): string
 
   get basePath() {
+    console.log(this.config.value)
     const { api } = this.config.value
+    console.log(api)
     return `${api?.host}${api?.path}/${this.siteId}`
   }
 

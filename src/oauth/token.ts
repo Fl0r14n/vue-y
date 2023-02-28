@@ -21,7 +21,7 @@ const setToken = (token: OAuthToken) => {
 
 const isExpiredToken = (token?: OAuthToken) => (token && token.expires && Date.now() > token.expires) || false
 
-export const token = ref<OAuthToken | undefined>(getToken())
+export const token = ref<OAuthToken>(getToken())
 
 watch(token, t => {
   const expiresIn = Number(t?.expires_in) || 0

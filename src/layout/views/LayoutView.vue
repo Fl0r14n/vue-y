@@ -29,7 +29,9 @@
     </v-navigation-drawer>
     <v-main>
       <v-container>
-        <RouterView />
+        <suspense>
+          <RouterView />
+        </suspense>
       </v-container>
     </v-main>
     <v-footer border style="flex: none">

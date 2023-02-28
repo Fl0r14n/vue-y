@@ -1,5 +1,5 @@
-import type { OAuthConfig } from '@/oauth'
 import type { BaseSiteData, CMSPageData, ComponentData, PageType, ProductData } from '@/api/models'
+import type { OAuthConfig } from '@/oauth'
 import { computed, ref } from 'vue'
 
 export interface AuthConfig {
@@ -198,7 +198,7 @@ export interface Config
   [x: string]: any
 }
 
-export const config = ref<Config>({
+const config = ref<Config>({
   production: false,
   ...defaultApiConfig,
   ...defaultMediaConfig,
@@ -230,7 +230,7 @@ export const mergeDeep = (target: any, source: any) => {
   return output
 }
 
-export const partialConfig = <T>(property: string) =>
+const partialConfig = <T>(property: string) =>
   computed({
     get() {
       return config.value[property] as T
@@ -240,14 +240,23 @@ export const partialConfig = <T>(property: string) =>
     }
   })
 
-export const authConfig = partialConfig<AuthConfig['oauth']>('oauth')
-export const siteConfig = partialConfig<SiteConfig['site']>('site')
-export const apiConfig = partialConfig<ApiConfig['api']>('api')
-export const mediaConfig = partialConfig<MediaConfig['media']>('media')
-export const cartConfig = partialConfig<CartConfig['cart']>('cart')
-export const checkoutConfig = partialConfig<CheckoutConfig['checkout']>('checkout')
-export const localeConfig = partialConfig<LocaleConfig['locale']>('locale')
-export const i18nConfig = partialConfig<I18nConfig['i18n']>('i18n')
-export const asmConfig = partialConfig<AsmConfig['asm']>('asm')
-export const cmsConfig = partialConfig<CmsConfig['cms']>('cms')
-export const cacheConfig = partialConfig<CacheConfig['cache']>('cache')
+export const useConfig = () =>
+  computed({
+    get() {
+      return config.value
+    },
+    set(cfg) {
+      cfg && (config.value = mergeDeep(config.value, cfg))
+    }
+  })
+export const useAuthConfig = () => partialConfig<AuthConfig['oauth']>('oauth')
+export const useSiteConfig = () => partialConfig<SiteConfig['site']>('site')
+export const useApiConfig = () => partialConfig<ApiConfig['api']>('api')
+export const useMediaConfig = () => partialConfig<MediaConfig['media']>('media')
+export const useCartConfig = () => partialConfig<CartConfig['cart']>('cart')
+export const useCheckoutConfig = () => partialConfig<CheckoutConfig['checkout']>('checkout')
+export const useLocaleConfig = () => partialConfig<LocaleConfig['locale']>('locale')
+export const useI18nConfig = () => partialConfig<I18nConfig['i18n']>('i18n')
+export const useAsmConfig = () => partialConfig<AsmConfig['asm']>('asm')
+export const useCmsConfig = () => partialConfig<CmsConfig['cms']>('cms')
+export const useCacheConfig = () => partialConfig<CacheConfig['cache']>('cache')
