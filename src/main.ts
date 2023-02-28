@@ -4,6 +4,7 @@ import { en } from '@/i18n/en'
 import type { Config } from '@/api/config'
 
 import '@mdi/font/scss/materialdesignicons.scss'
+import { siteGuard, useLocaleStore, useSiteStore } from '@/layout/store'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'
@@ -34,6 +35,7 @@ const router = createRouter({
       path: '',
       name: 'layout',
       component: () => import('./layout/views/LayoutView.vue'),
+      beforeEnter: siteGuard,
       children: [
         {
           path: '',
@@ -44,6 +46,8 @@ const router = createRouter({
     }
   ]
 })
+
+// router.beforeEach(siteGuard)
 
 const config: Config = {
   oauth: {

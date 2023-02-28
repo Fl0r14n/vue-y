@@ -8,7 +8,6 @@ import type {
   TitleListData
 } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import type { App } from 'vue'
 import { inject } from 'vue'
 
 export abstract class MiscResource {
@@ -33,10 +32,4 @@ const miscResource = (): MiscResource => {
   }
 }
 
-export const createMiscResource = () => ({
-  install(app: App) {
-    app.provide(MiscResource.name, miscResource())
-  }
-})
-
-export const useMiscResource = () => inject<MiscResource>(MiscResource.name)!
+export const useMiscResource = () => inject<MiscResource>(MiscResource.name, miscResource())!

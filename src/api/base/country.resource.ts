@@ -1,6 +1,5 @@
 import type { CountryDestinationType, CountryListData, RegionListData, RequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import type { App } from 'vue'
 import { inject } from 'vue'
 
 export abstract class CountryResource {
@@ -18,10 +17,4 @@ const countryResource = (): CountryResource => {
   }
 }
 
-export const createCountryResource = () => ({
-  install(app: App) {
-    app.provide(CountryResource.name, countryResource())
-  }
-})
-
-export const useCountryResource = () => inject<CountryResource>(CountryResource.name)!
+export const useCountryResource = () => inject<CountryResource>(CountryResource.name, countryResource())!

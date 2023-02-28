@@ -198,6 +198,13 @@ export interface ComponentRequestData {
   productCode?: string
 }
 
+export interface CmsPageRequestData extends RequestData {
+  code?: string
+  pageLabelOrId?: string
+  pageType?: PageType
+  cmsTicketId?: string
+}
+
 export interface PageableResponseData {
   pagination?: PaginationData
 }

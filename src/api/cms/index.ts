@@ -1,5 +1,5 @@
 /**
  * requires cmsocc extension
  */
-export * from './component.service'
-export * from './page.service'
+export * from './component.resource'
+export * from './page.resource'

@@ -1,6 +1,5 @@
 import type { PaymentModeListData, RequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import type { App } from 'vue'
 import { inject } from 'vue'
 
 export abstract class PaymentModesResource {
@@ -15,10 +14,4 @@ const paymentModesResource = (): PaymentModesResource => {
   }
 }
 
-export const createPaymentModesResource = () => ({
-  install(app: App) {
-    app.provide(PaymentModesResource.name, paymentModesResource())
-  }
-})
-
-export const usePaymentModesResource = () => inject<PaymentModesResource>(PaymentModesResource.name)!
+export const usePaymentModesResource = () => inject<PaymentModesResource>(PaymentModesResource.name, paymentModesResource())!

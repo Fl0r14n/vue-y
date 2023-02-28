@@ -1,6 +1,6 @@
 import type { BaseSiteData, CMSPageData, ComponentData, PageType, ProductData } from '@/api/models'
 import type { OAuthConfig } from '@/oauth'
-import { computed, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 
 export interface AuthConfig {
   oauth?: OAuthConfig
@@ -260,3 +260,27 @@ export const useI18nConfig = () => partialConfig<I18nConfig['i18n']>('i18n')
 export const useAsmConfig = () => partialConfig<AsmConfig['asm']>('asm')
 export const useCmsConfig = () => partialConfig<CmsConfig['cms']>('cms')
 export const useCacheConfig = () => partialConfig<CacheConfig['cache']>('cache')
+
+export class LocaleContextMapper {
+  toStorefrontUrlSegment(context: LocaleConfig['locale']) {
+    return context?.storefront || ''
+  }
+
+  toLanguageUrlSegment(context: LocaleConfig['locale']) {
+    return context?.language || ''
+  }
+
+  toCurrencyUrlSegment(context: LocaleConfig['locale']) {
+    return context?.currency || ''
+  }
+
+  fromLanguageUrlSegment(context: LocaleConfig['locale'], urlSegment?: string) {
+    return urlSegment
+  }
+
+  fromCurrencyUrlSegment(context: LocaleConfig['locale'], urlSegment?: string) {
+    return urlSegment
+  }
+}
+
+export const useLocaleContextMapper = () => inject(LocaleContextMapper.name, new LocaleContextMapper())

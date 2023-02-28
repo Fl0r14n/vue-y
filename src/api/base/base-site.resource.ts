@@ -1,7 +1,6 @@
 import { useRestClient } from '@/api'
 import type { BaseSiteListData, RequestData } from '@/api/models'
 import { useOAuth } from '@/oauth'
-import type { App } from 'vue'
 import { inject } from 'vue'
 
 export abstract class BaseSiteResource {
@@ -19,10 +18,4 @@ const baseSiteResource = (): BaseSiteResource => {
   }
 }
 
-export const createBaseSiteResource = () => ({
-  install(app: App) {
-    app.provide(BaseSiteResource.name, baseSiteResource())
-  }
-})
-
-export const useBaseSiteResource = () => inject<BaseSiteResource>(BaseSiteResource.name)!
+export const useBaseSiteResource = () => inject<BaseSiteResource>(BaseSiteResource.name, baseSiteResource())!

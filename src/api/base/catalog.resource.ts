@@ -7,7 +7,6 @@ import type {
   RequestData
 } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import type { App } from 'vue'
 import { inject } from 'vue'
 
 export abstract class CatalogResource {
@@ -35,10 +34,4 @@ const catalogResource = (): CatalogResource => {
   }
 }
 
-export const createCatalogResource = () => ({
-  install(app: App) {
-    app.provide(CatalogResource.name, catalogResource())
-  }
-})
-
-export const useCatalogResource = () => inject<CatalogResource>(CatalogResource.name)!
+export const useCatalogResource = () => inject<CatalogResource>(CatalogResource.name, catalogResource())!
