@@ -1,13 +1,21 @@
 import type { BaseSiteData, CMSPageData, ComponentData, PageType, ProductData } from '@/api/models'
 import type { OAuthConfig } from '@/oauth'
-import { computed, inject, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 export interface AuthConfig {
   oauth?: OAuthConfig
 }
 
+const defaultAuthConfig: AuthConfig = {
+  oauth: {}
+}
+
 export interface SiteConfig {
   site?: BaseSiteData
+}
+
+const defaultSiteConfig: SiteConfig = {
+  site: {} as any
 }
 
 export interface ApiConfig {
@@ -181,6 +189,14 @@ const defaultCacheConfig: CacheConfig = {
   }
 }
 
+export interface ProviderConfig {
+  providers?: Record<string, any>
+}
+
+const defaultProviderConfig: ProviderConfig = {
+  providers: {}
+}
+
 export interface Config
   extends AuthConfig,
     SiteConfig,
@@ -192,7 +208,8 @@ export interface Config
     I18nConfig,
     AsmConfig,
     CmsConfig,
-    CacheConfig {
+    CacheConfig,
+    ProviderConfig {
   production?: boolean
 
   [x: string]: any
@@ -200,6 +217,8 @@ export interface Config
 
 const config = ref<Config>({
   production: false,
+  ...defaultAuthConfig,
+  ...defaultSiteConfig,
   ...defaultApiConfig,
   ...defaultMediaConfig,
   ...defaultCartConfig,
@@ -208,7 +227,8 @@ const config = ref<Config>({
   ...defaultI18nConfig,
   ...defaultAsmConfig,
   ...defaultCmsConfig,
-  ...defaultCacheConfig
+  ...defaultCacheConfig,
+  ...defaultProviderConfig
 })
 
 export const isObject = (item: any): boolean => item && typeof item === 'object' && !Array.isArray(item)
@@ -260,6 +280,43 @@ export const useI18nConfig = () => partialConfig<I18nConfig['i18n']>('i18n')
 export const useAsmConfig = () => partialConfig<AsmConfig['asm']>('asm')
 export const useCmsConfig = () => partialConfig<CmsConfig['cms']>('cms')
 export const useCacheConfig = () => partialConfig<CacheConfig['cache']>('cache')
+export const useProviderConfig = () => partialConfig<ProviderConfig['providers']>('providers')
+
+export declare interface AbstractType<T> extends Function {
+  prototype: T
+}
+
+export declare interface Type<T> extends Function {
+  new?(...args: any[]): T
+}
+
+export declare type ProviderToken<T> = Type<T> | AbstractType<T> | string
+
+const injectionKey = <T>(key: ProviderToken<T>) => (typeof key === 'string' && key) || (key as any).name
+
+export const provide = <T>(key: ProviderToken<T>, value: T) => {
+  const providers = useProviderConfig()
+  const providerKey = injectionKey(key)
+  if (providerKey && providers.value) {
+    providers.value[providerKey] = value
+  }
+}
+
+export const inject = <T>(key: ProviderToken<T>, defaultValue?: T): T => {
+  const providers = useProviderConfig()
+  const providerKey = injectionKey(key)
+  let result
+  if (providerKey && providers.value) {
+    const value = providers.value[providerKey]
+    if (!value && defaultValue) {
+      provide(key, defaultValue)
+      result = inject<T>(key)
+    } else {
+      result = value
+    }
+  }
+  return result as T
+}
 
 export class LocaleContextMapper {
   toStorefrontUrlSegment(context: LocaleConfig['locale']) {
@@ -283,4 +340,4 @@ export class LocaleContextMapper {
   }
 }
 
-export const useLocaleContextMapper = () => inject(LocaleContextMapper.name, new LocaleContextMapper())
+export const useLocaleContextMapper = () => inject(LocaleContextMapper, new LocaleContextMapper())

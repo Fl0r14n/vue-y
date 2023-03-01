@@ -1,6 +1,6 @@
+import { inject } from '@/api'
 import type { BaseStoreData, RequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import { inject } from 'vue'
 
 export abstract class BaseStoreResource {
   getBaseStore!: (uid: string, queryParams?: RequestData) => Promise<BaseStoreData>
@@ -15,4 +15,4 @@ const baseStoreResource = (): BaseStoreResource => {
   }
 }
 
-export const useBaseStoreResource = () => inject<BaseStoreResource>(BaseStoreResource.name, baseStoreResource())!
+export const useBaseStoreResource = () => inject(BaseStoreResource, baseStoreResource())

@@ -1,3 +1,4 @@
+import { inject } from '@/api'
 import type {
   CatalogData,
   CatalogListData,
@@ -7,7 +8,6 @@ import type {
   RequestData
 } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import { inject } from 'vue'
 
 export abstract class CatalogResource {
   getCatalogs!: (queryParams?: RequestData) => Promise<CatalogListData>
@@ -34,4 +34,4 @@ const catalogResource = (): CatalogResource => {
   }
 }
 
-export const useCatalogResource = () => inject<CatalogResource>(CatalogResource.name, catalogResource())!
+export const useCatalogResource = () => inject(CatalogResource, catalogResource())

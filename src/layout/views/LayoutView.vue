@@ -11,7 +11,7 @@
           :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           @click="theme = theme === 'light' ? 'dark' : 'light'"></v-btn>
         <v-btn icon="mdi-dots-vertical"></v-btn>
-        <v-oauth :state="'somme_dummy_state'" :type="OAuthType.RESOURCE" :use-logout-url="true" :responseType="responseType" />
+        <v-oauth :state="'somme_dummy_state'" :type="type" :use-logout-url="true" :responseType="responseType" />
       </template>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" location="bottom" v-if="mdAndDown">
@@ -29,9 +29,7 @@
     </v-navigation-drawer>
     <v-main>
       <v-container>
-        <suspense>
-          <RouterView />
-        </suspense>
+        <RouterView />
       </v-container>
     </v-main>
     <v-footer border style="flex: none">
@@ -50,6 +48,7 @@
   import { ref } from 'vue'
   import { useDisplay, useTheme } from 'vuetify'
 
+  const type = OAuthType.RESOURCE
   // const responseType = 'code token id_token'
   const responseType = 'code'
 

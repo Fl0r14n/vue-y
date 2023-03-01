@@ -1,12 +1,12 @@
 import { createY } from '@/api'
+import type { Config } from '@/api/config'
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
-import type { Config } from '@/api/config'
+import { siteGuard } from '@/layout/store'
 
 import '@mdi/font/scss/materialdesignicons.scss'
-import { siteGuard, useLocaleStore, useSiteStore } from '@/layout/store'
 import { createPinia } from 'pinia'
-import { createApp } from 'vue'
+import { createApp, markRaw } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createVuetify } from 'vuetify'
@@ -47,9 +47,10 @@ const router = createRouter({
   ]
 })
 
-// router.beforeEach(siteGuard)
-
 const config: Config = {
+  // site: {
+  //   uid: 'electronics-spa'
+  // },
   oauth: {
     config: {
       issuerPath: VITE_OAUTH_ISSUER_PATH,
@@ -78,7 +79,9 @@ const i18n = createI18n({
   messages: config.i18n
 })
 
-const pinia = createPinia()
+const pinia = createPinia().use(({ store }) => {
+  store.router = markRaw(router)
+})
 
 createApp(App)
   .use(pinia)

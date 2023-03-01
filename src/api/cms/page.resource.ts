@@ -1,6 +1,6 @@
+import { inject, provide } from '@/api'
 import type { CMSPageData, CmsPageRequestData, ListAdaptedPagesData, PageType, RequestData, SortableRequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import { inject } from 'vue'
 
 export abstract class PageResource {
   getPages!: (queryParams?: CmsPageRequestData) => Promise<CMSPageData>
@@ -26,4 +26,6 @@ const pageResource = (): PageResource => {
   }
 }
 
-export const usePageResource = () => inject<PageResource>(PageResource.name, pageResource())!
+provide(PageResource, pageResource())
+
+export const usePageResource = () => inject<PageResource>(PageResource)

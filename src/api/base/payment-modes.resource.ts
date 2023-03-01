@@ -1,6 +1,6 @@
+import { inject } from '@/api'
 import type { PaymentModeListData, RequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import { inject } from 'vue'
 
 export abstract class PaymentModesResource {
   getPaymentModes!: (queryParams?: RequestData) => Promise<PaymentModeListData>
@@ -14,4 +14,4 @@ const paymentModesResource = (): PaymentModesResource => {
   }
 }
 
-export const usePaymentModesResource = () => inject<PaymentModesResource>(PaymentModesResource.name, paymentModesResource())!
+export const usePaymentModesResource = () => inject(PaymentModesResource, paymentModesResource())

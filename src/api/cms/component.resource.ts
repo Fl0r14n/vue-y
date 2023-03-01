@@ -1,3 +1,4 @@
+import { inject, provide } from '@/api'
 import type {
   ComponentData,
   ComponentIdListData,
@@ -8,8 +9,6 @@ import type {
   SortableRequestData
 } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import type { App } from 'vue'
-import { inject } from 'vue'
 
 export abstract class ComponentResource {
   /**
@@ -36,4 +35,6 @@ const componentResource = (): ComponentResource => {
   }
 }
 
-export const useComponentResource = () => inject<ComponentResource>(ComponentResource.name, componentResource())!
+provide(ComponentResource, componentResource())
+
+export const useComponentResource = () => inject<ComponentResource>(ComponentResource)

@@ -1,3 +1,4 @@
+import { inject } from '@/api'
 import type {
   B2BPaymentTypeListData,
   CardTypeListData,
@@ -8,7 +9,6 @@ import type {
   TitleListData
 } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import { inject } from 'vue'
 
 export abstract class MiscResource {
   getCardTypes!: (queryParams?: RequestData) => Promise<CardTypeListData>
@@ -32,4 +32,4 @@ const miscResource = (): MiscResource => {
   }
 }
 
-export const useMiscResource = () => inject<MiscResource>(MiscResource.name, miscResource())!
+export const useMiscResource = () => inject(MiscResource, miscResource())

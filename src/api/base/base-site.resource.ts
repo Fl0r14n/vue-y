@@ -1,7 +1,6 @@
-import { useRestClient } from '@/api'
+import { inject, useRestClient } from '@/api'
 import type { BaseSiteListData, RequestData } from '@/api/models'
 import { useOAuth } from '@/oauth'
-import { inject } from 'vue'
 
 export abstract class BaseSiteResource {
   getBaseSites!: (queryParams?: RequestData) => Promise<BaseSiteListData>
@@ -18,4 +17,4 @@ const baseSiteResource = (): BaseSiteResource => {
   }
 }
 
-export const useBaseSiteResource = () => inject<BaseSiteResource>(BaseSiteResource.name, baseSiteResource())!
+export const useBaseSiteResource = () => inject(BaseSiteResource, baseSiteResource())

@@ -1,6 +1,7 @@
 import type { CurrencyData, LanguageData } from '@/api'
 import { UrlEncodingAttributes, useLocaleConfig, useLocaleContextMapper } from '@/api'
 import { useSiteStore } from '@/layout/store/site.store'
+import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -10,7 +11,7 @@ export const useLocaleStore = () => {
   const i18n = useI18n()
   const locale = useLocaleConfig()
   const contextMapper = useLocaleContextMapper()
-  const { site } = useSiteStore()
+  const { site } = storeToRefs(useSiteStore())
   const languages = ref<LanguageData[]>()
   const currencies = ref<CurrencyData[]>()
   const language = computed({
@@ -32,7 +33,7 @@ export const useLocaleStore = () => {
   watch(
     () => site.value,
     site => {
-      if (site) {
+      if (site?.uid) {
         // set locale
         locale.value = {
           ...locale.value,

@@ -6,8 +6,8 @@ import { accessToken, isAuthorized, isExpired, status, storageKey, token, type }
 import { authorizationInterceptor, http, unauthorizedInterceptor, user } from '@/oauth/user'
 import type { App } from 'vue'
 
-export const createOAuth = (cfg: OAuthConfig) => {
-  const install = (app: App) => {
+export const createOAuth = (cfg: OAuthConfig) => ({
+  install: (app: App) => {
     oauthConfig.value = {
       ...oauthConfig.value,
       ...cfg
@@ -17,8 +17,7 @@ export const createOAuth = (cfg: OAuthConfig) => {
     app.provide('logout', logout)
     app.component('v-oauth', OAuthLogin)
   }
-  return { install }
-}
+})
 
 export const useOAuthConfig = () => oauthConfig
 export const useOAuthToken = () => token

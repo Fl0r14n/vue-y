@@ -1,6 +1,6 @@
+import { inject } from '@/api'
 import type { CountryDestinationType, CountryListData, RegionListData, RequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
-import { inject } from 'vue'
 
 export abstract class CountryResource {
   getCountries!: (queryParams?: { type?: CountryDestinationType } & RequestData) => Promise<CountryListData>
@@ -17,4 +17,4 @@ const countryResource = (): CountryResource => {
   }
 }
 
-export const useCountryResource = () => inject<CountryResource>(CountryResource.name, countryResource())!
+export const useCountryResource = () => inject(CountryResource, countryResource())

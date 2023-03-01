@@ -1,3 +1,5 @@
+import type { Router } from 'vue-router'
+
 export interface ClientCredentialConfig {
   tokenPath: string
   revokePath?: string
@@ -57,7 +59,7 @@ export interface OAuthConfig {
   storageKey?: string
   storage?: Storage
   ignorePaths?: RegExp[]
-  router?: any
+  router?: Router | any
 
   [x: string]: any
 }

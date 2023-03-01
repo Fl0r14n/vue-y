@@ -1,8 +1,9 @@
-import { FieldLevelMapping, useSiteConfig } from '@/api'
 import type { BaseSiteData } from '@/api'
+import { FieldLevelMapping, useSiteConfig } from '@/api'
 import { useBaseSiteResource } from '@/api/base'
 import { useOAuth } from '@/oauth'
-import { ref, watch } from 'vue'
+import { defineStore, storeToRefs } from 'pinia'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const toRegExp = (value: string): RegExp | undefined => {
@@ -36,31 +37,32 @@ const findBaseSite = (baseSites: BaseSiteData[]) => {
 }
 
 export const siteGuard = async (to: any, from: any, next: any) => {
-  const oauth = useOAuth()
-  const site = useSiteConfig()
-  const siteResource = useBaseSiteResource()
-  console.log(siteResource)
-  const sites = ref<BaseSiteData[]>([])
-  if (!site.value?.uid) {
-    sites.value = await siteResource.getBaseSites({ fields: FieldLevelMapping.FULL }).then(r => r.baseSites)
-    site.value = findBaseSite(sites.value)
-    console.log(site.value)
-    if (site.value?.uid) {
+  const siteStore = useSiteStore()
+  console.log(siteStore)
+  const { loadSites } = siteStore
+  const { siteId } = storeToRefs(siteStore)
+  if (!siteId.value) {
+    await loadSites()
+    if (siteId.value) {
       next()
     }
   } else {
-    oauth.storageKey.value = `${site.value.uid}.token`
     return next()
   }
 }
 
-export const useSiteStore = () => {
+export const useSiteStore = defineStore('SiteStore', () => {
   const oauth = useOAuth()
   const site = useSiteConfig()
-  const siteResource = useBaseSiteResource()
-  console.log(siteResource)
   const sites = ref<BaseSiteData[]>([])
-  const router = useRouter()
+  const siteResource = useBaseSiteResource()
+  const siteId = computed(() => site.value?.uid)
+  // const router = useRouter()
+  const loadSites = async () => {
+    sites.value = await siteResource.getBaseSites({ fields: FieldLevelMapping.FULL }).then(r => r.baseSites)
+    site.value = findBaseSite(sites.value)
+  }
+
   const updateRouter = () => {
     let buf = ''
     const { urlEncodingAttributes } = site.value || {}
@@ -70,29 +72,28 @@ export const useSiteStore = () => {
       }
       buf = buf.slice(0, -1)
     }
+    console.log(buf)
     // router.remove
     // router.addRoute({ name: 'layout', path: buf } as any)
     // router.removeRoute('layout')
-    console.log(router.getRoutes())
+    // console.log(router.getRoutes())
   }
 
-  // watch(
-  //   () => site.value?.uid,
-  //   async uid => {
-  //     if (!uid) {
-  //       sites.value = await siteResource.getBaseSites({ fields: FieldLevelMapping.FULL }).then(r => r.baseSites)
-  //       site.value = findBaseSite(sites.value)
-  //       console.log(site.value)
-  //       updateRouter()
-  //     } else {
-  //       oauth.storageKey.value = `${uid}.token`
-  //     }
-  //   },
-  //   { immediate: true }
-  // )
+  watch(
+    () => site.value?.uid,
+    uid => {
+      if (uid) {
+        oauth.storageKey.value = `${uid}.token`
+        updateRouter()
+      }
+    },
+    { immediate: true }
+  )
 
   return {
     site,
-    sites
+    siteId,
+    sites,
+    loadSites
   }
-}
+})
