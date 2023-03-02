@@ -1,4 +1,4 @@
-import { useApiConfig, useConfig, useSiteConfig } from '@/api/config'
+import { useApiConfig, useConfig, useSiteConfig } from '@/config'
 import { SiteChannel, UserType } from '@/api/models'
 import { OAuthType, useOAuthHttp, useOAuthToken } from '@/oauth'
 import { computed, ref } from 'vue'

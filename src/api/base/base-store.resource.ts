@@ -1,6 +1,6 @@
-import { inject } from '@/api'
 import type { BaseStoreData, RequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
+import { inject } from '@/config'
 
 export abstract class BaseStoreResource {
   getBaseStore!: (uid: string, queryParams?: RequestData) => Promise<BaseStoreData>

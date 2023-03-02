@@ -1,7 +1,8 @@
 import type { BaseSiteData } from '@/api'
-import { FieldLevelMapping, useSiteConfig } from '@/api'
+import { FieldLevelMapping } from '@/api'
 import { useBaseSiteResource } from '@/api/base'
-import { useRouter } from '@/layout/store/index'
+import { useRouter } from '@/cms'
+import { useSiteConfig } from '@/config'
 import { useOAuth } from '@/oauth'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
@@ -76,9 +77,9 @@ export const useSiteStore = defineStore('SiteStore', () => {
   const updateRouter = (to?: any, from?: any) => {
     const { value } = siteSuffix
     const routes = router.getRoutes()
-    const hasSuffix = routes.find(r => r.name === 'root' && r.path === value)
+    const hasSuffix = routes.find(r => r.path.startsWith(value))
     if (!hasSuffix) {
-      const newRoutes = routes.map(r => ({ ...r, ...((r.name === 'root' && { path: siteSuffix.value }) || {}) }))
+      const newRoutes = routes.map(r => ({ ...r, ...{ path: `${siteSuffix.value}${r.path}` } }))
       newRoutes.forEach(r => router.addRoute(r))
       return (from.path !== to.path && to) || undefined
     }

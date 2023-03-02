@@ -1,10 +1,10 @@
-import { createY } from '@/api'
-import type { Config } from '@/api/config'
+import type { Config } from '@/config'
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
-import { siteGuard } from '@/layout/store'
 
 import '@mdi/font/scss/materialdesignicons.scss'
+import { createLayout } from '@/layout/module'
+import { createY } from '@/module'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'
@@ -35,18 +35,37 @@ const router = createRouter({
       path: '',
       name: 'root',
       component: () => import('./layout/views/LayoutView.vue'),
-      // beforeEnter: siteGuard,
       children: [
         {
           path: '',
           name: 'home',
-          component: () => import('./home/views/HomeView.vue')
+          component: () => import('./cms/components/CmsPage.vue')
+        },
+        {
+          path: 'test',
+          name: 'test',
+          component: () => import('./cms/components/CmsPage.vue'),
+          meta: {
+            id: 'test-page'
+          }
+        },
+        {
+          path: 'not-found',
+          name: 'notFound',
+          component: () => import('./cms/components/CmsPage.vue'),
+          meta: {
+            id: 'not-found'
+          }
+        },
+        {
+          path: ':id',
+          name: 'content',
+          component: () => import('./cms/components/CmsPage.vue')
         }
       ]
     }
   ]
 })
-router.beforeEach(siteGuard)
 
 const config: Config = {
   // site: {
@@ -62,8 +81,7 @@ const config: Config = {
       clientId: VITE_OAUTH_CLIENT_ID,
       clientSecret: VITE_OAUTH_CLIENT_SECRET,
       scope: VITE_OAUTH_SCOPE
-    },
-    router
+    }
   },
   api: {
     host: 'https://localhost:9002'
@@ -105,5 +123,6 @@ createApp(App)
       }
     })
   )
-  .use(createY(config))
+  .use(createY(config).useRouter(router))
+  .use(createLayout())
   .mount('#app')

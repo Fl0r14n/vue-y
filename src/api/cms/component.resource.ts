@@ -1,4 +1,3 @@
-import { inject, provide } from '@/api'
 import type {
   ComponentData,
   ComponentIdListData,
@@ -9,6 +8,7 @@ import type {
   SortableRequestData
 } from '@/api/models'
 import { useRestClient } from '@/api/rest'
+import { inject } from '@/config'
 
 export abstract class ComponentResource {
   /**
@@ -35,6 +35,4 @@ const componentResource = (): ComponentResource => {
   }
 }
 
-provide(ComponentResource, componentResource())
-
-export const useComponentResource = () => inject<ComponentResource>(ComponentResource)
+export const useComponentResource = () => inject<ComponentResource>(ComponentResource, componentResource())

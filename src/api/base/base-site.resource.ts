@@ -1,5 +1,6 @@
-import { inject, useRestClient } from '@/api'
+import { useRestClient } from '@/api'
 import type { BaseSiteListData, RequestData } from '@/api/models'
+import { inject } from '@/config'
 import { useOAuth } from '@/oauth'
 
 export abstract class BaseSiteResource {

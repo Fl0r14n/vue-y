@@ -1,4 +1,3 @@
-import { inject } from '@/api'
 import type {
   CatalogData,
   CatalogListData,
@@ -8,6 +7,7 @@ import type {
   RequestData
 } from '@/api/models'
 import { useRestClient } from '@/api/rest'
+import { inject } from '@/config'
 
 export abstract class CatalogResource {
   getCatalogs!: (queryParams?: RequestData) => Promise<CatalogListData>

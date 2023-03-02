@@ -1,6 +1,6 @@
-import { inject } from '@/api'
 import type { PaymentModeListData, RequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
+import { inject } from '@/config'
 
 export abstract class PaymentModesResource {
   getPaymentModes!: (queryParams?: RequestData) => Promise<PaymentModeListData>

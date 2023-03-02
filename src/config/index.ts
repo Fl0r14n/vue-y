@@ -1,4 +1,4 @@
-import type { BaseSiteData, CMSPageData, ComponentData, PageType, ProductData } from '@/api/models'
+import type { BaseSiteData, CMSPageData, ComponentData, PageType, ProductData } from '@/api'
 import type { OAuthConfig } from '@/oauth'
 import { computed, ref } from 'vue'
 
@@ -316,6 +316,36 @@ export const inject = <T>(key: ProviderToken<T>, defaultValue?: T): T => {
     }
   }
   return result as T
+}
+
+export const provideCmsComponent = (typeCode: string, uid?: string) => (component: Type<any>) => {
+  const cmsConfig = useCmsConfig()
+  cmsConfig.value = {
+    components: {
+      [typeCode]: (uid && { uids: { [uid]: component } }) || { component }
+    }
+  }
+}
+
+export const injectCmsComponent = async (typeCode: string, uid?: string) => {
+  const cmsConfig = useCmsConfig()
+  const entry = cmsConfig.value?.components?.[typeCode] || {}
+  return (uid && entry.uids && entry.uids[uid]) || entry.component
+}
+
+export const provideCmsTemplate = (template: string, uid?: string) => (component: Type<any>) => {
+  const cmsConfig = useCmsConfig()
+  cmsConfig.value = {
+    templates: {
+      [template]: (uid && { uids: { [uid]: component } }) || { template: component }
+    }
+  }
+}
+
+export const injectCmsTemplate = (template: string, uid?: string) => {
+  const cmsConfig = useCmsConfig()
+  const entry = cmsConfig.value?.templates?.[template] || {}
+  return (uid && entry.uids && entry.uids[uid]) || entry.template
 }
 
 export class LocaleContextMapper {

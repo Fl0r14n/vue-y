@@ -1,4 +1,3 @@
-import { inject } from '@/api'
 import type {
   B2BPaymentTypeListData,
   CardTypeListData,
@@ -9,6 +8,7 @@ import type {
   TitleListData
 } from '@/api/models'
 import { useRestClient } from '@/api/rest'
+import { inject } from '@/config'
 
 export abstract class MiscResource {
   getCardTypes!: (queryParams?: RequestData) => Promise<CardTypeListData>

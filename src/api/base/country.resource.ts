@@ -1,6 +1,6 @@
-import { inject } from '@/api'
 import type { CountryDestinationType, CountryListData, RegionListData, RequestData } from '@/api/models'
 import { useRestClient } from '@/api/rest'
+import { inject } from '@/config'
 
 export abstract class CountryResource {
   getCountries!: (queryParams?: { type?: CountryDestinationType } & RequestData) => Promise<CountryListData>
