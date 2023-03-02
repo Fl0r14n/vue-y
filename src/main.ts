@@ -6,7 +6,7 @@ import { siteGuard } from '@/layout/store'
 
 import '@mdi/font/scss/materialdesignicons.scss'
 import { createPinia } from 'pinia'
-import { createApp, markRaw } from 'vue'
+import { createApp } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createVuetify } from 'vuetify'
@@ -33,9 +33,9 @@ const router = createRouter({
   routes: [
     {
       path: '',
-      name: 'layout',
+      name: 'root',
       component: () => import('./layout/views/LayoutView.vue'),
-      beforeEnter: siteGuard,
+      // beforeEnter: siteGuard,
       children: [
         {
           path: '',
@@ -46,6 +46,7 @@ const router = createRouter({
     }
   ]
 })
+router.beforeEach(siteGuard)
 
 const config: Config = {
   // site: {
@@ -79,9 +80,7 @@ const i18n = createI18n({
   messages: config.i18n
 })
 
-const pinia = createPinia().use(({ store }) => {
-  store.router = markRaw(router)
-})
+const pinia = createPinia()
 
 createApp(App)
   .use(pinia)

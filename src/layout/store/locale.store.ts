@@ -1,5 +1,6 @@
 import type { CurrencyData, LanguageData } from '@/api'
 import { UrlEncodingAttributes, useLocaleConfig, useLocaleContextMapper } from '@/api'
+import { useRouter } from '@/layout/store/index'
 import { useSiteStore } from '@/layout/store/site.store'
 import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
@@ -10,6 +11,7 @@ const setDocumentLang = (lang: string) => (document.documentElement.lang = lang)
 export const useLocaleStore = () => {
   const i18n = useI18n()
   const locale = useLocaleConfig()
+  const router = useRouter()
   const contextMapper = useLocaleContextMapper()
   const { site } = storeToRefs(useSiteStore())
   const languages = ref<LanguageData[]>()
@@ -23,6 +25,33 @@ export const useLocaleStore = () => {
     set: currency => currency && locale.value && (locale.value.currency = currency)
   })
   const browserLanguage = navigator.language.split('-')[0]
+  const updateUrl = async (url: Location) => {
+    const { pathname, search, hash } = url
+    const { urlEncodingAttributes } = site.value || {}
+    if (urlEncodingAttributes) {
+      const segments = pathname.split('/')
+      urlEncodingAttributes.forEach((attr, i) => {
+        switch (attr) {
+          case UrlEncodingAttributes.STOREFRONT: {
+            segments[i + 1] = contextMapper.toStorefrontUrlSegment(locale.value)
+            break
+          }
+          case UrlEncodingAttributes.LANGUAGE: {
+            segments[i + 1] = contextMapper.toLanguageUrlSegment(locale.value)
+            break
+          }
+          case UrlEncodingAttributes.CURRENCY: {
+            segments[i + 1] = contextMapper.toCurrencyUrlSegment(locale.value)
+            break
+          }
+        }
+      })
+      const path = segments.join('/')
+      if (location.pathname !== path) {
+        await router.replace(`${path}${search}${hash}`)
+      }
+    }
+  }
 
   watch(
     () => language.value,
@@ -31,19 +60,22 @@ export const useLocaleStore = () => {
   )
 
   watch(
+    () => locale.value,
+    async l => {
+      if (l?.language || l?.currency) {
+        await updateUrl(location)
+      }
+    }
+  )
+
+  watch(
     () => site.value,
-    site => {
+    async site => {
       if (site?.uid) {
-        // set locale
-        locale.value = {
-          ...locale.value,
-          storefront: site.uid,
-          categoryCode: site.defaultPreviewCategoryCode,
-          catalogId: site.defaultPreviewCatalogId,
-          productCode: site.defaultPreviewProductCode
-        }
+        let language = site.defaultLanguage?.isocode || locale.value?.language || 'en'
+        let currency = locale.value?.currency || 'USD'
         // update fallback language
-        i18n.fallbackLocale.value = site.defaultLanguage?.isocode || 'en'
+        i18n.fallbackLocale.value = language
         // set locales from store
         const { stores, urlEncodingAttributes } = site
         if (stores?.length) {
@@ -52,11 +84,11 @@ export const useLocaleStore = () => {
           languages.value = store.languages?.filter(l => l.active)
           const defaultCurrency = store.defaultCurrency?.isocode
           if (defaultCurrency) {
-            currency.value = defaultCurrency
+            currency = defaultCurrency
           }
           const defaultLanguage = browserLanguage
           if (defaultLanguage && languages.value?.map(l => l.isocode).includes(defaultLanguage)) {
-            language.value = defaultLanguage
+            language = defaultLanguage
           }
           const segments = location.pathname.split('/')
           urlEncodingAttributes?.forEach((attr, i) => {
@@ -64,19 +96,29 @@ export const useLocaleStore = () => {
               case UrlEncodingAttributes.LANGUAGE: {
                 const val = contextMapper.fromLanguageUrlSegment(locale.value, segments[i + 1])
                 if (!!val && languages.value?.map(l => l.isocode).includes(val)) {
-                  language.value = val
+                  language = val
                 }
                 break
               }
               case UrlEncodingAttributes.CURRENCY: {
                 const val = contextMapper.fromCurrencyUrlSegment(locale.value, segments[i + 1])
                 if (!!val && currencies.value?.map(c => c.isocode).includes(val)) {
-                  currency.value = val
+                  currency = val
                 }
                 break
               }
             }
           })
+        }
+        // set locale
+        locale.value = {
+          ...locale.value,
+          storefront: site.uid,
+          categoryCode: site.defaultPreviewCategoryCode,
+          catalogId: site.defaultPreviewCatalogId,
+          productCode: site.defaultPreviewProductCode,
+          language,
+          currency
         }
       }
     },
