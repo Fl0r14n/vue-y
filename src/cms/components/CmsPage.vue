@@ -1,5 +1,5 @@
 <template>
-  <div :class="template" v-if="template">
+  <div :class="template" v-if="template" v-cms-data="properties">
     <component :is="getTemplate(template, uid)" />
   </div>
 </template>
@@ -13,7 +13,7 @@
 
   const route = useRoute()
   const pageStore = usePageStore()
-  const { uid, template, query } = storeToRefs(pageStore)
+  const { uid, template, query, properties } = storeToRefs(pageStore)
   query.value = {
     id: (route.meta.id || route.params.id) as string,
     pageType: (route.meta.pageType || PageType.CONTENT) as PageType,

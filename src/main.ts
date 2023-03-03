@@ -43,14 +43,6 @@ const router = createRouter({
           component: () => import('./cms/components/CmsPage.vue')
         },
         {
-          path: 'test',
-          name: 'test',
-          component: () => import('./cms/components/CmsPage.vue'),
-          meta: {
-            id: 'test-page'
-          }
-        },
-        {
           path: 'not-found',
           name: 'notFound',
           component: () => import('./cms/components/CmsPage.vue'),

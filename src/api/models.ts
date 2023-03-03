@@ -246,6 +246,8 @@ export interface MediaContainerData {
   mobile?: MediaData
   tablet?: MediaData
   widescreen?: MediaData
+
+  [x: string]: any
 }
 
 export interface ComponentData extends Item {
@@ -257,11 +259,6 @@ export interface ComponentData extends Item {
   uuid?: string
 
   [key: string]: any
-}
-
-export interface BannerComponentData extends ComponentData {
-  media?: MediaContainerData
-  urlLink?: string
 }
 
 export interface ComponentListData {

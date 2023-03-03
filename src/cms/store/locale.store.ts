@@ -25,6 +25,29 @@ export const useLocaleStore = defineStore('LocaleStore', () => {
     set: currency => currency && locale.value && (locale.value.currency = currency)
   })
   const browserLanguage = navigator.language.split('-')[0]
+  const basePath = computed(() => {
+    let basePath = ''
+    const { urlEncodingAttributes } = site.value || {}
+    if (urlEncodingAttributes) {
+      for (const attr of urlEncodingAttributes) {
+        switch (attr) {
+          case UrlEncodingAttributes.STOREFRONT: {
+            basePath += `/${contextMapper.toStorefrontUrlSegment(locale.value)}`
+            break
+          }
+          case UrlEncodingAttributes.LANGUAGE: {
+            basePath += `/${contextMapper.toLanguageUrlSegment(locale.value)}`
+            break
+          }
+          case UrlEncodingAttributes.CURRENCY: {
+            basePath += `/${contextMapper.toCurrencyUrlSegment(locale.value)}`
+          }
+        }
+      }
+    }
+    return basePath
+  })
+
   const updateUrl = async (url: Location) => {
     const { pathname, search, hash } = url
     const { urlEncodingAttributes } = site.value || {}
@@ -131,6 +154,7 @@ export const useLocaleStore = defineStore('LocaleStore', () => {
     locale,
     language,
     currency,
-    browserLanguage
+    browserLanguage,
+    basePath
   }
 })
