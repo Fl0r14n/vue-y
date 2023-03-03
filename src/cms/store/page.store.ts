@@ -2,8 +2,10 @@ import type { CMSPageData } from '@/api'
 import { FieldLevelMapping, PageType } from '@/api'
 import { usePageResource } from '@/api/cms'
 import { useLocaleStore } from '@/cms'
+import { useSmartEditStore } from '@/cms/store/smart-edit.store'
 import { useCmsConfig } from '@/config'
-import { defineStore } from 'pinia'
+import { useOAuth } from '@/oauth'
+import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
 export interface CmsPageQuery {
@@ -15,7 +17,9 @@ export interface CmsPageQuery {
 export const usePageStore = defineStore('PageStore', () => {
   const cmsConfig = useCmsConfig()
   const pageResource = usePageResource()
-  const locale = useLocaleStore()
+  const { status } = useOAuth()
+  const { component } = storeToRefs(useSmartEditStore())
+  const { language, currency } = storeToRefs(useLocaleStore())
   const query = ref<CmsPageQuery>()
   const page = ref<CMSPageData>()
   const uid = computed(() => page.value?.uid)
@@ -33,22 +37,19 @@ export const usePageStore = defineStore('PageStore', () => {
     return (query.id && pages?.[query.pageType]?.uids?.[query.id]) || undefined
   }
 
-  watch(
-    () => query.value,
-    async q => {
-      if (q) {
-        page.value =
-          getStaticPage(q) ||
-          (await pageResource.getPages({
-            fields: FieldLevelMapping.FULL,
-            pageType: q.pageType,
-            pageLabelOrId: (q.pageType === PageType.CONTENT && q.id) || undefined,
-            code: (q.pageType !== PageType.CONTENT && q.id) || undefined,
-            cmsTicketId: (q.cmsTicketId && q.cmsTicketId) || undefined
-          }))
-      }
+  watch([query, language, currency, component, status], async ([q]) => {
+    if (q) {
+      page.value =
+        getStaticPage(q) ||
+        (await pageResource.getPages({
+          fields: FieldLevelMapping.FULL,
+          pageType: q.pageType,
+          pageLabelOrId: (q.pageType === PageType.CONTENT && q.id) || undefined,
+          code: (q.pageType !== PageType.CONTENT && q.id) || undefined,
+          cmsTicketId: (q.cmsTicketId && q.cmsTicketId) || undefined
+        }))
     }
-  )
+  })
 
   return {
     query,

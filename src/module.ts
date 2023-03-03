@@ -1,4 +1,4 @@
-import { createCms, siteGuard } from '@/cms'
+import { siteGuard } from '@/cms'
 import type { Config } from '@/config'
 import { useConfig } from '@/config'
 import { createOAuth } from '@/oauth'
@@ -13,11 +13,9 @@ export interface YModule {
 export const createY = (cfg: Config) => {
   const module = {} as YModule
   const oauthModule = cfg.oauth && createOAuth(cfg.oauth)
-  const cmsModule = createCms()
   module.install = (app: App) => {
     const config = useConfig()
     // first init default components
-    app.use(cmsModule)
     // apply user config
     config.value = cfg
     oauthModule && app.use(oauthModule)

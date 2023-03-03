@@ -327,12 +327,6 @@ export const provideCmsComponent = (typeCode: string, uid?: string) => (componen
   }
 }
 
-export const injectCmsComponent = async (typeCode: string, uid?: string) => {
-  const cmsConfig = useCmsConfig()
-  const entry = cmsConfig.value?.components?.[typeCode] || {}
-  return (uid && entry.uids && entry.uids[uid]) || entry.component
-}
-
 export const provideCmsTemplate = (template: string, uid?: string) => (component: Type<any>) => {
   const cmsConfig = useCmsConfig()
   cmsConfig.value = {
@@ -340,6 +334,12 @@ export const provideCmsTemplate = (template: string, uid?: string) => (component
       [template]: (uid && { uids: { [uid]: component } }) || { template: component }
     }
   }
+}
+
+export const injectCmsComponent = (typeCode: string, uid?: string) => {
+  const cmsConfig = useCmsConfig()
+  const entry = cmsConfig.value?.components?.[typeCode] || {}
+  return (uid && entry.uids && entry.uids[uid]) || entry.component
 }
 
 export const injectCmsTemplate = (template: string, uid?: string) => {

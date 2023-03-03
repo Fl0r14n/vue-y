@@ -259,6 +259,11 @@ export interface ComponentData extends Item {
   [key: string]: any
 }
 
+export interface BannerComponentData extends ComponentData {
+  media?: MediaContainerData
+  urlLink?: string
+}
+
 export interface ComponentListData {
   component?: ComponentData[]
 }

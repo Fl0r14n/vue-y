@@ -2,13 +2,13 @@ import type { CurrencyData, LanguageData } from '@/api'
 import { UrlEncodingAttributes } from '@/api'
 import { useRouter, useSiteStore } from '@/cms'
 import { useLocaleConfig, useLocaleContextMapper } from '@/config'
-import { storeToRefs } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const setDocumentLang = (lang: string) => (document.documentElement.lang = lang)
 
-export const useLocaleStore = () => {
+export const useLocaleStore = defineStore('LocaleStore', () => {
   const i18n = useI18n()
   const locale = useLocaleConfig()
   const router = useRouter()
@@ -133,4 +133,4 @@ export const useLocaleStore = () => {
     currency,
     browserLanguage
   }
-}
+})

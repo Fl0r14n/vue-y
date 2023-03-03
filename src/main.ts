@@ -1,3 +1,4 @@
+import { createCms } from '@/cms'
 import type { Config } from '@/config'
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
@@ -34,7 +35,7 @@ const router = createRouter({
     {
       path: '',
       name: 'root',
-      component: () => import('./layout/views/LayoutView.vue'),
+      component: () => import('./layout/pages/LayoutPage.vue'),
       children: [
         {
           path: '',
@@ -124,5 +125,6 @@ createApp(App)
     })
   )
   .use(createY(config).useRouter(router))
+  .use(createCms())
   .use(createLayout())
   .mount('#app')
