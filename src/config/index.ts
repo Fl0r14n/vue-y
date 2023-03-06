@@ -123,6 +123,21 @@ const defaultAsmConfig: AsmConfig = {
   }
 }
 
+export interface SmartEditConfig {
+  smartEdit?: {
+    scriptPath?: string
+    previewPath?: string
+    allowOrigin?: string
+  }
+}
+
+export const defaultSmartEditConfig: SmartEditConfig = {
+  smartEdit: {
+    previewPath: 'cx-preview',
+    allowOrigin: 'localhost:9002'
+  }
+}
+
 export interface CmsPageItem
   extends Partial<
     Record<
@@ -207,6 +222,7 @@ export interface Config
     LocaleConfig,
     I18nConfig,
     AsmConfig,
+    SmartEditConfig,
     CmsConfig,
     CacheConfig,
     ProviderConfig {
@@ -228,7 +244,8 @@ const config = ref<Config>({
   ...defaultAsmConfig,
   ...defaultCmsConfig,
   ...defaultCacheConfig,
-  ...defaultProviderConfig
+  ...defaultProviderConfig,
+  ...defaultSmartEditConfig
 })
 
 export const isObject = (item: any): boolean => item && typeof item === 'object' && !Array.isArray(item)
@@ -278,6 +295,7 @@ export const useCheckoutConfig = () => partialConfig<CheckoutConfig['checkout']>
 export const useLocaleConfig = () => partialConfig<LocaleConfig['locale']>('locale')
 export const useI18nConfig = () => partialConfig<I18nConfig['i18n']>('i18n')
 export const useAsmConfig = () => partialConfig<AsmConfig['asm']>('asm')
+export const useSmartEditConfig = () => partialConfig<SmartEditConfig['smartEdit']>('smartEdit')
 export const useCmsConfig = () => partialConfig<CmsConfig['cms']>('cms')
 export const useCacheConfig = () => partialConfig<CacheConfig['cache']>('cache')
 export const useProviderConfig = () => partialConfig<ProviderConfig['providers']>('providers')

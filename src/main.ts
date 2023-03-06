@@ -43,6 +43,11 @@ const router = createRouter({
           component: () => import('./cms/components/CmsPage.vue')
         },
         {
+          path: 'cx-preview',
+          name: 'smartedit',
+          component: () => import('./cms/components/CmsPage.vue')
+        },
+        {
           path: 'not-found',
           name: 'notFound',
           component: () => import('./cms/components/CmsPage.vue'),

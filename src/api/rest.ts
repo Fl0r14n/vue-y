@@ -114,9 +114,7 @@ export abstract class RestClient {
   abstract getEndpoint(options?: RequestOptions): string
 
   get basePath() {
-    console.log(this.config.value)
     const { api } = this.config.value
-    console.log(api)
     return `${api?.host}${api?.path}/${this.siteId}`
   }
 

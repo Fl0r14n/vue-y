@@ -1,24 +1,21 @@
-import type { DirectiveBinding } from 'vue'
+import type { DirectiveBinding, Ref } from 'vue'
 
-export const cmsData = (el: any, binding: DirectiveBinding) => {
+const camelCaseToDash = (myStr: string): string => {
+  const regExp = /([a-z])([A-Z])/g
+  return myStr.replace(regExp, '$1-$2').toLowerCase()
+}
+
+export const cmsData = (el: any, binding: DirectiveBinding | Ref) => {
   const { value } = binding
   if (value) {
     Object.keys(value).forEach(key => {
       Object.keys(value[key]).forEach(propertyKey => {
         if (propertyKey === 'classes') {
           value[key][propertyKey].split(' ').forEach((className: string) => {
-            //TODO
-            // this.renderer.addClass(
-            //   (selector && this.browserRef.document.querySelector(selector)) || this.el.nativeElement.parentNode,
-            //   className
-            // )
+            el.classList.add(className)
           })
         } else {
-          // this.renderer.setAttribute(
-          //   (selector && selector) || this.el.nativeElement.parentNode,
-          //   `data-${camelCaseToDash(key)}-${camelCaseToDash(propertyKey)}`,
-          //   properties[key][propertyKey]
-          // )
+          el.setAttribute(`data-${camelCaseToDash(key)}-${camelCaseToDash(propertyKey)}`, value[key][propertyKey])
         }
       })
     })
