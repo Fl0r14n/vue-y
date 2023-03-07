@@ -1,7 +1,7 @@
 <template>
   <template v-if="media">
     <img class="w-100" :srcset="srcSet" :alt="name" v-if="!urlLink" />
-    <router-link :to="routerPath(urlLink)" v-if="urlLink">
+    <router-link class="d-flex" :to="routerPath(urlLink)" v-if="urlLink">
       <img class="w-100" :srcset="srcSet" :alt="name" />
     </router-link>
   </template>
@@ -26,7 +26,6 @@
     creationtime?: string | Date
     modifiedtime?: string | Date
     synchronizationBlocked?: any
-
     styleClasses?: string
 
     media?: MediaContainerData

@@ -1,8 +1,17 @@
 <template>CmsTabContainer</template>
 <script setup lang="ts">
-  import type { ComponentData } from '@/api'
+  export interface TabContainerComponentData {
+    container?: string | boolean
+    properties?: object
+    name?: string
+    typeCode?: string
+    uid?: string
+    uuid?: string
+    creationtime?: string | Date
+    modifiedtime?: string | Date
+    synchronizationBlocked?: any
+    styleClasses?: string
 
-  export interface TabContainerComponentData extends ComponentData {
     components: string
   }
 

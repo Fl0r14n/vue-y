@@ -5,11 +5,11 @@
 </template>
 <script setup lang="ts">
   import { PageType } from '@/api'
-  import { cmsData, usePageStore } from '@/cms'
-  import { injectCmsTemplate } from '@/config'
+  import { cmsData, getTemplate, usePageStore } from '@/cms'
   import { storeToRefs } from 'pinia'
-  import { defineAsyncComponent, markRaw, ref, watch } from 'vue'
+  import { ref, watch } from 'vue'
   import { useRoute } from 'vue-router'
+
   const el = ref<Element>()
   const route = useRoute()
   const pageStore = usePageStore()
@@ -20,11 +20,5 @@
     cmsTicketId: (route.meta.cmsTicketId || route.query.cmsTicketId) as string
   }
 
-  const getTemplate = (template: string, uid?: string) => {
-    const injected = injectCmsTemplate(template, uid)
-    const instance = (typeof injected === 'function' && defineAsyncComponent(injected)) || injected
-    return markRaw(instance)
-  }
-
-  watch(el, e => cmsData(el.value?.ownerDocument.body, properties))
+  watch(el, e => cmsData(e?.ownerDocument.body, properties))
 </script>

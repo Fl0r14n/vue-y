@@ -1,8 +1,17 @@
 <template>CmsParagraph</template>
 <script setup lang="ts">
-  import type { ComponentData } from '@/api'
+  export interface ParagraphComponentData {
+    container?: string | boolean
+    properties?: object
+    name?: string
+    typeCode?: string
+    uid?: string
+    uuid?: string
+    creationtime?: string | Date
+    modifiedtime?: string | Date
+    synchronizationBlocked?: any
+    styleClasses?: string
 
-  export interface ParagraphComponentData extends ComponentData {
     content?: string
     title?: string
   }

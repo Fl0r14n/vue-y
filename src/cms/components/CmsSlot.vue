@@ -1,17 +1,16 @@
 <template>
   <div :class="position" v-cms-data="properties">
-    <div v-for="data in slotData" :key="data.uid" v-cms-data="data.properties">
-      <component :is="getComponent(data)" v-bind="data" />
-    </div>
-    <slot></slot>
+    <slot :data="slotData">
+      <div v-for="data in slotData" :key="data.uid" v-cms-data="data.properties">
+        <component :is="getComponent(data.typeCode, data.uid)" v-bind="data" />
+      </div>
+    </slot>
   </div>
 </template>
 <script setup lang="ts">
-  import type { ComponentData } from '@/api'
-  import { usePageStore } from '@/cms'
-  import { injectCmsComponent } from '@/config'
+  import { getComponent, usePageStore } from '@/cms'
   import { storeToRefs } from 'pinia'
-  import { computed, defineAsyncComponent, markRaw } from 'vue'
+  import { computed } from 'vue'
 
   const props = defineProps<{
     position: string
@@ -20,10 +19,4 @@
   const slot = computed(() => slots.value?.contentSlot.find(s => s.position === props.position))
   const properties = computed(() => slot.value?.properties)
   const slotData = computed(() => slot.value?.components?.component)
-
-  const getComponent = (data: ComponentData) => {
-    const injected = injectCmsComponent(data.typeCode || '', data.uid)
-    const instance = (typeof injected === 'function' && defineAsyncComponent(injected)) || injected
-    return markRaw(instance)
-  }
 </script>
