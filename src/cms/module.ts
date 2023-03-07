@@ -1,5 +1,5 @@
+import { cmsData } from '@/cms'
 import CmsSlot from '@/cms/components/CmsSlot.vue'
-import { cmsData } from '@/cms/directives/cms-data'
 import { provideCmsComponent } from '@/config'
 import type { App } from 'vue'
 

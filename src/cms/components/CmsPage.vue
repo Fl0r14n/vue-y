@@ -5,8 +5,7 @@
 </template>
 <script setup lang="ts">
   import { PageType } from '@/api'
-  import { usePageStore } from '@/cms'
-  import { cmsData } from '@/cms/directives/cms-data'
+  import { cmsData, usePageStore } from '@/cms'
   import { injectCmsTemplate } from '@/config'
   import { storeToRefs } from 'pinia'
   import { defineAsyncComponent, markRaw, ref, watch } from 'vue'

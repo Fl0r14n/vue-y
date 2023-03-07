@@ -14,6 +14,7 @@
     modifiedtime?: string | Date
 
     synchronizationBlocked?: any
+    styleClasses?: string
 
     popup?: string | boolean
     productCodes?: string

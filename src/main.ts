@@ -2,10 +2,10 @@ import { createCms } from '@/cms'
 import type { Config } from '@/config'
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
-
-import '@mdi/font/scss/materialdesignicons.scss'
 import { createLayout } from '@/layout/module'
 import { createY } from '@/module'
+
+import '@mdi/font/scss/materialdesignicons.scss'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'

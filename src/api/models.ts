@@ -484,6 +484,7 @@ export interface BaseSiteData {
   urlEncodingAttributes?: UrlEncodingAttributes[] | string[]
   urlPatterns?: string[]
   requiresAuthentication?: boolean
+  registrationEnabled?: boolean
 }
 
 export interface BaseSiteListData {

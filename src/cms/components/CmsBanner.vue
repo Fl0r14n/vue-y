@@ -27,6 +27,8 @@
     modifiedtime?: string | Date
     synchronizationBlocked?: any
 
+    styleClasses?: string
+
     media?: MediaContainerData
     urlLink?: string
   }

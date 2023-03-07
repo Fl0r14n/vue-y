@@ -1,5 +1,5 @@
 <template>
-  <v-app :theme="theme">
+  <v-app :theme="theme" :class="themePipe()">
     <v-app-bar>
       <template v-slot:prepend>
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" v-if="mdAndDown"></v-app-bar-nav-icon>
@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+  import { themePipe } from '@/cms'
   import { OAuthType } from '@/oauth/models'
   import { ref } from 'vue'
   import { useDisplay, useTheme } from 'vuetify'
