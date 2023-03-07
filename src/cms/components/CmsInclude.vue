@@ -1,5 +1,5 @@
 <template>
-  <component :is="getComponent(typeCode, uid)" />
+  <component :is="getComponent(typeCode, uid)" v-bind="props" />
 </template>
 <script setup lang="ts">
   import { getComponent } from '@/cms'
