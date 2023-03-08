@@ -1,4 +1,5 @@
 import { cmsData } from '@/cms'
+import CmsNode from '@/cms/components/CmsNode.vue'
 import CmsSlot from '@/cms/components/CmsSlot.vue'
 import { provideCmsComponent } from '@/config'
 import type { App } from 'vue'
@@ -6,6 +7,7 @@ import type { App } from 'vue'
 export const createCms = () => ({
   install: (app: App) => {
     app.component('cms-slot', CmsSlot)
+    app.component('cms-node', CmsNode)
     app.directive('cms-data', cmsData)
     provideCmsComponent('SimpleResponsiveBannerComponent')(() => import('./components/CmsBanner.vue'))
     provideCmsComponent('CMSFlexComponent')(() => import('./components/CmsFlex.vue'))

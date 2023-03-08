@@ -1,4 +1,6 @@
-<template>CmsNavigation</template>
+<template>
+  <cms-node :class="styleClass" v-bind="navigationNode" />
+</template>
 <script setup lang="ts">
   import type { NavNodeData } from '@/api'
 

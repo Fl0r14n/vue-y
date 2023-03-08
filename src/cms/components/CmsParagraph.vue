@@ -1,4 +1,6 @@
-<template>CmsParagraph</template>
+<template>
+  <div :class="styleClasses" v-html="content" v-if="content" />
+</template>
 <script setup lang="ts">
   export interface ParagraphComponentData {
     container?: string | boolean

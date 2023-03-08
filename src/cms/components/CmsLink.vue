@@ -1,7 +1,14 @@
-<template>CmsLink</template>
+<template>
+  <a
+    :class="styleClasses"
+    :href="url"
+    :target="(target === 'true' && '_blank') || '_self'"
+    rel="noreferrer"
+    v-html="linkName"
+    v-if="isExternal()" />
+  <router-link :class="styleClasses" :to="url" v-else>{{ linkName }}</router-link>
+</template>
 <script setup lang="ts">
-  import type { ComponentData } from '@/api'
-
   export interface LinkComponentData {
     container?: string | boolean
     properties?: object
@@ -23,4 +30,6 @@
   }
 
   const props = defineProps<LinkComponentData>()
+
+  const isExternal = () => props.external === 'true' || props.url?.startsWith('http')
 </script>
