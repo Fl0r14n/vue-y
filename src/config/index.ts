@@ -48,7 +48,11 @@ const defaultMediaConfig: MediaConfig = {
       mobile: '576w',
       tablet: '768w',
       desktop: '992w',
-      widescreen: '1200w'
+      widescreen: '1200w',
+      cartIcon: '65w',
+      thumbnail: '96w',
+      product: '284w',
+      zoom: '515w'
     }
   }
 }

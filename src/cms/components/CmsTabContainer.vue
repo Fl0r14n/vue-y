@@ -14,8 +14,7 @@
 </template>
 <script setup lang="ts">
   import type { ComponentData } from '@/api'
-  import { getComponent } from '@/cms'
-  import { useCmsComponentStore } from '@/cms/store/cms-component.store'
+  import { getComponent, useCmsComponentStore } from '@/cms'
   import { ref, watch } from 'vue'
   import { useI18n } from 'vue-i18n'
 

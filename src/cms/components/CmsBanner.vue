@@ -9,12 +9,7 @@
 
 <script setup lang="ts">
   import type { MediaContainerData } from '@/api'
-  import { hostPipe, routerPath } from '@/cms/filters'
-  import { useMediaConfig } from '@/config'
-  import { computed } from 'vue'
-
-  const mediaConfig = useMediaConfig()
-  const breakpoints = computed(() => mediaConfig.value?.breakpoints)
+  import { mediaSrcSetPipe, routerPath } from '@/cms/filters'
 
   interface BannerComponentData {
     container?: string | boolean
@@ -33,9 +28,5 @@
   }
 
   const props = defineProps<BannerComponentData>()
-  const srcSet =
-    props.media &&
-    Object.keys(props.media)
-      .map(format => `${hostPipe(props.media?.[format].url)} ${breakpoints.value?.[format]}`)
-      .reduce((prev, curr) => `${prev}, ${curr}`)
+  const srcSet = mediaSrcSetPipe(props.media)
 </script>
