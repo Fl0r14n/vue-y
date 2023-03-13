@@ -19,7 +19,7 @@
   import { computed, ref } from 'vue'
   import { useDisplay } from 'vuetify'
 
-  defineProps<{ items: any[]; height?: number }>()
+  defineProps<{ items?: any[]; height?: string }>()
   const { name } = useDisplay()
   const model = ref<number>(0)
   const columns = computed(() => {

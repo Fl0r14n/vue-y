@@ -47,17 +47,15 @@
     () => props.productCodes,
     async productCodes => {
       if (productCodes) {
-        // const fields = `images(FULL),${(props.displayProductPrices !== false && 'price(FULL),') || ''}${
-        //   (props.displayProductTitles !== false && 'name,') || ''
-        // }code,url`
-        const fields = `images(FULL),price(FULL),name,code,url`
+        const fields = `images(FULL),${(props.displayProductPrices !== false && 'price(FULL),') || ''}${
+          (props.displayProductTitles !== false && 'name,') || ''
+        }code,url`
+        // const fields = `images(FULL),price(FULL),name,code,url`
         let codes = productCodes.split(' ')
         if (props.maximumNumberProducts && props.maximumNumberProducts > 0) {
           codes = codes.slice(0, props.maximumNumberProducts)
         }
         products.value = await search(codes, { fields })
-        console.log(products.value)
-        //TODO replace v-img with img and src set
       }
     },
     { immediate: true }
