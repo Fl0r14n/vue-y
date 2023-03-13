@@ -1,18 +1,16 @@
 <template>
   <div class="text-center font-weight-bold v-card-title" v-html="title" v-if="title" />
-  <v-carousel hide-delimiter-background show-arrows="hover" height="350px">
-    <v-carousel-item v-for="product of products" :key="product.code">
-      <router-link :to="routerPath(product.url)" class="text-decoration-none text-center">
-        <v-card variant="flat" class="mx-auto" max-width="344">
-          <v-img :src="hostPipe(productImagePipe(product))" :alt="product.name" height="200px" />
-          <v-card-title><span v-html="product.name" /></v-card-title>
-          <v-card-subtitle v-if="product.price">
-            <span v-html="product.price.formattedValue" />
-          </v-card-subtitle>
-        </v-card>
-      </router-link>
-    </v-carousel-item>
-  </v-carousel>
+  <v-sliding-carousel :items="products" v-slot="{ item }" height="350px">
+    <router-link :to="routerPath(item.url)" class="text-decoration-none text-center">
+      <v-card variant="flat" class="mx-auto" max-width="344">
+        <v-img :src="hostPipe(productImagePipe(item))" :alt="item.name" height="200px" />
+        <v-card-title><span v-html="item.name" /></v-card-title>
+        <v-card-subtitle v-if="item.price">
+          <span v-html="item.price.formattedValue" />
+        </v-card-subtitle>
+      </v-card>
+    </router-link>
+  </v-sliding-carousel>
 </template>
 <script setup lang="ts">
   import type { ProductData } from '@/api'
@@ -44,6 +42,7 @@
   const props = defineProps<ProductCarouselComponentData>()
   const { search } = useCmsProductStore()
   const products = ref<ProductData[]>()
+
   watch(
     () => props.productCodes,
     async productCodes => {
