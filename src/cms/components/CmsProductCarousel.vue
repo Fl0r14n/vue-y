@@ -1,9 +1,9 @@
 <template>
   <div class="text-center font-weight-bold v-card-title" v-html="title" v-if="title" />
-  <v-sliding-carousel :items="products" v-slot="{ item }" height="350px">
+  <v-sliding-carousel :items="products" v-slot="{ item }" height="300px">
     <router-link :to="routerPath(item.url)" class="text-decoration-none text-center">
-      <v-card variant="flat" class="mx-auto" max-width="344">
-        <v-img :src="hostPipe(productImagePipe(item))" :alt="item.name" height="200px" />
+      <v-card variant="flat">
+        <v-img :src="productImagePipe(item)" :srcset="imageSrcSetPipe(item.images, 'PRIMARY')" :alt="item.name" height="200px" />
         <v-card-title><span v-html="item.name" /></v-card-title>
         <v-card-subtitle v-if="item.price">
           <span v-html="item.price.formattedValue" />
@@ -14,7 +14,7 @@
 </template>
 <script setup lang="ts">
   import type { ProductData } from '@/api'
-  import { hostPipe, productImagePipe, routerPath, useCmsProductStore } from '@/cms'
+  import { imageSrcSetPipe, productImagePipe, routerPath, useCmsProductStore } from '@/cms'
   import { ref, watch } from 'vue'
 
   export interface ProductCarouselComponentData {

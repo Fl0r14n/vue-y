@@ -1,5 +1,5 @@
 <template>
-  <v-carousel v-model="model" hide-delimiter-background show-arrows="hover">
+  <v-carousel v-model="model" hide-delimiter-background show-arrows="hover" v-if="items?.length" :height="height">
     <template v-for="(item, index) of items">
       <v-carousel-item v-if="(index + 1) % columns === 1 || columns === 1" :key="index">
         <v-row class="flex-nowrap">
@@ -19,7 +19,7 @@
   import { computed, ref } from 'vue'
   import { useDisplay } from 'vuetify'
 
-  defineProps<{ items: any[] }>()
+  defineProps<{ items: any[]; height?: number }>()
   const { name } = useDisplay()
   const model = ref<number>(0)
   const columns = computed(() => {

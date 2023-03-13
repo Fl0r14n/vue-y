@@ -1,16 +1,16 @@
-import type { ProductData, MediaContainerData, ImageData } from '@/api'
+import type { ImageData, MediaContainerData, ProductData } from '@/api'
 import { hostPipe } from '@/cms'
 import { useMediaConfig } from '@/config'
 import { computed } from 'vue'
 
 export const productImagePipe = (product?: ProductData) => {
   const mediaConfig = useMediaConfig()
-  return product?.images?.find(i => i.format === 'product')?.url || mediaConfig.value?.missingImage || ''
+  return hostPipe(product?.images?.find(i => i.format === 'product')?.url) || mediaConfig.value?.missingImage || ''
 }
 
 export const productThumbnailPipe = (product?: ProductData) => {
   const mediaConfig = useMediaConfig()
-  return product?.images?.find(i => i.format === 'thumbnail')?.url || mediaConfig.value?.missingImage || ''
+  return hostPipe(product?.images?.find(i => i.format === 'thumbnail')?.url) || mediaConfig.value?.missingImage || ''
 }
 
 export const mediaSrcSetPipe = (media?: MediaContainerData) => {
@@ -24,9 +24,9 @@ export const mediaSrcSetPipe = (media?: MediaContainerData) => {
   )
 }
 
-export const imageSrcSetPipe = (image?: ImageData, format?: string) => {
+export const imageSrcSetPipe = (images?: ImageData[], imageType?: string) => {
   const mediaConfig = useMediaConfig()
   const breakpoints = computed(() => mediaConfig.value?.breakpoints)
-  // TODO
-  return 'TODO'
+  const filtered = images?.filter(i => !!i.format && i.imageType === (imageType || 'PRIMARY')) || images || []
+  return filtered.map(i => `${hostPipe(i.url)} ${breakpoints.value?.[i.format || '']}`).reduce((prev, curr) => `${prev}, ${curr}`)
 }
