@@ -9,9 +9,9 @@ export const useCmsProductStore = defineStore('CmsProductStore', () => {
   const getKey = (componentIds: string[]) => componentIds.join(',')
   const get = (componentIds: string[]) => cacheConfig.value?.products?.[getKey(componentIds)]
   const set = (componentIds: string[], value: ProductData[]) => {
-    const { components } = cacheConfig.value || {}
-    if (components) {
-      components[getKey(componentIds)] = value
+    const { products } = cacheConfig.value || {}
+    if (products) {
+      products[getKey(componentIds)] = value
     }
   }
   const search = async (codes: string[], queryParams?: RequestData) => {

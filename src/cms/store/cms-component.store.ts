@@ -4,8 +4,8 @@ import { useCacheConfig } from '@/config'
 import { defineStore } from 'pinia'
 
 export const useCmsComponentStore = defineStore('CmsComponentStore', () => {
-  const componentResource = useComponentResource()
   const cacheConfig = useCacheConfig()
+  const componentResource = useComponentResource()
   const getKey = (componentIds: string[]) => componentIds.join(',')
   const get = (componentIds: string[]) => cacheConfig.value?.components?.[getKey(componentIds)]
   const set = (componentIds: string[], value: ComponentData[]) => {

@@ -1,8 +1,10 @@
 <template>
-  <cms-node :class="styleClass" v-bind="navigationNode" />
+  <cms-node :class="styleClass" v-bind="model" v-if="model" />
 </template>
 <script setup lang="ts">
   import type { NavNodeData } from '@/api'
+  import { navNode } from '@/cms'
+  import { ref, watch } from 'vue'
 
   export interface NavigationComponentData {
     properties?: object
@@ -22,4 +24,13 @@
   }
 
   const props = defineProps<NavigationComponentData>()
+  const model = ref<NavNodeData>()
+
+  watch(
+    () => props.navigationNode,
+    async node => {
+      model.value = await navNode(node)
+    },
+    { immediate: true }
+  )
 </script>

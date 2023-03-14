@@ -296,11 +296,10 @@ export interface CMSPageData {
   robotTag?: SeoRobots
 }
 
-export interface NavNodeEntryData {
+export interface NavNodeEntryData extends ComponentData {
   itemId?: string
   itemSuperType?: string
   itemType?: string
-  component?: ComponentData // nav structure helper object
 }
 
 export interface NavNodeData {

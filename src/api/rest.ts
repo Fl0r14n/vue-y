@@ -1,11 +1,11 @@
-import { useApiConfig, useConfig, useSiteConfig } from '@/config'
 import { SiteChannel, UserType } from '@/api/models'
+import { useApiConfig, useConfig, useSiteConfig } from '@/config'
 import { OAuthType, useOAuthHttp, useOAuthToken } from '@/oauth'
 import { computed, ref } from 'vue'
 
 export interface RequestOptions {
-  params?: object
-  headers?: object
+  params?: Record<string, any>
+  headers?: Record<string, any>
 
   [x: string]: any
 }
@@ -23,51 +23,71 @@ export const useRestClient = () => {
   const endpoint = ref<string>('')
   const isB2B = computed(() => site.value?.channel === SiteChannel.B2B)
   const orgPrefix = (endpoint: string) => (api.value?.overlappingPaths && `org${capitalize(endpoint)}`) || endpoint
+  const fixOptions = (options?: RequestOptions) => {
+    if (options?.params) {
+      const encoded = new URLSearchParams()
+      const { params } = options
+      for (const key of Object.keys(params)) {
+        if (Array.isArray(params[key])) {
+          for (const val of params[key]) {
+            if (typeof val !== 'undefined') {
+              encoded.append(key, val)
+            }
+          }
+        }
+        if (typeof params[key] !== 'undefined') {
+          encoded.append(key, params[key])
+        }
+      }
+      options.params = encoded
+    }
+    return options
+  }
   const query = <T>(options?: RequestOptions) => {
     return http
-      .get<T>(endpoint.value, options)
+      .get<T>(endpoint.value, fixOptions(options))
       .catch(err => err.response)
       .then(r => r.data)
   }
   const get = <T>(id: number | string, options?: RequestOptions) => {
     return http
-      .get<T>(`${endpoint.value}/${id}`, options)
+      .get<T>(`${endpoint.value}/${id}`, fixOptions(options))
       .catch(err => err.response)
       .then(r => r.data)
   }
   const head = <T>(id: number | string, options?: RequestOptions) => {
     return http
-      .head<T>(`${endpoint.value}/${id}`, options)
+      .head<T>(`${endpoint.value}/${id}`, fixOptions(options))
       .catch(err => err.response)
       .then(r => r.data)
   }
   const postAt = <T>(id: number | string, body: any, options?: RequestOptions) => {
     return http
-      .post<T>(`${endpoint.value}/${id}`, body, options)
+      .post<T>(`${endpoint.value}/${id}`, body, fixOptions(options))
       .catch(err => err.response)
       .then(r => r.data)
   }
   const post = <T>(body: any, options?: RequestOptions) => {
     return http
-      .post<T>(endpoint.value, body, options)
+      .post<T>(endpoint.value, body, fixOptions(options))
       .catch(err => err.response)
       .then(r => r.data)
   }
   const put = <T>(id: number | string, body: any, options?: RequestOptions) => {
     return http
-      .put<T>(`${endpoint.value}/${id}`, body, options)
+      .put<T>(`${endpoint.value}/${id}`, body, fixOptions(options))
       .catch(err => err.response)
       .then(r => r.data)
   }
   const patch = <T>(id: number | string, body: any, options?: RequestOptions) => {
     return http
-      .patch<T>(`${endpoint.value}/${id}`, body, options)
+      .patch<T>(`${endpoint.value}/${id}`, body, fixOptions(options))
       .catch(err => err.response)
       .then(r => r.data)
   }
   const del = <T>(id: number | string, options?: RequestOptions) => {
     return http
-      .delete<T>(`${endpoint.value}/${id}`, options)
+      .delete<T>(`${endpoint.value}/${id}`, fixOptions(options))
       .catch(err => err.response)
       .then(r => r.data)
   }

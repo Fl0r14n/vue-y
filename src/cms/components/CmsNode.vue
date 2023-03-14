@@ -1,7 +1,7 @@
 <template>
   <nav :class="styleClasses">
     <div v-html="title" v-if="title" />
-    <component :is="getComponent(entry.itemType, entry.itemId)" v-for="entry in entries" :key="entry.itemId" v-bind="entry" />
+    <component :is="getComponent(entry.typeCode, entry.uid)" v-for="entry in entries" :key="entry.itemId" v-bind="entry" />
     <cms-node v-for="child in children" :key="child.uid" v-bind="child" />
   </nav>
 </template>
