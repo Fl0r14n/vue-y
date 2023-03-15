@@ -2,7 +2,7 @@ import { SiteChannel, UserType } from '@/api/models'
 import { useApiConfig, useConfig, useLocaleConfig, useSiteConfig } from '@/config'
 import { OAuthType, useOAuthHttp, useOAuthToken } from '@/oauth'
 import type { InternalAxiosRequestConfig } from 'axios'
-import { computed, ref } from 'vue'
+import { computed, type Ref } from 'vue'
 
 export interface RequestOptions {
   params?: Record<string, any>
@@ -57,8 +57,20 @@ http.interceptors.request.use((req: InternalAxiosRequestConfig) => {
   return req
 })
 
-export const useRestClient = () => {
-  const endpoint = ref<string>('')
+export const useRestContext = () => ({
+  host,
+  basePath,
+  siteId,
+  sitePath,
+  isB2B,
+  orgPrefix,
+  isLoggedIn,
+  customerId,
+  userPath
+})
+
+export const useRestClient = (endpoint: Ref<string>) => {
+  // const endpoint = ref<string>('')
   const query = <T>(options?: RequestOptions) => {
     return http
       .get<T>(endpoint.value, fixOptions(options))
@@ -108,16 +120,6 @@ export const useRestClient = () => {
       .then(r => r.data)
   }
   return {
-    endpoint,
-    host,
-    basePath,
-    siteId,
-    sitePath,
-    isB2B,
-    orgPrefix,
-    isLoggedIn,
-    customerId,
-    userPath,
     query,
     head,
     get,

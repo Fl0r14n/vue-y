@@ -1,14 +1,15 @@
 import type { PaymentModeListData, RequestData } from '@/api/models'
-import { useRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
+import { computed } from 'vue'
 
 export abstract class PaymentModesResource {
   getPaymentModes!: (queryParams?: RequestData) => Promise<PaymentModeListData>
 }
 
 const paymentModesResource = (): PaymentModesResource => {
-  const rest = useRestClient()
-  rest.endpoint.value = `${rest.sitePath}/paymentmodes`
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath}/paymentmodes`))
   return {
     getPaymentModes: (queryParams?: RequestData) => rest.query<PaymentModeListData>({ params: queryParams })
   }

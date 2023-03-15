@@ -1,6 +1,7 @@
 import type { CountryDestinationType, CountryListData, RegionListData, RequestData } from '@/api/models'
-import { useRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
+import { computed } from 'vue'
 
 export abstract class CountryResource {
   getCountries!: (queryParams?: { type?: CountryDestinationType } & RequestData) => Promise<CountryListData>
@@ -8,8 +9,8 @@ export abstract class CountryResource {
 }
 
 const countryResource = (): CountryResource => {
-  const rest = useRestClient()
-  rest.endpoint.value = `${rest.sitePath.value}/countries`
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/countries`))
   return {
     getCountries: (queryParams?: { type?: CountryDestinationType } & RequestData) => rest.query<CountryListData>({ params: queryParams }),
     getRegions: (countyIsoCode: string, queryParams?: RequestData) =>

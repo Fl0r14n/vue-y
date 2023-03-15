@@ -4,11 +4,11 @@ import { storeToRefs } from 'pinia'
 export const themePipe = (value?: string) => {
   const { site } = storeToRefs(useSiteStore())
   const { theme } = site.value || {}
-  return `${value} ${theme ? 'theme-' + theme : ''}`
+  return `${value || ''} ${theme ? 'theme-' + theme : ''}`
 }
 
 export const sitePipe = (value?: string) => {
   const { site } = storeToRefs(useSiteStore())
   const { uid } = site.value || {}
-  return `${value} ${uid ? 'site-' + uid : ''}`
+  return `${value || ''} ${uid ? 'site-' + uid : ''}`
 }

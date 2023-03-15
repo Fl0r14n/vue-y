@@ -6,8 +6,9 @@ import type {
   PageableRequestData,
   RequestData
 } from '@/api/models'
-import { useRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
+import { computed } from 'vue'
 
 export abstract class CatalogResource {
   getCatalogs!: (queryParams?: RequestData) => Promise<CatalogListData>
@@ -22,8 +23,8 @@ export abstract class CatalogResource {
 }
 
 const catalogResource = (): CatalogResource => {
-  const rest = useRestClient()
-  rest.endpoint.value = `${rest.sitePath.value}/catalogs`
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/catalogs`))
   return {
     getCatalogs: (queryParams?: RequestData) => rest.query<CatalogListData>({ params: queryParams }),
     getCatalog: (catalogId: string, queryParams?: RequestData) => rest.get<CatalogData>(catalogId, { params: queryParams }),

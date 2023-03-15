@@ -1,6 +1,7 @@
 import type { CMSPageData, CmsPageRequestData, ListAdaptedPagesData, PageType, RequestData, SortableRequestData } from '@/api/models'
-import { useRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
+import { computed } from 'vue'
 
 export abstract class PageResource {
   getPages!: (queryParams?: CmsPageRequestData) => Promise<CMSPageData>
@@ -13,8 +14,8 @@ export abstract class PageResource {
 }
 
 const pageResource = (): PageResource => {
-  const rest = useRestClient()
-  rest.endpoint.value = `${rest.sitePath.value}/cms`
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/cms`))
   return {
     getPages: (queryParams?: CmsPageRequestData) => rest.get<CMSPageData>(`pages`, { params: queryParams }),
     getPage: (pageId: string, queryParams?: RequestData) => rest.get<CMSPageData>(`pages/${pageId}`, { params: queryParams }),

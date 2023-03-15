@@ -38,8 +38,8 @@
     typeCode?: string
     uid?: string
     uuid?: string
-    context: string
-    variant: string
+    context?: string
+    variant?: string
   }
 
   const props = withDefaults(defineProps<SiteContextData>(), { variant: 'underlined' })

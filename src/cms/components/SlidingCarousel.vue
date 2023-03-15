@@ -1,17 +1,19 @@
 <template>
   <v-carousel v-model="model" hide-delimiter-background show-arrows="hover" v-if="items?.length" :height="height">
     <template v-for="(item, index) of items">
-      <v-carousel-item v-if="(index + 1) % columns === 1 || columns === 1" :key="index">
-        <v-row class="flex-nowrap">
-          <template v-for="(n, i) in columns">
-            <template v-if="+index + i < items.length">
-              <v-col :key="i">
-                <slot :item="items[+index + i]" />
-              </v-col>
+      <template v-if="item">
+        <v-carousel-item v-if="(index + 1) % columns === 1 || columns === 1" :key="index">
+          <v-row class="flex-nowrap">
+            <template v-for="(n, i) in columns">
+              <template v-if="+index + i < items.length">
+                <v-col :key="i">
+                  <slot :item="items[+index + i]" />
+                </v-col>
+              </template>
             </template>
-          </template>
-        </v-row>
-      </v-carousel-item>
+          </v-row>
+        </v-carousel-item>
+      </template>
     </template>
   </v-carousel>
 </template>

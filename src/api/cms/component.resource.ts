@@ -7,8 +7,9 @@ import type {
   RequestData,
   SortableRequestData
 } from '@/api/models'
-import { useRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
+import { computed } from 'vue'
 
 export abstract class ComponentResource {
   /**
@@ -23,8 +24,8 @@ export abstract class ComponentResource {
 }
 
 const componentResource = (): ComponentResource => {
-  const rest = useRestClient()
-  rest.endpoint.value = `${rest.sitePath.value}/cms/components`
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/cms/components`))
   return {
     getComponents: (componentIdList: ComponentIdListData, queryParams?: ComponentRequestData & SortableRequestData) =>
       rest.post<ListAdaptedComponents>(componentIdList, { params: queryParams }),

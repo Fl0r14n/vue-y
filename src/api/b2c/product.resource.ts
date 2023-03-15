@@ -13,8 +13,9 @@ import type {
   StoreFinderStockSearchPageData,
   SuggestionListData
 } from '@/api'
-import { useRestClient } from '@/api'
+import { useRestClient, useRestContext } from '@/api'
 import { inject } from '@/config'
+import { computed } from 'vue'
 
 export abstract class ProductResource {
   getProduct!: (productCode: string, queryParams?: RequestData) => Promise<ProductData>
@@ -56,8 +57,8 @@ export abstract class ProductResource {
 }
 
 const productResource = (): ProductResource => {
-  const rest = useRestClient()
-  rest.endpoint.value = `${rest.sitePath.value}/products`
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/products`))
   return {
     getProduct: (productCode: string, queryParams?: RequestData) => rest.get<ProductData>(productCode, { params: queryParams }),
     getProductReferences: (

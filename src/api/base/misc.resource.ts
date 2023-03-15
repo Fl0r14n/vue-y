@@ -7,7 +7,7 @@ import type {
   RequestData,
   TitleListData
 } from '@/api/models'
-import { useRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
 
 export abstract class MiscResource {
@@ -20,8 +20,8 @@ export abstract class MiscResource {
 }
 
 const miscResource = (): MiscResource => {
-  const rest = useRestClient()
-  rest.endpoint.value = rest.sitePath.value
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(sitePath)
   return {
     getCardTypes: (queryParams?: RequestData) => rest.get<CardTypeListData>('cardtypes', { params: queryParams }),
     getCurrencies: (queryParams?: RequestData) => rest.get<CurrencyListData>('currencies', { params: queryParams }),
