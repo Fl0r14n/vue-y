@@ -1,6 +1,7 @@
 import { SiteChannel, UserType } from '@/api/models'
-import { useApiConfig, useConfig, useSiteConfig } from '@/config'
+import { useApiConfig, useConfig, useLocaleConfig, useSiteConfig } from '@/config'
 import { OAuthType, useOAuthHttp, useOAuthToken } from '@/oauth'
+import type { InternalAxiosRequestConfig } from 'axios'
 import { computed, ref } from 'vue'
 
 export interface RequestOptions {
@@ -12,8 +13,18 @@ export interface RequestOptions {
 
 const capitalize = (s: string) => s.replace(/^\w/, c => c.toUpperCase())
 
+const http = useOAuthHttp()
+
+http.interceptors.request.use((req: InternalAxiosRequestConfig) => {
+  const { language, currency } = useLocaleConfig().value || {}
+  if (language && currency) {
+    req.params.append('lang', language)
+    req.params.append('curr', currency)
+  }
+  return req
+})
+
 export const useRestClient = () => {
-  const http = useOAuthHttp()
   const site = useSiteConfig()
   const api = useApiConfig()
   const host = computed(() => api.value?.host)

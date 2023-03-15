@@ -1,5 +1,5 @@
 <template>
-  <nav :class="styleClasses">
+  <nav :class="`${styleClasses || ''} ${uid}`">
     <div v-html="title" v-if="title" />
     <component :is="getComponent(entry.typeCode, entry.uid)" v-for="entry in entries" :key="entry.itemId" v-bind="entry" />
     <cms-node v-for="child in children" :key="child.uid" v-bind="child" />

@@ -1,17 +1,47 @@
 <template>
-  <cms-node :class="styleClass" v-bind="model" v-if="model" />
-  <v-footer border style="flex: none">
+  <v-footer border style="flex: none" :class="`${styleClasses || ''} ${uid}`">
     <v-row justify="center" no-gutters>
-      <v-btn v-for="link in links" :key="link" variant="text" class="mx-2" rounded="xl">
-        {{ link }}
-      </v-btn>
-      <v-col class="text-center mt-4" cols="12"> {{ new Date().getFullYear() }} — <strong>ngx-y</strong> </v-col>
+      <template v-if="model">
+        <v-list density="compact" v-for="child in model.children" :key="child.uid">
+          <v-list-item>
+            <v-list-item-title class="font-weight-bold">{{ child.title }}</v-list-item-title>
+          </v-list-item>
+          <template v-for="grandChild in child.children" :key="grandChild.uid">
+            <v-list-item :link="entry.itemType === 'CMSLinkComponent'" v-for="entry in grandChild.entries" :key="entry.itemId">
+              <v-list-item-title>
+                <component class="text-decoration-none" :is="getComponent(entry.typeCode, entry.uid)" v-bind="entry" />
+              </v-list-item-title>
+            </v-list-item>
+          </template>
+        </v-list>
+        <v-list v-if="showLanguageCurrency">
+          <v-list-item />
+          <v-list-item>
+            <v-list-item-title>
+              <component :is="getComponent('CMSSiteContextComponent')" v-bind="{ context: 'LANGUAGE' }" />
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title>
+              <component :is="getComponent('CMSSiteContextComponent')" v-bind="{ context: 'CURRENCY' }" />
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title>
+              <component :is="getComponent('CMSSiteContextComponent')" v-bind="{ context: 'STOREFRONT' }" />
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </template>
+      <v-col class="text-center mt-4" cols="12">
+        <div v-html="notice" />
+      </v-col>
     </v-row>
   </v-footer>
 </template>
 <script setup lang="ts">
   import type { NavNodeData } from '@/api'
-  import { navNode } from '@/cms'
+  import { getComponent, navNode } from '@/cms'
   import { ref, watch } from 'vue'
 
   interface FooterNavigationComponent {
@@ -27,7 +57,7 @@
     uuid?: string
 
     wrapAfter?: string | number
-    styleClass?: string
+    styleClasses?: string
     navigationNode?: NavNodeData
 
     notice?: string
@@ -44,6 +74,4 @@
     },
     { immediate: true }
   )
-
-  const links = ['Home', 'About Us', 'Team', 'Services', 'Blog', 'Contact Us']
 </script>

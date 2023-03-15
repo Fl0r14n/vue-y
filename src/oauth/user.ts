@@ -1,8 +1,8 @@
-import type { UserInfo } from '@/oauth/models'
 import { config, ignoredPaths } from '@/oauth/config'
 import { refresh } from '@/oauth/http'
+import type { UserInfo } from '@/oauth/models'
 import { accessToken, isAuthorized, isExpired, token } from '@/oauth/token'
-import type { AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios'
+import type { InternalAxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { ref, watch } from 'vue'
 
@@ -10,7 +10,7 @@ const HEADER_JSON = {
   'Content-Type': 'application/json'
 }
 
-const isPathIgnored = (req: AxiosRequestConfig) => {
+const isPathIgnored = (req: InternalAxiosRequestConfig) => {
   if (ignoredPaths.value) {
     for (const ignoredPath of ignoredPaths.value) {
       try {
@@ -66,16 +66,13 @@ watch([isAuthorized, () => (config.value as any)?.userPath], async ([authorized,
   }
 })
 
-export const authorizationInterceptor = async (req: AxiosRequestConfig) => {
+export const authorizationInterceptor = async (req: InternalAxiosRequestConfig) => {
   if (!isPathIgnored(req)) {
     if (isExpired) {
       token.value = await refresh(token.value)
     }
     if (accessToken.value) {
-      req.headers = {
-        ...req.headers,
-        Authorization: accessToken.value
-      } as RawAxiosRequestHeaders
+      req.headers.setAuthorization(accessToken.value)
     }
   }
   return req

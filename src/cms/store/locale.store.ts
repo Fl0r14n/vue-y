@@ -13,9 +13,11 @@ export const useLocaleStore = defineStore('LocaleStore', () => {
   const locale = useLocaleConfig()
   const router = useRouter()
   const contextMapper = useLocaleContextMapper()
-  const { site } = storeToRefs(useSiteStore())
+  const { site, sites } = storeToRefs(useSiteStore())
   const languages = ref<LanguageData[]>()
   const currencies = ref<CurrencyData[]>()
+  const storefront = computed(() => site.value?.uid)
+  const storefronts = computed(() => sites.value.map(s => ({ code: s.uid, name: s.name })))
   const language = computed({
     get: () => locale.value?.language,
     set: language => language && locale.value && (locale.value.language = language)
@@ -149,12 +151,14 @@ export const useLocaleStore = defineStore('LocaleStore', () => {
   )
 
   return {
+    storefronts,
     languages,
     currencies,
-    locale,
+    storefront,
     language,
     currency,
     browserLanguage,
-    basePath
+    basePath,
+    locale
   }
 })

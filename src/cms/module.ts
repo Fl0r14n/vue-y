@@ -21,5 +21,6 @@ export const createCms = () => ({
     provideCmsComponent('CMSTabParagraphComponent')(() => import('./components/CmsParagraph.vue'))
     provideCmsComponent('ProductCarouselComponent')(() => import('./components/CmsProductCarousel.vue'))
     provideCmsComponent('CMSTabParagraphContainer')(() => import('./components/CmsTabContainer.vue'))
+    provideCmsComponent('CMSSiteContextComponent')(() => import('./components/CmsSiteContext.vue'))
   }
 })
