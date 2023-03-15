@@ -20,7 +20,7 @@ export const usePageStore = defineStore('PageStore', () => {
   const componentResource = useComponentResource()
   const { status } = useOAuth()
   const { component } = storeToRefs(useSmartEditStore())
-  const { language, currency } = storeToRefs(useLocaleStore())
+  const { language, currency, storefront } = storeToRefs(useLocaleStore())
   const query = ref<CmsPageQuery>()
   const page = ref<CMSPageData>()
   const uid = computed(() => page.value?.uid)
@@ -38,7 +38,7 @@ export const usePageStore = defineStore('PageStore', () => {
     return (query?.id && pages?.[query.pageType]?.uids?.[query.id]) || undefined
   }
 
-  watch([query, language, currency, status], async ([q]) => {
+  watch([query, storefront, language, currency, status], async ([q]) => {
     if (q) {
       page.value = getStaticPage(q) || (await getPage(q))
     }

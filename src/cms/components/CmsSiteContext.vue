@@ -5,6 +5,7 @@
     item-value="isocode"
     item-title="name"
     :variant="variant"
+    :disabled="!languages.length"
     v-if="context.toLowerCase() === 'language'" />
   <v-select
     v-model="currency"
@@ -12,6 +13,7 @@
     item-value="isocode"
     item-title="name"
     :variant="variant"
+    :disabled="!currencies.length"
     v-if="context.toLowerCase() === 'currency'" />
   <v-select
     v-model="storefront"
@@ -19,6 +21,7 @@
     item-value="code"
     item-title="name"
     :variant="variant"
+    :disabled="!storefronts.length"
     v-if="context.toLowerCase() === 'storefront'" />
 </template>
 <script setup lang="ts">

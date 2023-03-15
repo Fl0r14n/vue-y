@@ -1,11 +1,14 @@
 import type { ProductData, RequestData } from '@/api'
 import { useProductResource } from '@/api/b2c/product.resource'
+import { useLocaleStore } from '@/cms'
 import { useCacheConfig } from '@/config'
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
+import { watch } from 'vue'
 
 export const useCmsProductStore = defineStore('CmsProductStore', () => {
   const cacheConfig = useCacheConfig()
   const productResource = useProductResource()
+  const { locale } = storeToRefs(useLocaleStore())
   const getKey = (componentIds: string[]) => componentIds.join(',')
   const get = (componentIds: string[]) => cacheConfig.value?.products?.[getKey(componentIds)]
   const set = (componentIds: string[], value: ProductData[]) => {
@@ -22,5 +25,6 @@ export const useCmsProductStore = defineStore('CmsProductStore', () => {
     }
     return result
   }
+  watch(locale, () => cacheConfig.value && (cacheConfig.value.products = {}))
   return { search }
 })

@@ -12,9 +12,42 @@ export interface RequestOptions {
 }
 
 const capitalize = (s: string) => s.replace(/^\w/, c => c.toUpperCase())
-
 const http = useOAuthHttp()
-
+const site = useSiteConfig()
+const api = useApiConfig()
+const token = useOAuthToken()
+const host = computed(() => api.value?.host)
+const basePath = computed(() => `${api.value?.host}${api.value?.path}`)
+const siteId = computed(() => site.value?.uid)
+const sitePath = computed(() => `${basePath.value}/${siteId.value}`)
+const isB2B = computed(() => site.value?.channel === SiteChannel.B2B)
+const orgPrefix = (endpoint: string) => (api.value?.overlappingPaths && `org${capitalize(endpoint)}`) || endpoint
+const fixOptions = (options?: RequestOptions) => {
+  if (options?.params) {
+    const encoded = new URLSearchParams()
+    const { params } = options
+    for (const key of Object.keys(params)) {
+      if (Array.isArray(params[key])) {
+        for (const val of params[key]) {
+          if (typeof val !== 'undefined') {
+            encoded.append(key, val)
+          }
+        }
+      }
+      if (typeof params[key] !== 'undefined') {
+        encoded.append(key, params[key])
+      }
+    }
+    options.params = encoded
+  }
+  return options
+}
+const isLoggedIn = computed(() => {
+  const { type, access_token } = token.value
+  return (access_token && type === OAuthType.RESOURCE) || type === OAuthType.IMPLICIT || type === OAuthType.AUTHORIZATION_CODE
+})
+const customerId = computed(() => token.value.asagent && (token.value.customerId || UserType.ANONYMOUS))
+const userPath = computed(() => (isLoggedIn.value && (customerId.value || UserType.USER)) || UserType.ANONYMOUS)
 http.interceptors.request.use((req: InternalAxiosRequestConfig) => {
   const { language, currency } = useLocaleConfig().value || {}
   if (language && currency) {
@@ -25,35 +58,7 @@ http.interceptors.request.use((req: InternalAxiosRequestConfig) => {
 })
 
 export const useRestClient = () => {
-  const site = useSiteConfig()
-  const api = useApiConfig()
-  const host = computed(() => api.value?.host)
-  const basePath = computed(() => `${api.value?.host}${api.value?.path}`)
-  const siteId = computed(() => site.value?.uid)
-  const sitePath = computed(() => `${basePath.value}/${siteId.value}`)
   const endpoint = ref<string>('')
-  const isB2B = computed(() => site.value?.channel === SiteChannel.B2B)
-  const orgPrefix = (endpoint: string) => (api.value?.overlappingPaths && `org${capitalize(endpoint)}`) || endpoint
-  const fixOptions = (options?: RequestOptions) => {
-    if (options?.params) {
-      const encoded = new URLSearchParams()
-      const { params } = options
-      for (const key of Object.keys(params)) {
-        if (Array.isArray(params[key])) {
-          for (const val of params[key]) {
-            if (typeof val !== 'undefined') {
-              encoded.append(key, val)
-            }
-          }
-        }
-        if (typeof params[key] !== 'undefined') {
-          encoded.append(key, params[key])
-        }
-      }
-      options.params = encoded
-    }
-    return options
-  }
   const query = <T>(options?: RequestOptions) => {
     return http
       .get<T>(endpoint.value, fixOptions(options))
@@ -110,6 +115,9 @@ export const useRestClient = () => {
     sitePath,
     isB2B,
     orgPrefix,
+    isLoggedIn,
+    customerId,
+    userPath,
     query,
     head,
     get,
@@ -118,23 +126,6 @@ export const useRestClient = () => {
     put,
     patch,
     del
-  }
-}
-
-export const useAuthRestClient = () => {
-  const rest = useRestClient()
-  const token = useOAuthToken()
-  const isLoggedIn = computed(() => {
-    const { type, access_token } = token.value
-    return (access_token && type === OAuthType.RESOURCE) || type === OAuthType.IMPLICIT || type === OAuthType.AUTHORIZATION_CODE
-  })
-  const customerId = computed(() => token.value.asagent && (token.value.customerId || UserType.ANONYMOUS))
-  const userPath = computed(() => (isLoggedIn.value && (customerId.value || UserType.USER)) || UserType.ANONYMOUS)
-  return {
-    ...rest,
-    isLoggedIn,
-    customerId,
-    userPath
   }
 }
 

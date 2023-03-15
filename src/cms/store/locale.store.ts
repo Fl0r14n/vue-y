@@ -16,38 +16,60 @@ export const useLocaleStore = defineStore('LocaleStore', () => {
   const { site, sites } = storeToRefs(useSiteStore())
   const languages = ref<LanguageData[]>()
   const currencies = ref<CurrencyData[]>()
-  const storefront = computed(() => site.value?.uid)
+  const storefront = computed({
+    get: () => site.value?.uid,
+    set: storefront => {
+      if (storefront) {
+        const newSite = sites.value.find(s => s.uid === storefront)
+        if (newSite) {
+          site.value = newSite
+        }
+      }
+    }
+  })
   const storefronts = computed(() => sites.value.map(s => ({ code: s.uid, name: s.name })))
   const language = computed({
     get: () => locale.value?.language,
-    set: language => language && locale.value && (locale.value.language = language)
+    set: language =>
+      language &&
+      locale.value &&
+      (locale.value = {
+        ...locale.value,
+        language
+      })
   })
   const currency = computed({
     get: () => locale.value?.currency,
-    set: currency => currency && locale.value && (locale.value.currency = currency)
+    set: currency =>
+      currency &&
+      locale.value &&
+      (locale.value = {
+        ...locale.value,
+        currency
+      })
   })
   const browserLanguage = navigator.language.split('-')[0]
   const basePath = computed(() => {
-    let basePath = ''
+    let path = ''
     const { urlEncodingAttributes } = site.value || {}
     if (urlEncodingAttributes) {
       for (const attr of urlEncodingAttributes) {
         switch (attr) {
           case UrlEncodingAttributes.STOREFRONT: {
-            basePath += `/${contextMapper.toStorefrontUrlSegment(locale.value)}`
+            path += `/${contextMapper.toStorefrontUrlSegment(locale.value)}`
             break
           }
           case UrlEncodingAttributes.LANGUAGE: {
-            basePath += `/${contextMapper.toLanguageUrlSegment(locale.value)}`
+            path += `/${contextMapper.toLanguageUrlSegment(locale.value)}`
             break
           }
           case UrlEncodingAttributes.CURRENCY: {
-            basePath += `/${contextMapper.toCurrencyUrlSegment(locale.value)}`
+            path += `/${contextMapper.toCurrencyUrlSegment(locale.value)}`
           }
         }
       }
     }
-    return basePath
+    return path
   })
 
   const updateUrl = async (url: Location) => {
