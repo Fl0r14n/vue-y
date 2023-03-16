@@ -1,9 +1,13 @@
+import { PageType } from '@/api'
 import { createCms } from '@/cms'
 import type { Config } from '@/config'
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
 import { createLayout } from '@/layout/module'
+import { createLogin } from '@/login'
 import { createY } from '@/module'
+import { createProduct, productGuard } from '@/product'
+import { categoryGuard, createSearch, searchGuard } from '@/search'
 
 import '@mdi/font/scss/materialdesignicons.scss'
 import { createPinia } from 'pinia'
@@ -54,6 +58,53 @@ const router = createRouter({
           meta: {
             id: 'not-found'
           }
+        },
+        {
+          path: 'my-account/:id',
+          name: 'account',
+          component: () => import('./cms/components/CmsPage.vue')
+        },
+        {
+          path: 'login',
+          name: 'login',
+          component: () => import('./cms/components/CmsPage.vue')
+          // beforeEnter:
+        },
+        {
+          path: 'logout',
+          name: 'logout',
+          component: () => null as any
+          // beforeEnter: (to, from) => to
+        },
+        {
+          path: 'login/pw/change',
+          name: 'changePassword',
+          component: () => null as any
+          // beforeEnter:
+        },
+        {
+          path: ':more*/p/:id',
+          name: 'product',
+          component: () => import('./cms/components/CmsPage.vue'),
+          meta: {
+            pageType: PageType.PRODUCT
+          },
+          beforeEnter: productGuard
+        },
+        {
+          path: ':more*/c/:id',
+          name: 'category',
+          component: () => import('./cms/components/CmsPage.vue'),
+          meta: {
+            pageType: PageType.CATEGORY
+          },
+          beforeEnter: categoryGuard
+        },
+        {
+          path: 'search',
+          name: 'search',
+          component: () => import('./cms/components/CmsPage.vue'),
+          beforeEnter: searchGuard
         },
         {
           path: ':id',
@@ -124,4 +175,7 @@ createApp(App)
   .use(createY(config).useRouter(router))
   .use(createCms())
   .use(createLayout())
+  .use(createLogin())
+  .use(createProduct())
+  .use(createSearch())
   .mount('#app')
