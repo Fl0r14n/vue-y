@@ -3,13 +3,14 @@ import { useComponentResource } from '@/api/cms'
 import { useLocaleStore } from '@/cms'
 import { useCacheConfig } from '@/config'
 import { defineStore, storeToRefs } from 'pinia'
-import { watch } from 'vue'
+import { computed } from 'vue'
 
 export const useCmsComponentStore = defineStore('CmsComponentStore', () => {
   const cacheConfig = useCacheConfig()
   const componentResource = useComponentResource()
-  const { locale } = storeToRefs(useLocaleStore())
-  const getKey = (componentIds: string[]) => componentIds.join(',')
+  const { storefront, language, currency } = storeToRefs(useLocaleStore())
+  const localeKey = computed(() => `${storefront.value}.${language.value}.${currency.value}`)
+  const getKey = (componentIds: string[]) => `${localeKey.value}.${componentIds.join(',')}`
   const get = (componentIds: string[]) => cacheConfig.value?.components?.[getKey(componentIds)]
   const set = (componentIds: string[], value: ComponentData[]) => {
     const { components } = cacheConfig.value || {}
@@ -27,6 +28,5 @@ export const useCmsComponentStore = defineStore('CmsComponentStore', () => {
     }
     return result
   }
-  watch(locale, () => cacheConfig.value && (cacheConfig.value.components = {}))
   return { search }
 })

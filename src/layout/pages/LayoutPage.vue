@@ -4,7 +4,13 @@
       <template v-slot:prepend>
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" v-if="mdAndDown"></v-app-bar-nav-icon>
       </template>
-      <v-app-bar-title>ngx-y</v-app-bar-title>
+      <v-app-bar-title>
+        <cms-slot position="SiteLogo" v-slot="{ data }">
+          <div class="d-flex" v-for="d in data" :key="d.uid" style="height: 40px" v-cms-data="d.properties">
+            <component :is="getComponent(d.typeCode, d.uid)" v-bind="{ ...d, styleClasses: 'h-100' }" />
+          </div>
+        </cms-slot>
+      </v-app-bar-title>
       <template v-slot:append>
         <v-btn icon="mdi-magnify" />
         <v-btn
@@ -17,6 +23,7 @@
     <v-navigation-drawer v-model="drawer" location="bottom" v-if="mdAndDown">
       <v-list color="transparent">
         <v-list-item></v-list-item>
+        <cms-slot position="HeaderLinks" />
         <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard"></v-list-item>
         <v-list-item prepend-icon="mdi-account-box" title="Account"></v-list-item>
         <v-list-item prepend-icon="mdi-gavel" title="Admin"></v-list-item>
@@ -29,6 +36,11 @@
     </v-navigation-drawer>
     <v-main>
       <v-container>
+        <cms-slot position="NavigationBar" />
+        <cms-slot position="BottomHeaderSlot" />
+        <cms-slot position="MiniCart" />
+        <cms-slot position="SiteLinks" />
+        <cms-slot position="SearchBox" />
         <RouterView />
       </v-container>
     </v-main>
@@ -37,7 +49,8 @@
 </template>
 
 <script setup lang="ts">
-  import { themePipe } from '@/cms'
+  import { getComponent, themePipe } from '@/cms'
+  import CmsSlot from '@/cms/components/CmsSlot.vue'
   import { OAuthType } from '@/oauth/models'
   import { ref } from 'vue'
   import { useDisplay, useTheme } from 'vuetify'

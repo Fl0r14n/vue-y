@@ -1,8 +1,8 @@
 <template>
   <template v-if="media">
     <img :class="`w-100 ${typeCode} ${styleClasses || ''}`" :srcset="srcSet" :alt="name" v-if="!urlLink" />
-    <router-link :class="`d-flex ${typeCode} ${styleClasses || ''}`" :to="routerPath(urlLink)" v-if="urlLink">
-      <img class="w-100" :srcset="srcSet" :alt="name" />
+    <router-link :class="`${typeCode} ${styleClasses || ''}`" :to="routerPath(urlLink)" v-if="urlLink">
+      <img class="d-flex w-100" style="height: inherit" :srcset="srcSet" :alt="name" />
     </router-link>
   </template>
 </template>

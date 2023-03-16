@@ -26,11 +26,6 @@
               <component :is="getComponent('CMSSiteContextComponent')" v-bind="{ context: 'CURRENCY' }" />
             </v-list-item-title>
           </v-list-item>
-          <v-list-item>
-            <v-list-item-title>
-              <component :is="getComponent('CMSSiteContextComponent')" v-bind="{ context: 'STOREFRONT' }" />
-            </v-list-item-title>
-          </v-list-item>
         </v-list>
       </template>
       <v-col class="text-center mt-4" cols="12">

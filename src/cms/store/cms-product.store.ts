@@ -3,18 +3,19 @@ import { useProductResource } from '@/api/b2c/product.resource'
 import { useLocaleStore } from '@/cms'
 import { useCacheConfig } from '@/config'
 import { defineStore, storeToRefs } from 'pinia'
-import { watch } from 'vue'
+import { computed } from 'vue'
 
 export const useCmsProductStore = defineStore('CmsProductStore', () => {
   const cacheConfig = useCacheConfig()
   const productResource = useProductResource()
-  const { locale } = storeToRefs(useLocaleStore())
-  const getKey = (componentIds: string[]) => componentIds.join(',')
-  const get = (componentIds: string[]) => cacheConfig.value?.products?.[getKey(componentIds)]
-  const set = (componentIds: string[], value: ProductData[]) => {
+  const { storefront, language, currency } = storeToRefs(useLocaleStore())
+  const localeKey = computed(() => `${storefront.value}.${language.value}.${currency.value}`)
+  const getKey = (productIds: string[]) => `${localeKey.value}.${productIds.join(',')}`
+  const get = (productIds: string[]) => cacheConfig.value?.products?.[getKey(productIds)]
+  const set = (productIds: string[], value: ProductData[]) => {
     const { products } = cacheConfig.value || {}
     if (products) {
-      products[getKey(componentIds)] = value
+      products[getKey(productIds)] = value
     }
   }
   const search = async (codes: string[], queryParams?: RequestData) => {
@@ -25,6 +26,5 @@ export const useCmsProductStore = defineStore('CmsProductStore', () => {
     }
     return result
   }
-  watch(locale, () => cacheConfig.value && (cacheConfig.value.products = {}))
   return { search }
 })

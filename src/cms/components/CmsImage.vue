@@ -3,10 +3,10 @@
     <img :class="`w-100 ${typeCode} ${styleClasses || ''}`" :src="media.url" :alt="altText" v-if="!urlLink" />
     <template v-else>
       <a :href="urlLink" :class="`${typeCode} ${styleClasses || ''}`" target="_blank" ref="noreferrer" v-if="isExternal()">
-        <img class="w-100" :src="hostPipe(media.url)" :alt="altText" />
+        <img class="d-flex w-100" style="height: inherit" :src="hostPipe(media.url)" :alt="altText" />
       </a>
-      <router-link :class="`d-flex ${typeCode} ${styleClasses || ''}`" :to="routerPath(urlLink)" v-else>
-        <img class="w-100" :src="hostPipe(media.url)" :alt="altText" />
+      <router-link :class="`${typeCode} ${styleClasses || ''}`" :to="routerPath(urlLink)" v-else>
+        <img class="d-flex w-100" style="height: inherit" :src="hostPipe(media.url)" :alt="altText" />
       </router-link>
     </template>
   </template>

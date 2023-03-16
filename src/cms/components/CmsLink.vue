@@ -6,9 +6,11 @@
     rel="noreferrer"
     v-html="linkName"
     v-if="isExternal()" />
-  <router-link :class="styleClasses" :to="url" v-else>{{ linkName }}</router-link>
+  <router-link :class="styleClasses" :to="routerPath(url)" v-else>{{ linkName }}</router-link>
 </template>
 <script setup lang="ts">
+  import { routerPath } from '@/cms'
+
   export interface LinkComponentData {
     container?: string | boolean
     properties?: object

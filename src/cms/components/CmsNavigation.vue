@@ -17,7 +17,7 @@
     synchronizationBlocked?: any
     styleClasses?: string
 
-    container?: boolean
+    container?: string | boolean
     wrapAfter?: number
     styleClass?: string
     navigationNode?: NavNodeData
