@@ -1419,7 +1419,7 @@ export interface ProductSearchPageData extends SortableResponseData {
   facets?: FacetData[]
   freeTextSearch?: string
   keywordRedirectUrl?: string
-  products?: ProductData[]
+  products: ProductData[]
   spellingSuggestion?: SpellingSuggestionData
 }
 

@@ -2,25 +2,46 @@
   <v-app :theme="theme" :class="themePipe()">
     <v-app-bar>
       <template v-slot:prepend>
-        <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" v-if="mdAndDown"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" v-if="mobile"></v-app-bar-nav-icon>
       </template>
       <v-app-bar-title>
-        <cms-slot position="SiteLogo" v-slot="{ data }">
-          <div class="d-flex" v-for="d in data" :key="d.uid" style="height: 40px" v-cms-data="d.properties">
-            <component :is="getComponent(d.typeCode, d.uid)" v-bind="{ ...d, styleClasses: 'h-100' }" />
-          </div>
-        </cms-slot>
+        <div class="d-flex align-center">
+          <cms-slot position="SiteLogo" v-slot="{ data }">
+            <div class="d-flex" v-for="d in data" :key="d.uid" style="height: 40px" v-cms-data="d.properties">
+              <component :is="getComponent(d.typeCode, d.uid)" v-bind="{ ...d, styleClasses: 'h-100' }" />
+            </div>
+          </cms-slot>
+          <cms-slot position="SiteContext" class="d-flex" v-slot="{ data }" v-if="!mobile">
+            <div class="d-flex px-3" v-for="d in data" :key="d.uid" v-cms-data="d.properties">
+              <component :is="getComponent(d.typeCode, d.uid)" v-bind="d" />
+            </div>
+          </cms-slot>
+        </div>
       </v-app-bar-title>
       <template v-slot:append>
-        <v-btn icon="mdi-magnify" />
+        <cms-slot position="SearchBox" />
+        <cms-slot position="MiniCart" />
+        <v-menu v-if="!mobile">
+          <template v-slot:activator="{ props }">
+            <v-btn icon="mdi-dots-vertical" v-bind="props" />
+          </template>
+          <v-list density="compact">
+            <cms-slot position="SiteLinks" v-slot="{ data }">
+              <v-list-item :link="d.typeCode === 'CMSLinkComponent'" v-for="d in data" :key="d.uid" v-cms-data="d.properties">
+                <v-list-item-title>
+                  <component :is="getComponent(d.typeCode, d.uid)" v-bind="d" />
+                </v-list-item-title>
+              </v-list-item>
+            </cms-slot>
+          </v-list>
+        </v-menu>
+        <v-oauth :state="'somme_dummy_state'" :type="type" :use-logout-url="true" :responseType="responseType" />
         <v-btn
           :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           @click="theme = theme === 'light' ? 'dark' : 'light'"></v-btn>
-        <v-btn icon="mdi-dots-vertical"></v-btn>
-        <v-oauth :state="'somme_dummy_state'" :type="type" :use-logout-url="true" :responseType="responseType" />
       </template>
     </v-app-bar>
-    <v-navigation-drawer v-model="drawer" location="bottom" v-if="mdAndDown">
+    <v-navigation-drawer v-model="drawer" location="bottom" v-if="mobile">
       <v-list color="transparent">
         <v-list-item></v-list-item>
         <cms-slot position="HeaderLinks" />
@@ -30,7 +51,7 @@
       </v-list>
       <template v-slot:append>
         <div class="pa-2">
-          <v-btn block> Logout </v-btn>
+          <v-btn block> Logout</v-btn>
         </div>
       </template>
     </v-navigation-drawer>
@@ -38,9 +59,7 @@
       <v-container>
         <cms-slot position="NavigationBar" />
         <cms-slot position="BottomHeaderSlot" />
-        <cms-slot position="MiniCart" />
-        <cms-slot position="SiteLinks" />
-        <cms-slot position="SearchBox" />
+
         <RouterView />
       </v-container>
     </v-main>
@@ -62,5 +81,5 @@
   const theme = useTheme().name
   const drawer = ref(false)
 
-  const { mdAndDown } = useDisplay()
+  const { mobile } = useDisplay()
 </script>

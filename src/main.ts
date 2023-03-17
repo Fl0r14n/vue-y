@@ -104,7 +104,10 @@ const router = createRouter({
           path: 'search',
           name: 'search',
           component: () => import('./cms/components/CmsPage.vue'),
-          beforeEnter: searchGuard
+          beforeEnter: searchGuard,
+          meta: {
+            id: 'search'
+          }
         },
         {
           path: ':id',

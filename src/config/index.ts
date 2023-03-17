@@ -1,6 +1,6 @@
 import type { BaseSiteData, CMSPageData, ComponentData, PageType, ProductData } from '@/api'
 import type { OAuthConfig } from '@/oauth'
-import { computed, ref } from 'vue'
+import { computed, customRef, ref } from 'vue'
 
 export interface AuthConfig {
   oauth?: OAuthConfig
@@ -43,7 +43,7 @@ export interface MediaConfig {
 
 const defaultMediaConfig: MediaConfig = {
   media: {
-    missingImage: 'assets/img/missing_product_EN_300x300.jpg',
+    missingImage: '/img/missing_product_EN_300x300.jpg',
     breakpoints: {
       mobile: '576w',
       tablet: '768w',
@@ -393,3 +393,20 @@ export class LocaleContextMapper {
 }
 
 export const useLocaleContextMapper = () => inject(LocaleContextMapper, new LocaleContextMapper())
+
+export const debounceRef = <T>(value: T, delay = 200) => {
+  let timeout: number
+  return customRef<T>((track, trigger) => ({
+    get: () => {
+      track()
+      return value
+    },
+    set: newValue => {
+      clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        value = newValue
+        trigger()
+      }, delay)
+    }
+  }))
+}

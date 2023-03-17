@@ -14,6 +14,7 @@ export const createY = (cfg: Config) => {
   const module = {} as YModule
   const oauthModule = cfg.oauth && createOAuth(cfg.oauth)
   module.install = (app: App) => {
+    // console.log(app._context.provides[routerKey])
     const config = useConfig()
     // first init default components
     // apply user config

@@ -1,4 +1,10 @@
-<template>MiniCart</template>
+<template>
+  <v-btn icon>
+    <v-badge content="3" rounded>
+      <v-icon icon="mdi-cart" />
+    </v-badge>
+  </v-btn>
+</template>
 <script setup lang="ts">
   import { MediaContainerData } from '@/api'
 
