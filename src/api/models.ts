@@ -257,6 +257,7 @@ export interface ComponentData extends Item {
   typeCode?: string
   uid?: string
   uuid?: string
+  synchronizationBlocked?: string
 
   [key: string]: any
 }

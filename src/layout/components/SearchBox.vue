@@ -43,7 +43,7 @@
 <script setup lang="ts">
   import type { ProductData, SuggestionData } from '@/api'
   import { useProductResource } from '@/api/b2c/product.resource'
-  import { productThumbnailPipe, routerPath } from '@/cms'
+  import { B, N, productThumbnailPipe, routerPath } from '@/cms'
   import { debounceRef } from '@/config'
   import { computed, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
@@ -69,12 +69,11 @@
     minCharactersBeforeRequest?: string
   }
 
-  defineProps<SearchBoxData>()
-
+  const props = defineProps<SearchBoxData>()
   const router = useRouter()
   const loading = ref(false)
   const items = ref<(SuggestionData | ProductData)[]>([])
-  const search = debounceRef('', 300)
+  const search = debounceRef('', N(props.waitTimeBeforeRequest) || 300)
   const productResource = useProductResource()
   const isOpen = computed({
     get: () => items.value.length > 0,
@@ -84,15 +83,26 @@
   })
 
   watch(search, async term => {
-    if (term?.length > 2) {
+    if (term?.length > (N(props.minCharactersBeforeRequest) || 2)) {
       loading.value = true
-      const suggestions = await productResource.suggestions(term).then(r => r.suggestions)
-      const products = await productResource
-        .search({
-          query: term,
-          fields: 'products(images(FULL), name, url, price(FULL))'
-        })
-        .then(r => r.products)
+      const suggestions =
+        (B(props.displaySuggestions) &&
+          (await productResource
+            .suggestions(term, {
+              max: N(props.maxSuggestions) || 10
+            })
+            .then(r => r.suggestions))) ||
+        []
+      const products =
+        (B(props.displayProducts) &&
+          (await productResource
+            .search({
+              query: term,
+              fields: `products(${(B(props.displayProductImages) && 'images(FULL)') || ''}, name, url, price(FULL))`,
+              pageSize: N(props.maxProducts) || 10
+            })
+            .then(r => r.products))) ||
+        []
       loading.value = false
       items.value = [...suggestions, ...products]
     } else {
