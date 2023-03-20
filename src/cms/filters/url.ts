@@ -13,5 +13,8 @@ export const hostPipe = (value?: string) => {
 
 export const routerPath = (value?: string) => {
   const { basePath } = useLocaleStore()
-  return `${basePath}${value}`
+  if (value && !isHttp.test(value)) {
+    return `${basePath}${value}`
+  }
+  return value || ''
 }
