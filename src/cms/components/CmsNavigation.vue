@@ -1,5 +1,5 @@
 <template>
-  <cms-node :class="styleClass" v-bind="model" v-if="model" />
+  <cms-node :class="styleClasses" v-bind="model" v-if="model" />
 </template>
 <script setup lang="ts">
   import type { NavNodeData } from '@/api'
@@ -19,7 +19,6 @@
 
     container?: string | boolean
     wrapAfter?: number
-    styleClass?: string
     navigationNode?: NavNodeData
   }
 

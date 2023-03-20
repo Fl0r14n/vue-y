@@ -40,6 +40,9 @@
           :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           @click="theme = theme === 'light' ? 'dark' : 'light'"></v-btn>
       </template>
+      <template v-slot:extension v-if="!mobile">
+        <cms-slot position="NavigationBar" class="w-100 d-flex justify-center" />
+      </template>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" location="bottom" v-if="mobile">
       <v-list color="transparent">
@@ -57,9 +60,6 @@
     </v-navigation-drawer>
     <v-main>
       <v-container>
-        <cms-slot position="NavigationBar" />
-        <cms-slot position="BottomHeaderSlot" />
-
         <RouterView />
       </v-container>
     </v-main>
