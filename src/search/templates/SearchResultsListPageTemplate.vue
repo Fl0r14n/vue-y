@@ -1,1 +1,3 @@
-<template>Search result</template>
+<template>
+  <cms-layout>Search result</cms-layout>
+</template>

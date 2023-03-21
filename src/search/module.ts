@@ -4,5 +4,6 @@ export const createSearch = () => ({
   install: () => {
     provideCmsTemplate('CategoryPageTemplate')(() => import('./templates/CategoryPageTemplate.vue'))
     provideCmsTemplate('SearchResultsListPageTemplate')(() => import('./templates/SearchResultsListPageTemplate.vue'))
+    provideCmsTemplate('ProductListPageTemplate')(() => import('./templates/ProductListPageTemplate.vue'))
   }
 })

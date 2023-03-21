@@ -8,17 +8,24 @@
   import { cmsData, getTemplate, usePageStore } from '@/cms'
   import { storeToRefs } from 'pinia'
   import { ref, watch } from 'vue'
-  import { useRoute } from 'vue-router'
+  import { useRouter } from 'vue-router'
 
   const el = ref<Element>()
-  const route = useRoute()
+  const router = useRouter()
   const pageStore = usePageStore()
   const { uid, template, query, properties } = storeToRefs(pageStore)
-  query.value = {
-    id: (route.meta.id || route.params.id) as string,
-    pageType: (route.meta.pageType || PageType.CONTENT) as PageType,
-    cmsTicketId: (route.meta.cmsTicketId || route.query.cmsTicketId) as string
-  }
+
+  watch(
+    router.currentRoute,
+    route => {
+      query.value = {
+        id: (route.meta.id || route.params.id) as string,
+        pageType: (route.meta.pageType || PageType.CONTENT) as PageType,
+        cmsTicketId: (route.meta.cmsTicketId || route.query.cmsTicketId) as string
+      }
+    },
+    { immediate: true }
+  )
 
   watch(el, e => cmsData(e?.ownerDocument.body, properties))
 </script>

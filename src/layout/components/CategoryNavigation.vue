@@ -38,36 +38,9 @@
       </v-menu>
     </v-btn>
   </template>
-
-  <!--  <v-tabs center-active show-arrows>-->
-  <!--    <v-tab v-for="node in getChildren(model)" :key="node.uid">-->
-  <!--      <template v-for="entry in getEntries(node)" :key="entry.uid">-->
-  <!--        <router-link :to="routerPath(entry.url)">{{ entry.linkName }}</router-link>-->
-  <!--      </template>-->
-  <!--    </v-tab>-->
-  <!--  </v-tabs>-->
-
-  <!--  <template v-for="node in getChildren(model)" :key="node.uid">-->
-  <!--    <template v-if="!hasChildren(node)">-->
-  <!--      <component-->
-  <!--        class="px-2 text-decoration-none"-->
-  <!--        :is="getComponent(entry.typeCode, entry.uid)"-->
-  <!--        v-bind="entry"-->
-  <!--        v-for="entry in getEntries(node)"-->
-  <!--        :key="entry.uid" />-->
-  <!--    </template>-->
-  <!--    <template v-else>-->
-  <!--      <v-btn>-->
-  <!--        {{ node.title }}-->
-  <!--        <v-menu activator="parent">-->
-  <!--          <cms-node v-bind="node" />-->
-  <!--        </v-menu>-->
-  <!--      </v-btn>-->
-  <!--    </template>-->
-  <!--  </template>-->
 </template>
 <script setup lang="ts">
-  import { NavNodeData } from '@/api'
+  import type { NavNodeData } from '@/api'
   import { navNode, routerPath } from '@/cms'
   import { ref, watch } from 'vue'
 
@@ -93,7 +66,6 @@
     () => props.navigationNode,
     async node => {
       model.value = await navNode(node)
-      console.log(model.value)
     },
     { immediate: true }
   )

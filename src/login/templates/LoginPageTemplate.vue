@@ -1,1 +1,3 @@
-<template>LoginPage</template>
+<template>
+  <cms-layout>LoginPage</cms-layout>
+</template>

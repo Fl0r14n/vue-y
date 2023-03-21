@@ -1,1 +1,3 @@
-<template>CPT</template>
+<template>
+  <cms-layout>CPT</cms-layout>
+</template>

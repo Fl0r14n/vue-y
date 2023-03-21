@@ -1,7 +1,10 @@
 import { provideCmsComponent, provideCmsTemplate } from '@/config'
+import LayoutPage from '@/layout/pages/LayoutPage.vue'
+import type { App } from 'vue'
 
 export const createLayout = () => ({
-  install: () => {
+  install: (app: App) => {
+    app.component('cms-layout', LayoutPage)
     provideCmsComponent('CategoryNavigationComponent')(() => import('./components/CategoryNavigation.vue'))
     provideCmsComponent('MiniCartComponent')(() => import('./components/MiniCart.vue'))
     provideCmsComponent('SearchBoxComponent')(() => import('./components/SearchBox.vue'))

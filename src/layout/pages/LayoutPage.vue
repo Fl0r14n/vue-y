@@ -60,7 +60,7 @@
     </v-navigation-drawer>
     <v-main>
       <v-container>
-        <RouterView />
+        <slot />
       </v-container>
     </v-main>
     <cms-slot position="Footer" class="text-center" />

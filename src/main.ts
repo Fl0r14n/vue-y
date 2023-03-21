@@ -38,83 +38,76 @@ const router = createRouter({
   routes: [
     {
       path: '',
-      name: 'root',
-      component: () => import('./layout/pages/LayoutPage.vue'),
-      children: [
-        {
-          path: '',
-          name: 'home',
-          component: () => import('./cms/components/CmsPage.vue')
-        },
-        {
-          path: 'cx-preview',
-          name: 'smartedit',
-          component: () => import('./cms/components/CmsPage.vue')
-        },
-        {
-          path: 'not-found',
-          name: 'notFound',
-          component: () => import('./cms/components/CmsPage.vue'),
-          meta: {
-            id: 'not-found'
-          }
-        },
-        {
-          path: 'my-account/:id',
-          name: 'account',
-          component: () => import('./cms/components/CmsPage.vue')
-        },
-        {
-          path: 'login',
-          name: 'login',
-          component: () => import('./cms/components/CmsPage.vue')
-          // beforeEnter:
-        },
-        {
-          path: 'logout',
-          name: 'logout',
-          component: () => null as any
-          // beforeEnter: (to, from) => to
-        },
-        {
-          path: 'login/pw/change',
-          name: 'changePassword',
-          component: () => null as any
-          // beforeEnter:
-        },
-        {
-          path: ':more*/p/:id',
-          name: 'product',
-          component: () => import('./cms/components/CmsPage.vue'),
-          meta: {
-            pageType: PageType.PRODUCT
-          },
-          beforeEnter: productGuard
-        },
-        {
-          path: ':more*/c/:id',
-          name: 'category',
-          component: () => import('./cms/components/CmsPage.vue'),
-          meta: {
-            pageType: PageType.CATEGORY
-          },
-          beforeEnter: categoryGuard
-        },
-        {
-          path: 'search',
-          name: 'search',
-          component: () => import('./cms/components/CmsPage.vue'),
-          beforeEnter: searchGuard,
-          meta: {
-            id: 'search'
-          }
-        },
-        {
-          path: ':id',
-          name: 'content',
-          component: () => import('./cms/components/CmsPage.vue')
-        }
-      ]
+      name: 'home',
+      component: () => import('./cms/components/CmsPage.vue')
+    },
+    {
+      path: '/cx-preview',
+      name: 'smartedit',
+      component: () => import('./cms/components/CmsPage.vue')
+    },
+    {
+      path: '/not-found',
+      name: 'notFound',
+      component: () => import('./cms/components/CmsPage.vue'),
+      meta: {
+        id: 'not-found'
+      }
+    },
+    {
+      path: '/my-account/:id',
+      name: 'account',
+      component: () => import('./cms/components/CmsPage.vue')
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('./cms/components/CmsPage.vue')
+      // beforeEnter:
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: () => null as any
+      // beforeEnter: (to, from) => to
+    },
+    {
+      path: '/login/pw/change',
+      name: 'changePassword',
+      component: () => null as any
+      // beforeEnter:
+    },
+    {
+      path: '/:more*/p/:id',
+      name: 'product',
+      component: () => import('./cms/components/CmsPage.vue'),
+      meta: {
+        pageType: PageType.PRODUCT
+      },
+      beforeEnter: productGuard
+    },
+    {
+      path: '/:more*/c/:id',
+      name: 'category',
+      component: () => import('./cms/components/CmsPage.vue'),
+      meta: {
+        pageType: PageType.CATEGORY
+      },
+      beforeEnter: categoryGuard
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: () => import('./cms/components/CmsPage.vue'),
+      beforeEnter: searchGuard,
+      meta: {
+        id: 'search'
+      }
+    },
+    {
+      path: '/:id',
+      name: 'content',
+      component: () => import('./cms/components/CmsPage.vue')
     }
   ]
 })
