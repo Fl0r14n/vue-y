@@ -1,13 +1,14 @@
-import { PageType } from '@/api'
+import { createCart } from '@/cart'
 import { createCms } from '@/cms'
 import type { Config } from '@/config'
+import { createConfig } from '@/config'
+import { createConsent } from '@/consent'
 import { de } from '@/i18n/de'
 import { en } from '@/i18n/en'
-import { createLayout } from '@/layout/module'
+import { createLayout } from '@/layout'
 import { createLogin } from '@/login'
-import { createY } from '@/module'
-import { createProduct, productGuard } from '@/product'
-import { categoryGuard, createSearch, searchGuard } from '@/search'
+import { createProduct } from '@/product'
+import { createSearch } from '@/search'
 
 import '@mdi/font/scss/materialdesignicons.scss'
 import { createPinia } from 'pinia'
@@ -37,76 +38,8 @@ const router = createRouter({
   history: createWebHistory(BASE_URL),
   routes: [
     {
-      path: '',
-      name: 'home',
-      component: () => import('./cms/components/CmsPage.vue')
-    },
-    {
-      path: '/cx-preview',
-      name: 'smartedit',
-      component: () => import('./cms/components/CmsPage.vue')
-    },
-    {
-      path: '/not-found',
-      name: 'notFound',
-      component: () => import('./cms/components/CmsPage.vue'),
-      meta: {
-        id: 'not-found'
-      }
-    },
-    {
       path: '/my-account/:id',
       name: 'account',
-      component: () => import('./cms/components/CmsPage.vue')
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('./cms/components/CmsPage.vue')
-      // beforeEnter:
-    },
-    {
-      path: '/logout',
-      name: 'logout',
-      component: () => null as any
-      // beforeEnter: (to, from) => to
-    },
-    {
-      path: '/login/pw/change',
-      name: 'changePassword',
-      component: () => null as any
-      // beforeEnter:
-    },
-    {
-      path: '/:more*/p/:id',
-      name: 'product',
-      component: () => import('./cms/components/CmsPage.vue'),
-      meta: {
-        pageType: PageType.PRODUCT
-      },
-      beforeEnter: productGuard
-    },
-    {
-      path: '/:more*/c/:id',
-      name: 'category',
-      component: () => import('./cms/components/CmsPage.vue'),
-      meta: {
-        pageType: PageType.CATEGORY
-      },
-      beforeEnter: categoryGuard
-    },
-    {
-      path: '/search',
-      name: 'search',
-      component: () => import('./cms/components/CmsPage.vue'),
-      beforeEnter: searchGuard,
-      meta: {
-        id: 'search'
-      }
-    },
-    {
-      path: '/:id',
-      name: 'content',
       component: () => import('./cms/components/CmsPage.vue')
     }
   ]
@@ -168,10 +101,12 @@ createApp(App)
       }
     })
   )
-  .use(createY(config).useRouter(router))
+  .use(createConfig(config))
   .use(createCms())
   .use(createLayout())
+  .use(createConsent())
   .use(createLogin())
   .use(createProduct())
   .use(createSearch())
+  .use(createCart())
   .mount('#app')

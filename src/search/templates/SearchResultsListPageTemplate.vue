@@ -1,3 +1,6 @@
 <template>
-  <cms-layout>Search result</cms-layout>
+  <cms-layout>
+    <cms-slot position="ProductLeftRefinements" />
+    <cms-slot position="SearchResultsListSlot" />
+  </cms-layout>
 </template>

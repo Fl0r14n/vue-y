@@ -6,16 +6,12 @@ import { accessToken, isAuthorized, isExpired, status, storageKey, token, type }
 import { authorizationInterceptor, http, unauthorizedInterceptor, user } from '@/oauth/user'
 import type { App } from 'vue'
 import { markRaw } from 'vue'
-import type { Router } from 'vue-router'
+import { routerKey } from 'vue-router'
 
-export interface OAuthModule {
-  install: (app: App) => void
-  useRouter: (router: Router) => OAuthModule
-}
+const getRouter = (app: App) => app._context.provides[routerKey as any]
 
-export const createOAuth = (cfg: OAuthConfig) => {
-  const module = {} as OAuthModule
-  module.install = (app: App) => {
+export const createOAuth = (cfg: OAuthConfig) => ({
+  install: (app: App) => {
     oauthConfig.value = {
       ...oauthConfig.value,
       ...cfg
@@ -24,13 +20,9 @@ export const createOAuth = (cfg: OAuthConfig) => {
     app.provide('login', login)
     app.provide('logout', logout)
     app.component('v-oauth', OAuthLogin)
+    oauthConfig.value.router = markRaw(getRouter(app))
   }
-  module.useRouter = (router: Router) => {
-    oauthConfig.value.router = markRaw(router)
-    return module
-  }
-  return module
-}
+})
 
 export const useOAuthConfig = () => oauthConfig
 export const useOAuthToken = () => token
