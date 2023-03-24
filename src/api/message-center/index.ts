@@ -1,4 +1,4 @@
 /**
  * Requires messagecentercsocc
  */
-export * from './message-center.service'
+export * from './message-center.resource'

@@ -1,17 +1,20 @@
 import type { ConsignmentTrackingData } from '@/api/models'
-import { AuthRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class ConsignmentTrackingService extends AuthRestClient {
-  getEndpoint() {
-    return `${this.basePath}/users/${this.userPath}/orders/`
-  }
+export abstract class ConsignmentTrackingResource {
+  getOrderConsignmentStatus?: (orderCode: string, consignmentCode: string) => Promise<ConsignmentTrackingData>
+}
 
-  /**
-   * Returns details of consignment tracking information based on the order code and the consignment code.
-   * @param {string} orderCode
-   * @param {ConsignmentTrackingData} consignmentCode
-   */
-  getOrderConsignmentStatus(orderCode: string, consignmentCode: string) {
-    return this.get<ConsignmentTrackingData>(`${orderCode}/consignments/${consignmentCode}/tracking`)
+const consignmentTrackingResource = (): ConsignmentTrackingResource => {
+  const { sitePath, userPath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/users/${userPath.value}/orders`))
+
+  return {
+    getOrderConsignmentStatus: (orderCode: string, consignmentCode: string) =>
+      rest.get<ConsignmentTrackingData>(`${orderCode}/consignments/${consignmentCode}/tracking`)
   }
 }
+
+export const useConsignmentTrackingResource = () => inject(ConsignmentTrackingResource, consignmentTrackingResource())

@@ -25,7 +25,7 @@ export const createCms = () => ({
     provideCmsComponent('CMSTabParagraphContainer')(() => import('./components/CmsTabContainer.vue'))
     provideCmsComponent('CMSSiteContextComponent')(() => import('./components/CmsSiteContext.vue'))
     router.addRoute({
-      path: '',
+      path: '/',
       name: 'home',
       component: () => import('./components/CmsPage.vue')
     })

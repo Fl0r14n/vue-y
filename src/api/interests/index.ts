@@ -1,4 +1,4 @@
 /**
  * Requires customerinterestsoccaddon, customerinterestsservices, customerinterestsfacades
  */
-export * from './product-interests.service'
+export * from './product-interests.resource'

@@ -1,6 +1,6 @@
 /**
  *  Requires customerticketingocc, customerticketingfacades , ticketsystem
  */
-export * from './tickets.service'
-export * from './tickets-associated.service'
-export * from './tickets-categories.service'
+export * from './tickets.resource'
+export * from './tickets-associated.resource'
+export * from './tickets-categories.resource'

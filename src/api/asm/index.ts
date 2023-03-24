@@ -1,1 +1,1 @@
-export * from './asm.service'
+export * from './asm.resource'

@@ -1,28 +1,19 @@
-import { AuthRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class MerchantCallbackService extends AuthRestClient {
-  getEndpoint() {
-    return `${this.basePath}/integration`
-  }
+export abstract class MerchantCallbackResource {
+  verifyMerchantCallback?: () => Promise<void | any>
+  verifyCartCallback?: (cartId: string) => Promise<void | any>
+}
 
-  /**
-   * Verifies the decision of the merchant.
-   * Note, the “Try it out” button is not editable for this method (always returns a category) because the Merchant Callback Controller
-   * handles parameters differently, depending on which payment provider is used.
-   * For more information about this controller,please refer to the “acceleratorwebservicesaddon AddOn” documentation on help.hybris.com.
-   */
-  verifyMerchantCallback() {
-    return this.postAt<void>('merchant_callback', {})
-  }
-
-  /**
-   * Verifies the decision of the merchant for a specified cart, and stores information of the PaymentSubscriptionResult for the cart.
-   * Note, the “Try it out” button is not editable for this method (always returns a category) because the Merchant Callback Controller
-   * handles parameters differently, depending on which payment provider is used.
-   * For more information about this controller, please refer to the “acceleratorwebservicesaddon AddOn” documentation on help.hybris.com.
-   * @param {string} cartId
-   */
-  verifyCartCallback(cartId: string) {
-    return this.postAt<void>(`users/${this.userPath}/carts/${cartId}/payment/sop/response`, {})
+const merchantCallbackResource = (): MerchantCallbackResource => {
+  const { sitePath, userPath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/integration`))
+  return {
+    verifyMerchantCallback: () => rest.postAt<void>('merchant_callback', {}),
+    verifyCartCallback: (cartId: string) => rest.postAt<void>(`users/${userPath.value}/carts/${cartId}/payment/sop/response`, {})
   }
 }
+
+export const useMerchantCallbackResource = () => inject(MerchantCallbackResource, merchantCallbackResource())

@@ -6,7 +6,7 @@ import { useSiteConfig } from '@/config'
 import { useOAuth } from '@/oauth'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
+import type { RouteLocationNormalized } from 'vue-router'
 
 const toRegExp = (value: string): RegExp | undefined => {
   const match = value.match(/^(\(\?([a-z]+)\))?(.*)/)
@@ -38,14 +38,14 @@ const findBaseSite = (baseSites: BaseSiteData[]) => {
   return undefined
 }
 
-export const siteGuard = async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+export const siteGuard = async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
   const siteStore = useSiteStore()
   const { loadSites, updateRouter } = siteStore
   const { siteId } = storeToRefs(siteStore)
   if (!siteId.value) {
     await loadSites()
   }
-  next(updateRouter(to, from))
+  return updateRouter(to, from)
 }
 
 export const useSiteStore = defineStore('SiteStore', () => {
@@ -75,6 +75,10 @@ export const useSiteStore = defineStore('SiteStore', () => {
     const { value } = siteSuffix
     const routes = router.getRoutes()
     const hasSuffix = routes.find(r => r.path.startsWith(value))
+    if (to.path === '/' && !to.matched.length) {
+      //workaround for first request if matches the domain
+      return to.fullPath
+    }
     if (!hasSuffix) {
       const newRoutes = routes.map(r => ({ ...r, ...{ path: `${siteSuffix.value}${r.path}` } }))
       newRoutes.forEach(r => router.addRoute(r))

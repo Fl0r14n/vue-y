@@ -1,4 +1,5 @@
 import { createCart } from '@/cart'
+import { createCheckout } from '@/checkout'
 import { createCms } from '@/cms'
 import type { Config } from '@/config'
 import { createConfig } from '@/config'
@@ -109,4 +110,5 @@ createApp(App)
   .use(createProduct())
   .use(createSearch())
   .use(createCart())
+  .use(createCheckout())
   .mount('#app')
