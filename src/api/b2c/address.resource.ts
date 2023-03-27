@@ -9,12 +9,12 @@ export const getAddressRest = () => {
 }
 
 export abstract class AddressResource {
-  getAddresses?: (queryParams?: RequestData) => Promise<AddressListData>
-  addAddress?: (address: AddressData, queryParams?: RequestData) => Promise<void>
-  getAddress?: (addressId: string, queryParams?: RequestData) => Promise<AddressData>
-  delAddress?: (addressId: string) => Promise<void>
-  setAddress?: (addressId: string, address: AddressData, queryParams?: RequestData) => Promise<void>
-  verifyAddress?: (address: AddressData, queryParams?: RequestData) => Promise<AddressValidationData>
+  getAddresses!: (queryParams?: RequestData) => Promise<AddressListData>
+  addAddress!: (address: AddressData, queryParams?: RequestData) => Promise<void>
+  getAddress!: (addressId: string, queryParams?: RequestData) => Promise<AddressData>
+  delAddress!: (addressId: string) => Promise<void>
+  setAddress!: (addressId: string, address: AddressData, queryParams?: RequestData) => Promise<void>
+  verifyAddress!: (address: AddressData, queryParams?: RequestData) => Promise<AddressValidationData>
 }
 
 const addressResource = (): AddressResource => {

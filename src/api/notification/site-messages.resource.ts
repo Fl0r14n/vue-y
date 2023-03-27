@@ -4,7 +4,7 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class SiteMessagesResource {
-  getSiteMessages?: (queryParams?: WithTotalRequestData) => Promise<SiteMessageSearchPageData>
+  getSiteMessages!: (queryParams?: WithTotalRequestData) => Promise<SiteMessageSearchPageData>
 }
 
 const siteMessagesResource = (): SiteMessagesResource => {

@@ -7,71 +7,41 @@ import type {
   RequestData,
   SortableRequestData
 } from '@/api/models'
-import { AuthRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export abstract class OrderEndpoint extends AuthRestClient {
-  getEndpoint() {
-    return `${this.basePath}/users/${this.userPath}/orders/`
-  }
+export const getOrderRest = () => {
+  const { sitePath, userPath } = useRestContext()
+  return useRestClient(computed(() => `${sitePath.value}/users/${userPath.value}/orders`))
 }
 
-export class OrderBaseService extends AuthRestClient {
-  getEndpoint() {
-    return `${this.basePath}`
-  }
-
-  /**
-   * Returns details of a specific order based on order GUID (Globally Unique Identifier) or order CODE.<br/>
-   * The response contains a detailed order information.
-   * @param {string} guid Order GUID (Globally Unique Identifier) or order CODE
-   * @param {RequestData} queryParams
-   */
-  getGuestOrder(guid: string, queryParams?: RequestData) {
-    return this.get<OrderData>(`orders/${guid}`, { params: queryParams })
-  }
-
-  /**
-   * Returns order history data for all orders placed by the specific user for the specific base store.<br/>
-   * Response contains orders search result displayed in several pages if needed.
-   * @param {{statuses?: OrderStatus} & SortableRequestData} queryParams
-   */
-  getOrders(
+export abstract class OrderBaseResource {
+  getGuestOrder!: (guid: string, queryParams?: RequestData) => Promise<OrderData>
+  getOrders!: (
     queryParams: {
-      /**
-       * Filters only certain order statuses.
-       * It means: statuses=CANCELLED,CHECKED_VALID would only return orders with status CANCELLED or CHECKED_VALID.
-       */
       statuses?: OrderStatus
     } & SortableRequestData
-  ) {
-    return this.get<OrderHistoryListData>(`users/${this.userPath}/orders`, { params: queryParams })
-  }
+  ) => Promise<OrderHistoryListData>
+  placeOrder!: (orderSubmit: OrderSubmitData, queryParams?: RequestData) => Promise<OrderData>
+  getOrder!: (code: string, queryParams?: RequestData) => Promise<OrderData>
+  cancelOrder!: (code: string, entries: CancellationRequestEntryInputListData, queryParams?: RequestData) => Promise<void>
+}
 
-  /**
-   * Authorizes cart and places the order. Response contains the new order data.
-   * @param {OrderSubmitData} orderSubmit
-   * @param {RequestData} queryParams
-   */
-  placeOrder(orderSubmit: OrderSubmitData, queryParams?: RequestData) {
-    return this.postAt<OrderData>(`users/${this.userPath}/orders`, {}, { params: { ...queryParams, ...orderSubmit } })
-  }
-
-  /**
-   * Returns specific order details based on a specific order code. The response contains detailed order information.
-   * @param {string} code
-   * @param {RequestData} queryParams
-   */
-  getOrder(code: string, queryParams?: RequestData) {
-    return this.get<OrderData>(`users/${this.userPath}/orders/${code}`, { params: queryParams })
-  }
-
-  /**
-   * Cancels an order partially or completely
-   * @param {string} code
-   * @param {CancellationRequestEntryInputListData} entries
-   * @param {RequestData} queryParams
-   */
-  cancelOrder(code: string, entries: CancellationRequestEntryInputListData, queryParams?: RequestData) {
-    return this.postAt<void>(`users/${this.userPath}/orders/${code}/cancellation`, entries, { params: queryParams })
+const orderBaseResource = (): OrderBaseResource => {
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(sitePath)
+  const orderRest = getOrderRest()
+  return {
+    getGuestOrder: (guid: string, queryParams?: RequestData) => rest.get<OrderData>(`orders/${guid}`, { params: queryParams }),
+    getOrders: (queryParams: { statuses?: OrderStatus } & SortableRequestData) =>
+      orderRest.query<OrderHistoryListData>({ params: queryParams }),
+    placeOrder: (orderSubmit: OrderSubmitData, queryParams?: RequestData) =>
+      orderRest.post<OrderData>({}, { params: { ...queryParams, ...orderSubmit } }),
+    getOrder: (code: string, queryParams?: RequestData) => orderRest.get<OrderData>(code, { params: queryParams }),
+    cancelOrder: (code: string, entries: CancellationRequestEntryInputListData, queryParams?: RequestData) =>
+      orderRest.postAt<void>(`${code}/cancellation`, entries, { params: queryParams })
   }
 }
+
+export const useOrderBaseResource = () => inject(OrderBaseResource, orderBaseResource())

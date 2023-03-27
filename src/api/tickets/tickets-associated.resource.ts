@@ -4,7 +4,7 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class TicketsAssociatedResource {
-  getTicketAssociations?: (queryParams?: RequestData) => Promise<TicketAssociatedObjectListData>
+  getTicketAssociations!: (queryParams?: RequestData) => Promise<TicketAssociatedObjectListData>
 }
 
 const ticketsAssociatedResource = (): TicketsAssociatedResource => {

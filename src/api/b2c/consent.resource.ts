@@ -4,10 +4,10 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class ConsentResource {
-  addConsent?: (consentOptions?: { consentTemplateId: string; consentTemplateVersion: number }) => Promise<ConsentTemplateData>
-  delConsent?: (consentCode: string) => Promise<void>
-  getConsents?: (queryParams?: RequestData) => Promise<ConsentTemplateListData>
-  getConsent?: (consentTemplateId?: string, queryParams?: RequestData) => Promise<ConsentTemplateData>
+  addConsent!: (consentOptions?: { consentTemplateId: string; consentTemplateVersion: number }) => Promise<ConsentTemplateData>
+  delConsent!: (consentCode: string) => Promise<void>
+  getConsents!: (queryParams?: RequestData) => Promise<ConsentTemplateListData>
+  getConsent!: (consentTemplateId?: string, queryParams?: RequestData) => Promise<ConsentTemplateData>
 }
 
 const consentResource = (): ConsentResource => {

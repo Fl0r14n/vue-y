@@ -4,11 +4,11 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class CustomerGroupsResource {
-  getCustomerGroups?: (queryParams?: PageableRequestData) => Promise<UserGroupListData>
-  getCustomerGroup?: (groupId: string, queryParams?: RequestData) => Promise<UserGroupData>
-  addCustomerGroup?: (userGroup: UserGroupData) => Promise<void>
-  addCustomerGroupUser?: (groupId: string, members: MemberListData) => Promise<void>
-  delCustomerGroupUser?: (groupId: string, userId: string) => Promise<void>
+  getCustomerGroups!: (queryParams?: PageableRequestData) => Promise<UserGroupListData>
+  getCustomerGroup!: (groupId: string, queryParams?: RequestData) => Promise<UserGroupData>
+  addCustomerGroup!: (userGroup: UserGroupData) => Promise<void>
+  addCustomerGroupUser!: (groupId: string, members: MemberListData) => Promise<void>
+  delCustomerGroupUser!: (groupId: string, userId: string) => Promise<void>
 }
 
 const customerGroupsResource = (): CustomerGroupsResource => {

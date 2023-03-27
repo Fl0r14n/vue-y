@@ -4,12 +4,12 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class CartExtendedResource {
-  getPickupLocations?: (cartId: string, queryParams?: RequestData) => Promise<PointOfServiceListData>
-  addPickupLocation?: (cartId: string, storeName: string, queryParams?: RequestData) => Promise<CartModificationListData>
-  getPaymentRequest?: (cartId: string, responseUrl: string, extendedMerchantCallback: boolean) => Promise<PaymentRequestData>
-  getPaymentResponse?: (cartId: string, queryParams?: RequestData) => Promise<PaymentDetailsData>
-  addPaymentResponse?: (cartId: string, queryParams?: RequestData) => Promise<PaymentDetailsData>
-  delPaymentResponse?: (cartId: string) => Promise<void>
+  getPickupLocations!: (cartId: string, queryParams?: RequestData) => Promise<PointOfServiceListData>
+  addPickupLocation!: (cartId: string, storeName: string, queryParams?: RequestData) => Promise<CartModificationListData>
+  getPaymentRequest!: (cartId: string, responseUrl: string, extendedMerchantCallback: boolean) => Promise<PaymentRequestData>
+  getPaymentResponse!: (cartId: string, queryParams?: RequestData) => Promise<PaymentDetailsData>
+  addPaymentResponse!: (cartId: string, queryParams?: RequestData) => Promise<PaymentDetailsData>
+  delPaymentResponse!: (cartId: string) => Promise<void>
 }
 
 const cartExtendedResource = (): CartExtendedResource => {

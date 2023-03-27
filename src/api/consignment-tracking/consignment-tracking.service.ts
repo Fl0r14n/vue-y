@@ -4,7 +4,7 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class ConsignmentTrackingResource {
-  getOrderConsignmentStatus?: (orderCode: string, consignmentCode: string) => Promise<ConsignmentTrackingData>
+  getOrderConsignmentStatus!: (orderCode: string, consignmentCode: string) => Promise<ConsignmentTrackingData>
 }
 
 const consignmentTrackingResource = (): ConsignmentTrackingResource => {

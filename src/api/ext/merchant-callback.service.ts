@@ -3,8 +3,8 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class MerchantCallbackResource {
-  verifyMerchantCallback?: () => Promise<void | any>
-  verifyCartCallback?: (cartId: string) => Promise<void | any>
+  verifyMerchantCallback!: () => Promise<void | any>
+  verifyCartCallback!: (cartId: string) => Promise<void | any>
 }
 
 const merchantCallbackResource = (): MerchantCallbackResource => {

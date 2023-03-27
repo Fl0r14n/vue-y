@@ -17,6 +17,11 @@ import { useRestClient, useRestContext } from '@/api'
 import { inject } from '@/config'
 import { computed } from 'vue'
 
+export const getProductRest = () => {
+  const { sitePath } = useRestContext()
+  return useRestClient(computed(() => `${sitePath.value}/products`))
+}
+
 export abstract class ProductResource {
   getProduct!: (productCode: string, queryParams?: RequestData) => Promise<ProductData>
   getProductReferences!: (
@@ -57,8 +62,7 @@ export abstract class ProductResource {
 }
 
 const productResource = (): ProductResource => {
-  const { sitePath } = useRestContext()
-  const rest = useRestClient(computed(() => `${sitePath.value}/products`))
+  const rest = getProductRest()
   return {
     getProduct: (productCode: string, queryParams?: RequestData) => rest.get<ProductData>(productCode, { params: queryParams }),
     getProductReferences: (

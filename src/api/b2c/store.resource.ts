@@ -6,72 +6,44 @@ import type {
   StoreCountListData,
   StoreFinderSearchPageData
 } from '@/api/models'
-import { RestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class StoreResource extends RestClient {
-  getEndpoint() {
-    return `${this.basePath}/stores`
-  }
-
-  /**
-   * Lists all store locations that are near the location specified in a query or based on latitude and longitude.
-   * @param {{latitude?: number; accuracy?: number; radius?: number; longitude?: number} & QueryRequestData} queryParams
-   */
-  getStores(
+export abstract class StoreResource {
+  getStores!: (
     queryParams?: {
-      /**
-       * Coordinate that specifies the north-south position of a point on the Earth's surface.
-       */
       latitude?: number
-      /**
-       * Accuracy in meters.
-       */
       accuracy?: number
-      /**
-       * Radius in meters. Max value: 40075000.0 (Earth's perimeter).
-       */
       radius?: number
-      /**
-       * Coordinate that specifies the east-west position of a point on the Earth's surface.
-       */
       longitude?: number
     } & QueryRequestData
-  ) {
-    return this.query<StoreFinderSearchPageData>({ params: queryParams })
-  }
+  ) => Promise<StoreFinderSearchPageData>
+  getStore!: (storeId: string, queryParams?: RequestData) => Promise<PointOfServiceData>
+  getStoresByCountry!: (countryIso: string, queryParams?: RequestData) => Promise<PointOfServiceListData>
+  getStoresByCountryAndRegion!: (countryIso: string, regionIso: string, queryParams?: RequestData) => Promise<PointOfServiceListData>
+  getStoreCount!: () => Promise<StoreCountListData>
+}
 
-  /**
-   * Returns store location based on its unique name.
-   * @param {string} storeId. Store identifier (currently store name)
-   * @param {RequestData} queryParams
-   */
-  getStore(storeId: string, queryParams?: RequestData) {
-    return this.get<PointOfServiceData>(storeId, { params: queryParams })
-  }
-
-  /**
-   * Lists all store locations that are in the specified country.
-   * @param {string} countryIso
-   * @param {RequestData} queryParams
-   */
-  getStoresByCountry(countryIso: string, queryParams?: RequestData) {
-    return this.get<PointOfServiceListData>(`country/${countryIso}`, { params: queryParams })
-  }
-
-  /**
-   * Lists all store locations that are in the specified country and region.
-   * @param {string} countryIso
-   * @param {string} regionIso
-   * @param {RequestData} queryParams
-   */
-  getStoresByCountryAndRegion(countryIso: string, regionIso: string, queryParams?: RequestData) {
-    return this.get<PointOfServiceListData>(`country/${countryIso}/region/${regionIso}`, { params: queryParams })
-  }
-
-  /**
-   * Returns store counts in countries and regions
-   */
-  getStoreCount() {
-    return this.get<StoreCountListData>(`storescounts`)
+const storeResource = (): StoreResource => {
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/stores`))
+  return {
+    getStores: (
+      queryParams?: {
+        latitude?: number
+        accuracy?: number
+        radius?: number
+        longitude?: number
+      } & QueryRequestData
+    ) => rest.query<StoreFinderSearchPageData>({ params: queryParams }),
+    getStore: (storeId: string, queryParams?: RequestData) => rest.get<PointOfServiceData>(storeId, { params: queryParams }),
+    getStoresByCountry: (countryIso: string, queryParams?: RequestData) =>
+      rest.get<PointOfServiceListData>(`country/${countryIso}`, { params: queryParams }),
+    getStoresByCountryAndRegion: (countryIso: string, regionIso: string, queryParams?: RequestData) =>
+      rest.get<PointOfServiceListData>(`country/${countryIso}/region/${regionIso}`, { params: queryParams }),
+    getStoreCount: () => rest.get<StoreCountListData>(`storescounts`)
   }
 }
+
+export const useStoreResource = () => inject(StoreResource, storeResource())

@@ -4,7 +4,7 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class ExportResource {
-  getProducts?: (
+  getProducts!: (
     queryParams?: {
       catalog?: string
       version?: string

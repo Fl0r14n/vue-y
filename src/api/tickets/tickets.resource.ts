@@ -4,10 +4,10 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class TicketsResource {
-  getTickets?: (queryParams?: SortableRequestData) => Promise<TicketListData>
-  addTicket?: (body?: TicketStarterData, queryParams?: RequestData) => Promise<TicketData>
-  getTicket?: (ticketId: string, queryParams?: RequestData) => Promise<TicketData>
-  addTicketEvent?: (ticketId: string, body?: TicketEventData, queryParams?: RequestData) => Promise<void>
+  getTickets!: (queryParams?: SortableRequestData) => Promise<TicketListData>
+  addTicket!: (body?: TicketStarterData, queryParams?: RequestData) => Promise<TicketData>
+  getTicket!: (ticketId: string, queryParams?: RequestData) => Promise<TicketData>
+  addTicketEvent!: (ticketId: string, body?: TicketEventData, queryParams?: RequestData) => Promise<void>
 }
 
 const ticketsResource = (): TicketsResource => {

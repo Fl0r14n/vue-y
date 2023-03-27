@@ -1,28 +1,24 @@
 import type { ResetPasswordData } from '@/api/models'
-import { RestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
 
-export class ForgottenPasswordResource extends RestClient {
-  getEndpoint() {
-    return `${this.basePath}`
-  }
+export abstract class ForgottenPasswordResource {
+  initializeResetPassword!: (userId: string) => Promise<void>
+  resetPassword!: (resetPassword: ResetPasswordData) => Promise<void>
+}
 
-  /**
-   * Generates a token to restore customer's forgotten password.
-   * @param {string} userId Customer's user id. Customer user id is case-insensitive.
-   */
-  initializeResetPassword(userId: string) {
-    return this.postAt<void>(`forgottenpasswordtokens`, {}, { params: { userId } })
-  }
-
-  /**
-   * Reset password after customer’s clicked forgotten password link.
-   * @param {ResetPasswordData} resetPassword
-   */
-  resetPassword(resetPassword: ResetPasswordData) {
-    return this.postAt<void>(`resetpassword`, resetPassword, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+const forgottenPasswordResource = (): ForgottenPasswordResource => {
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(sitePath)
+  return {
+    initializeResetPassword: (userId: string) => rest.postAt<void>(`forgottenpasswordtokens`, {}, { params: { userId } }),
+    resetPassword: (resetPassword: ResetPasswordData) =>
+      rest.postAt<void>(`resetpassword`, resetPassword, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
   }
 }
+
+export const useForgottenPasswordResource = () => inject(ForgottenPasswordResource, forgottenPasswordResource())

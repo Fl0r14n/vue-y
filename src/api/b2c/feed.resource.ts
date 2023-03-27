@@ -1,23 +1,24 @@
 import type { OrderStatusUpdateElementListData, RequestData } from '@/api/models'
-import { RestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class FeedResource extends RestClient {
-  getEndpoint() {
-    return `${this.basePath}/feeds`
-  }
+export abstract class FeedResource {
+  getOrderStatusUpdate!: (timestamp: Date | string, queryParams?: RequestData) => Promise<OrderStatusUpdateElementListData>
+}
 
-  /**
-   * Returns the orders that have changed status.
-   * Returns only the elements from the current baseSite that have been updated after the provided timestamp.
-   * @param {Date | string} timestamp. Only items newer than the given parameter are retrieved. This parameter should be in RFC-8601 format.
-   * @param {RequestData} queryParams
-   */
-  getOrderStatusUpdate(timestamp: Date | string, queryParams?: RequestData) {
-    return this.get<OrderStatusUpdateElementListData>(`orders/statusfeed`, {
-      params: {
-        timestamp,
-        ...queryParams
-      }
-    })
+const feedResource = (): FeedResource => {
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/export`))
+  return {
+    getOrderStatusUpdate: (timestamp: Date | string, queryParams?: RequestData) =>
+      rest.get<OrderStatusUpdateElementListData>(`orders/statusfeed`, {
+        params: {
+          timestamp,
+          ...queryParams
+        }
+      })
   }
 }
+
+export const useFeedResource = () => inject(FeedResource, feedResource())

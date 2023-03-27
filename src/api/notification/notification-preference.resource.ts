@@ -4,8 +4,8 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class NotificationPreferenceResource {
-  getNotificationPreferences?: (queryParams?: RequestData) => Promise<NotificationPreferenceListData>
-  setNotificationPreferences?: (preferences: BasicNotificationPreferenceListData, queryParams?: RequestData) => Promise<void>
+  getNotificationPreferences!: (queryParams?: RequestData) => Promise<NotificationPreferenceListData>
+  setNotificationPreferences!: (preferences: BasicNotificationPreferenceListData, queryParams?: RequestData) => Promise<void>
 }
 
 const notificationPreferenceResource = (): NotificationPreferenceResource => {

@@ -10,10 +10,10 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class CustomerCouponsResource {
-  getCoupons?: (queryParams?: WithTotalRequestData) => Promise<CustomerCouponSearchPageData>
-  addCoupon?: (couponCode: string, queryParams?: RequestData) => Promise<CustomerCoupon2CustomerData>
-  addCouponNotification?: (couponCode: string, queryParams?: RequestData) => Promise<CustomerCouponNotificationData>
-  delCouponNotification?: (couponCode: string) => Promise<void>
+  getCoupons!: (queryParams?: WithTotalRequestData) => Promise<CustomerCouponSearchPageData>
+  addCoupon!: (couponCode: string, queryParams?: RequestData) => Promise<CustomerCoupon2CustomerData>
+  addCouponNotification!: (couponCode: string, queryParams?: RequestData) => Promise<CustomerCouponNotificationData>
+  delCouponNotification!: (couponCode: string) => Promise<void>
 }
 
 const customerCouponsResource = (): CustomerCouponsResource => {

@@ -10,9 +10,9 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class ProductInterestsResource {
-  getProductInterests?: (queryParams?: ProductInterestRequestData & WithTotalRequestData) => Promise<CustomerInterestsSearchPageData>
-  addProductInterests?: (interest: ProductInterestRequestData, queryParams?: RequestData) => Promise<ProductInterestRelationData>
-  delProductInterests?: (interest: ProductInterestRequestData) => Promise<void>
+  getProductInterests!: (queryParams?: ProductInterestRequestData & WithTotalRequestData) => Promise<CustomerInterestsSearchPageData>
+  addProductInterests!: (interest: ProductInterestRequestData, queryParams?: RequestData) => Promise<ProductInterestRelationData>
+  delProductInterests!: (interest: ProductInterestRequestData) => Promise<void>
 }
 
 const productInterestsResource = (): ProductInterestsResource => {

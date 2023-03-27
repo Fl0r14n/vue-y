@@ -1,17 +1,22 @@
 import type { RequestData, VoucherData } from '@/api/models'
-import { RestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class VoucherResource extends RestClient {
-  getEndpoint() {
-    return `${this.basePath}/vouchers`
-  }
+export const getVoucherRest = () => {
+  const { sitePath } = useRestContext()
+  return useRestClient(computed(() => `${sitePath.value}/vouchers`))
+}
 
-  /**
-   * Returns details of a single voucher according to a voucher code.
-   * @param {string} code. Voucher identifier (code)
-   * @param {RequestData} queryParams
-   */
-  getVoucher(code: string, queryParams?: RequestData) {
-    return this.get<VoucherData>(code, { params: queryParams })
+export abstract class VoucherResource {
+  getVoucher!: (code: string, queryParams?: RequestData) => Promise<VoucherData>
+}
+
+const voucherResource = (): VoucherResource => {
+  const rest = getVoucherRest()
+  return {
+    getVoucher: (code: string, queryParams?: RequestData) => rest.get<VoucherData>(code, { params: queryParams })
   }
 }
+
+export const useVoucherResource = () => inject(VoucherResource, voucherResource())

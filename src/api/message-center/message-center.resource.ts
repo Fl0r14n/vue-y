@@ -10,12 +10,12 @@ import { inject } from '@/config'
 import { computed } from 'vue'
 
 export abstract class MessageCenterResource {
-  send?: (conversationId: string, messages: ConversationMessageData[]) => Promise<ConversationData>
-  close?: (conversationId: string) => Promise<ConversationData>
-  messages?: (conversationId: string) => Promise<ConversationMessageListData>
-  pick?: (conversationId: string) => Promise<ConversationData>
-  agentConversations?: (queryParams?: ConversationRequestData) => Promise<ConversationListData>
-  customerConversations?: () => Promise<ConversationListData>
+  send!: (conversationId: string, messages: ConversationMessageData[]) => Promise<ConversationData>
+  close!: (conversationId: string) => Promise<ConversationData>
+  messages!: (conversationId: string) => Promise<ConversationMessageListData>
+  pick!: (conversationId: string) => Promise<ConversationData>
+  agentConversations!: (queryParams?: ConversationRequestData) => Promise<ConversationListData>
+  customerConversations!: () => Promise<ConversationListData>
 }
 
 const messageCenterResource = (): MessageCenterResource => {

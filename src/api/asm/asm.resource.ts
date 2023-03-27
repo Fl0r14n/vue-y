@@ -10,11 +10,11 @@ import { inject, useAsmConfig } from '@/config'
 import { computed } from 'vue'
 
 export abstract class AsmResource {
-  bindCart?: (customerId: string, cartId: string) => Promise<string>
-  getUserGroups?: () => Promise<UserGroupListData>
-  getCustomers?: (userGroupId: string) => Promise<CustomerListData>
-  suggestCustomers?: (customerQuery: string) => Promise<CustomerSuggestionData[]>
-  searchCustomers?: (queryParams: CustomerSearchRequestData) => Promise<CustomerSearchPageData>
+  bindCart!: (customerId: string, cartId: string) => Promise<string>
+  getUserGroups!: () => Promise<UserGroupListData>
+  getCustomers!: (userGroupId: string) => Promise<CustomerListData>
+  suggestCustomers!: (customerQuery: string) => Promise<CustomerSuggestionData[]>
+  searchCustomers!: (queryParams: CustomerSearchRequestData) => Promise<CustomerSearchPageData>
 }
 
 const asmResource = (): AsmResource => {

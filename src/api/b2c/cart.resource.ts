@@ -25,9 +25,9 @@ export const getCartRest = () => {
 }
 
 export abstract class CartBaseAddressResource {
-  addDeliveryAddress?: (cartId: string, address: AddressData, queryParams?: RequestData) => Promise<AddressData>
-  setDeliveryAddress?: (cartId: string, addressId: string, queryParams?: RequestData) => Promise<void>
-  delDeliveryAddress?: (cartId: string) => Promise<void>
+  addDeliveryAddress!: (cartId: string, address: AddressData, queryParams?: RequestData) => Promise<AddressData>
+  setDeliveryAddress!: (cartId: string, addressId: string, queryParams?: RequestData) => Promise<void>
+  delDeliveryAddress!: (cartId: string) => Promise<void>
 }
 
 const cartBaseAddressResource = (): CartBaseAddressResource => {
