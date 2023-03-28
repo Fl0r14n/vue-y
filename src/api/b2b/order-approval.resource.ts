@@ -1,36 +1,27 @@
 import type { OrderApprovalData, OrderApprovalDecisionData, OrderApprovalListData, RequestData, SortableRequestData } from '@/api/models'
-import { AuthRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class OrderApprovalResource extends AuthRestClient {
-  getEndpoint() {
-    return `${this.basePath}/users/${this.userPath}/orderapprovals`
-  }
+export abstract class OrderApprovalResource {
+  getOrderApprovals!: (queryParams?: SortableRequestData) => Promise<OrderApprovalListData>
+  getOrderApproval!: (code: string, queryParams?: RequestData) => Promise<OrderApprovalData>
+  addOrderApproval!: (
+    code: string,
+    orderApproval: OrderApprovalDecisionData,
+    queryParams?: RequestData
+  ) => Promise<OrderApprovalDecisionData>
+}
 
-  /**
-   * Returns the list of orders the specified user is allowed to approve.
-   * @param {SortableRequestData} queryParams
-   */
-  getOrderApprovals(queryParams?: SortableRequestData) {
-    return this.query<OrderApprovalListData>({ params: queryParams })
-  }
-
-  /**
-   * Returns specific order details based on a specific order code.
-   * The response contains detailed order information.
-   * @param {string} code
-   * @param {RequestData} queryParams
-   */
-  getOrderApproval(code: string, queryParams?: RequestData) {
-    return this.get<OrderApprovalData>(code, { params: queryParams })
-  }
-
-  /**
-   * Makes a decision on the order approval that will trigger the next step in the approval workflow.
-   * @param {string} code
-   * @param {OrderApprovalDecisionData} orderApproval
-   * @param {RequestData} queryParams
-   */
-  addOrderApproval(code: string, orderApproval: OrderApprovalDecisionData, queryParams?: RequestData) {
-    return this.postAt<OrderApprovalDecisionData>(`${code}/decision`, orderApproval, { params: queryParams })
+const orderApprovalResource = (): OrderApprovalResource => {
+  const { sitePath, userPath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/users/${userPath.value}/orderapprovals`))
+  return {
+    getOrderApprovals: (queryParams?: SortableRequestData) => rest.query<OrderApprovalListData>({ params: queryParams }),
+    getOrderApproval: (code: string, queryParams?: RequestData) => rest.get<OrderApprovalData>(code, { params: queryParams }),
+    addOrderApproval: (code: string, orderApproval: OrderApprovalDecisionData, queryParams?: RequestData) =>
+      rest.postAt<OrderApprovalDecisionData>(`${code}/decision`, orderApproval, { params: queryParams })
   }
 }
+
+export const getOrderApprovalResource = () => inject(OrderApprovalResource, orderApprovalResource())

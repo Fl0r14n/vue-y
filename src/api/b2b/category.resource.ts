@@ -1,17 +1,19 @@
 import type { ProductSearchPageData, QueryRequestData } from '@/api/models'
-import { RestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class CategoryResource extends RestClient {
-  getEndpoint() {
-    return `${this.basePath}/categories`
-  }
+export abstract class CategoryResource {
+  getProductsByCategory!: (categoryId: string, queryParams?: QueryRequestData) => Promise<ProductSearchPageData>
+}
 
-  /**
-   * Returns a list of products in the specified category.
-   * @param {string} categoryId
-   * @param {QueryRequestData} queryParams
-   */
-  getProductsByCategory(categoryId: string, queryParams?: QueryRequestData) {
-    return this.get<ProductSearchPageData>(`${categoryId}/products`, { params: queryParams })
+const categoryResource = (): CategoryResource => {
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/categories`))
+  return {
+    getProductsByCategory: (categoryId: string, queryParams?: QueryRequestData) =>
+      rest.get<ProductSearchPageData>(`${categoryId}/products`, { params: queryParams })
   }
 }
+
+export const useCategoryResource = () => inject(CategoryResource, categoryResource())

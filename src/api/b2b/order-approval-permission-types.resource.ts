@@ -1,16 +1,19 @@
 import type { OrderApprovalPermissionTypeListData, RequestData } from '@/api/models'
-import { RestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class OrderApprovalPermissionTypesResource extends RestClient {
-  getEndpoint() {
-    return `${this.basePath}/orderApprovalPermissionTypes`
-  }
+export abstract class OrderApprovalPermissionTypesResource {
+  getOrderApprovalPermissionTypes!: (queryParams?: RequestData) => Promise<OrderApprovalPermissionTypeListData>
+}
 
-  /**
-   * Returns the list of order approval permission types.
-   * @param {RequestData} queryParams
-   */
-  getOrderApprovalPermissionTypes(queryParams?: RequestData) {
-    return this.query<OrderApprovalPermissionTypeListData>({ params: queryParams })
+const orderApprovalPermissionTypesResource = (): OrderApprovalPermissionTypesResource => {
+  const { sitePath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/orderApprovalPermissionTypes`))
+  return {
+    getOrderApprovalPermissionTypes: (queryParams?: RequestData) => rest.query<OrderApprovalPermissionTypeListData>({ params: queryParams })
   }
 }
+
+export const useOrderApprovalPermissionTypesResource = () =>
+  inject(OrderApprovalPermissionTypesResource, orderApprovalPermissionTypesResource())

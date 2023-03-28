@@ -7,126 +7,64 @@ import type {
   RequestData,
   SortableRequestData
 } from '@/api/models'
-import { AuthRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class OrgUnitGroupsResource extends AuthRestClient {
-  getEndpoint() {
-    return `${this.basePath}/users/${this.userPath}/orgUnitUserGroups`
-  }
+export abstract class OrgUnitGroupsResource {
+  getOrgUserGroups!: (queryParams?: SortableRequestData) => Promise<OrgUnitUserGroupListData>
+  addOrgUserGroup!: (orgUnitUserGroup: OrgUnitUserGroupData, queryParams?: RequestData) => Promise<OrgUnitUserGroupData>
+  getOrgUserGroup!: (orgUnitUserGroupId: string, queryParams?: RequestData) => Promise<OrgUnitUserGroupData>
+  delOrgUserGroup!: (orgUnitUserGroupId: string) => Promise<void>
+  setOrgUserGroup!: (orgUnitUserGroupId: string) => Promise<void>
+  getOrgUserGroupApprovals!: (orgUnitUserGroupId: string, queryParams?: SortableRequestData) => Promise<OrderApprovalPermissionListData>
+  getOrgUserGroupCustomers!: (orgUnitUserGroupId: string, queryParams?: SortableRequestData) => Promise<OrgUnitUserListData>
+  addOrgUserGroupCustomer!: (orgUnitUserGroupId: string, orgCustomerId: string) => Promise<void>
+  delOrgUserGroupCustomers!: (orgUnitUserGroupId: string) => Promise<void>
+  delOrgUserGroupCustomer!: (orgUnitUserGroupId: string, orgCustomerId: string) => Promise<void>
+  addOrgUserApprovalPermission!: (
+    orgUnitUserGroupId: string,
+    orderApprovalPermissionCode: string,
+    queryParams?: RequestData
+  ) => Promise<B2BSelectionData>
+  delOrgUserApprovalPermission!: (
+    orgUnitUserGroupId: string,
+    orderApprovalPermissionCode: string,
+    queryParams?: RequestData
+  ) => Promise<B2BSelectionData>
+}
 
-  /**
-   * Returns the list of organizational unit user groups accessible for a specified base store.
-   * @param {SortableRequestData} queryParams
-   */
-  getOrgUserGroups(queryParams?: SortableRequestData) {
-    return this.query<OrgUnitUserGroupListData>({ params: queryParams })
-  }
-
-  /**
-   * Creates a new organizational unit user group.
-   * @param {OrgUnitUserGroupData} orgUnitUserGroup
-   * @param {RequestData} queryParams
-   */
-  addOrgUserGroup(orgUnitUserGroup: OrgUnitUserGroupData, queryParams?: RequestData) {
-    return this.post<OrgUnitUserGroupData>(orgUnitUserGroup, { params: queryParams })
-  }
-
-  /**
-   * Returns specific UserGroup details accessible for a specified base store based on UserGroup code.
-   * The response contains detailed order information.
-   * @param {string} orgUnitUserGroupId
-   * @param {RequestData} queryParams
-   */
-  getOrgUserGroup(orgUnitUserGroupId: string, queryParams?: RequestData) {
-    return this.get<OrgUnitUserGroupData>(orgUnitUserGroupId, { params: queryParams })
-  }
-
-  /**
-   * Removes the organizational unit user group.
-   * @param {string} orgUnitUserGroupId
-   */
-  delOrgUserGroup(orgUnitUserGroupId: string) {
-    return this.delete<void>(orgUnitUserGroupId)
-  }
-
-  /**
-   * Updates the organizational unit user group. Only attributes provided in the request body will be changed.
-   * @param {string} orgUnitUserGroupId
-   */
-  setOrgUserGroup(orgUnitUserGroupId: string) {
-    return this.patch<void>(orgUnitUserGroupId, null)
-  }
-
-  /**
-   * Returns the list of order approval permissions who can belong to a specific organizational unit user group.
-   * Order approval permissions who already belong to the user group are flagged by ‘selected’ attribute.
-   * @param {string} orgUnitUserGroupId
-   * @param {SortableRequestData} queryParams
-   */
-  getOrgUserGroupApprovals(orgUnitUserGroupId: string, queryParams?: SortableRequestData) {
-    return this.get<OrderApprovalPermissionListData>(`${orgUnitUserGroupId}/availableOrderApprovalPermissions`, { params: queryParams })
-  }
-
-  /**
-   * Returns the list of organizational customers who can belong to a specific organizational unit user group.
-   * Users who already belong to the user group are flagged by ‘selected’ attribute.
-   * @param {string} orgUnitUserGroupId
-   * @param {SortableRequestData} queryParams
-   */
-  getOrgUserGroupCustomers(orgUnitUserGroupId: string, queryParams?: SortableRequestData) {
-    return this.get<OrgUnitUserListData>(`${orgUnitUserGroupId}/availableOrgCustomers`, { params: queryParams })
-  }
-
-  /**
-   * Adds an organizational customer to a specific unit user group members
-   * @param {string} orgUnitUserGroupId
-   * @param {string} orgCustomerId
-   */
-  addOrgUserGroupCustomer(orgUnitUserGroupId: string, orgCustomerId: string) {
-    return this.postAt<void>(`${orgUnitUserGroupId}/members`, { orgCustomerId })
-  }
-
-  /**
-   * Removes all organizational customers in the organizational unit user group members
-   * which marks the user group disabled until a new member is added
-   * @param {string} orgUnitUserGroupId
-   */
-  delOrgUserGroupCustomers(orgUnitUserGroupId: string) {
-    return this.delete<void>(`${orgUnitUserGroupId}/members`)
-  }
-
-  /**
-   * Removes an organizational customer from the organizational unit user group members
-   * @param {string} orgUnitUserGroupId
-   * @param {string} orgCustomerId
-   */
-  delOrgUserGroupCustomer(orgUnitUserGroupId: string, orgCustomerId: string) {
-    return this.delete<void>(`${orgUnitUserGroupId}/members/${orgCustomerId}`)
-  }
-
-  /**
-   * Adds an order approval permission to a specific organizational unit user group
-   * @param {string} orgUnitUserGroupId
-   * @param {string} orderApprovalPermissionCode
-   * @param {RequestData} queryParams
-   */
-  addOrgUserApprovalPermission(orgUnitUserGroupId: string, orderApprovalPermissionCode: string, queryParams?: RequestData) {
-    return this.postAt<B2BSelectionData>(
-      `${orgUnitUserGroupId}/orderApprovalPermissions`,
-      { orderApprovalPermissionCode },
-      { params: queryParams }
-    )
-  }
-
-  /**
-   * Removes an order approval permission from a specific organizational unit user group
-   * @param {string} orgUnitUserGroupId
-   * @param {string} orderApprovalPermissionCode
-   * @param {RequestData} queryParams
-   */
-  delOrgUserApprovalPermission(orgUnitUserGroupId: string, orderApprovalPermissionCode: string, queryParams?: RequestData) {
-    return this.delete<B2BSelectionData>(`${orgUnitUserGroupId}/orderApprovalPermissions/${orderApprovalPermissionCode}`, {
-      params: queryParams
-    })
+const orgUnitGroupsResource = (): OrgUnitGroupsResource => {
+  const { sitePath, userPath } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/users/${userPath.value}/orgUnitUserGroups`))
+  return {
+    getOrgUserGroups: (queryParams?: SortableRequestData) => rest.query<OrgUnitUserGroupListData>({ params: queryParams }),
+    addOrgUserGroup: (orgUnitUserGroup: OrgUnitUserGroupData, queryParams?: RequestData) =>
+      rest.post<OrgUnitUserGroupData>(orgUnitUserGroup, { params: queryParams }),
+    getOrgUserGroup: (orgUnitUserGroupId: string, queryParams?: RequestData) =>
+      rest.get<OrgUnitUserGroupData>(orgUnitUserGroupId, { params: queryParams }),
+    delOrgUserGroup: (orgUnitUserGroupId: string) => rest.del<void>(orgUnitUserGroupId),
+    setOrgUserGroup: (orgUnitUserGroupId: string) => rest.patch<void>(orgUnitUserGroupId, null),
+    getOrgUserGroupApprovals: (orgUnitUserGroupId: string, queryParams?: SortableRequestData) =>
+      rest.get<OrderApprovalPermissionListData>(`${orgUnitUserGroupId}/availableOrderApprovalPermissions`, { params: queryParams }),
+    getOrgUserGroupCustomers: (orgUnitUserGroupId: string, queryParams?: SortableRequestData) =>
+      rest.get<OrgUnitUserListData>(`${orgUnitUserGroupId}/availableOrgCustomers`, { params: queryParams }),
+    addOrgUserGroupCustomer: (orgUnitUserGroupId: string, orgCustomerId: string) =>
+      rest.postAt<void>(`${orgUnitUserGroupId}/members`, { orgCustomerId }),
+    delOrgUserGroupCustomers: (orgUnitUserGroupId: string) => rest.del<void>(`${orgUnitUserGroupId}/members`),
+    delOrgUserGroupCustomer: (orgUnitUserGroupId: string, orgCustomerId: string) =>
+      rest.del<void>(`${orgUnitUserGroupId}/members/${orgCustomerId}`),
+    addOrgUserApprovalPermission: (orgUnitUserGroupId: string, orderApprovalPermissionCode: string, queryParams?: RequestData) =>
+      rest.postAt<B2BSelectionData>(
+        `${orgUnitUserGroupId}/orderApprovalPermissions`,
+        { orderApprovalPermissionCode },
+        { params: queryParams }
+      ),
+    delOrgUserApprovalPermission: (orgUnitUserGroupId: string, orderApprovalPermissionCode: string, queryParams?: RequestData) =>
+      rest.del<B2BSelectionData>(`${orgUnitUserGroupId}/orderApprovalPermissions/${orderApprovalPermissionCode}`, {
+        params: queryParams
+      })
   }
 }
+
+export const useOrgUnitGroupsResource = () => inject(OrgUnitGroupsResource, orgUnitGroupsResource())
