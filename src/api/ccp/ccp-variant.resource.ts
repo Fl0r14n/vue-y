@@ -1,12 +1,16 @@
-import { CcpEndpoint } from '@/api/ccp/ccp-config.resource'
+import { getCcpRest } from '@/api/ccp/ccp-config.resource'
 import type { CCPConfigurationProductVariantData } from '@/api/models'
+import { inject } from '@/config'
 
-export class CcpVariantResource extends CcpEndpoint {
-  /**
-   * Gets variants that match the current configuration attributes
-   * @param {string} configId
-   */
-  getVariantsForConfiguration(configId?: string) {
-    return this.get<CCPConfigurationProductVariantData[]>(`${configId}/variants`)
+export abstract class CcpVariantResource {
+  getVariantsForConfiguration!: (configId?: string) => Promise<CCPConfigurationProductVariantData[]>
+}
+
+const ccpVariantResource = (): CcpVariantResource => {
+  const rest = getCcpRest()
+  return {
+    getVariantsForConfiguration: (configId?: string) => rest.get<CCPConfigurationProductVariantData[]>(`${configId}/variants`)
   }
 }
+
+export const useCcpVariantResource = () => inject(CcpVariantResource, ccpVariantResource())

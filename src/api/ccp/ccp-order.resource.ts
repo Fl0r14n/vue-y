@@ -1,15 +1,17 @@
-import { OrderEndpoint } from '@/api/b2c'
+import { getOrderRest } from '@/api/b2c'
 import type { CCPConfigurationOverviewData } from '@/api/models'
+import { inject } from '@/config'
 
-export class CcpOrderResource extends OrderEndpoint {
-  /**
-   * Gets a configuration overview, a simplified, condensed read-only
-   * view on the product configuration of an order entry.
-   * Only the selected attribute values are present here
-   * @param {string} orderId
-   * @param {string} entryNumber
-   */
-  getConfigOverviewForOrderEntry(orderId: string, entryNumber: string) {
-    return this.get<CCPConfigurationOverviewData>(`${orderId}/entries/${entryNumber}/ccpconfigurator/configurationOverview`)
+export abstract class CcpOrderResource {
+  getConfigOverviewForOrderEntry!: (orderId: string, entryNumber: string) => Promise<CCPConfigurationOverviewData>
+}
+
+const ccpOrderResource = (): CcpOrderResource => {
+  const rest = getOrderRest()
+  return {
+    getConfigOverviewForOrderEntry: (orderId: string, entryNumber: string) =>
+      rest.get<CCPConfigurationOverviewData>(`${orderId}/entries/${entryNumber}/ccpconfigurator/configurationOverview`)
   }
 }
+
+export const useCcpOrderResource = () => inject(CcpOrderResource, ccpOrderResource())

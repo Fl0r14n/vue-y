@@ -9,7 +9,13 @@ import type {
   RequestData,
   SortableRequestData
 } from '@/api/models'
-import { AuthRestClient } from '@/api/rest'
+import { AuthRestClient, useRestClient, useRestContext } from '@/api/rest'
+import { computed } from 'vue'
+
+export const getQuoteRest = () => {
+  const { sitePath, userPath } = useRestContext()
+  return useRestClient(computed(() => `${sitePath.value}/users/${userPath.value}/quotes`))
+}
 
 export abstract class QuoteEndpoint extends AuthRestClient {
   getEndpoint() {

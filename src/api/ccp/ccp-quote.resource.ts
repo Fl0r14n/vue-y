@@ -1,15 +1,17 @@
-import { QuoteEndpoint } from '@/api/b2b'
+import { getQuoteRest } from '@/api/b2b'
 import type { CCPConfigurationOverviewData } from '@/api/models'
+import { inject } from '@/config'
 
-export class CcpQuoteResource extends QuoteEndpoint {
-  /**
-   * Gets a configuration overview, a simplified, condensed read-only
-   * view on the product configuration of an quote entry.
-   * Only the selected attribute values are present here
-   * @param {string} quoteId
-   * @param {string} entryNumber
-   */
-  getConfigOverviewForQuoteEntry(quoteId: string, entryNumber: string) {
-    return this.get<CCPConfigurationOverviewData>(`${quoteId}/entries/${entryNumber}/ccpconfigurator/configurationOverview`)
+export abstract class CcpQuoteResource {
+  getConfigOverviewForQuoteEntry!: (quoteId: string, entryNumber: string) => Promise<CCPConfigurationOverviewData>
+}
+
+const ccpQuoteResource = (): CcpQuoteResource => {
+  const rest = getQuoteRest()
+  return {
+    getConfigOverviewForQuoteEntry: (quoteId: string, entryNumber: string) =>
+      rest.get<CCPConfigurationOverviewData>(`${quoteId}/entries/${entryNumber}/ccpconfigurator/configurationOverview`)
   }
 }
+
+export const useCcpQuoteResource = () => inject(CcpQuoteResource, ccpQuoteResource())

@@ -1,15 +1,17 @@
-import { CartEndpoint } from '@/api/b2c'
+import { getCartRest } from '@/api/b2c'
 import type { CCPConfigurationOverviewData } from '@/api/models'
+import { inject } from '@/config'
 
-export class CcpSavedCartResource extends CartEndpoint {
-  /**
-   * Gets a configuration overview, a simplified, condensed read-only
-   * view on the product configuration of a saved cart entry.
-   * Only the selected attribute values are present here
-   * @param {string} cartId
-   * @param {string} entryNumber
-   */
-  getConfigOverviewForCartEntry(cartId = 'current', entryNumber: string) {
-    return this.get<CCPConfigurationOverviewData>(`${cartId}/entries/${entryNumber}/ccpconfigurator/configurationOverview`)
+export abstract class CcpSavedCartResource {
+  getConfigOverviewForCartEntry!: (cartId: string, entryNumber: string) => Promise<CCPConfigurationOverviewData>
+}
+
+const ccpSavedCartResource = (): CcpSavedCartResource => {
+  const rest = getCartRest()
+  return {
+    getConfigOverviewForCartEntry: (cartId = 'current', entryNumber: string) =>
+      rest.get<CCPConfigurationOverviewData>(`${cartId}/entries/${entryNumber}/ccpconfigurator/configurationOverview`)
   }
 }
+
+export const useCcpSavedCartResource = () => inject(CcpSavedCartResource, ccpSavedCartResource())

@@ -1,38 +1,23 @@
-import { CartEndpoint } from '@/api/b2c'
+import { getCartRest } from '@/api/b2c'
 import type { CartModificationData, CCPConfigurationData, CCPOrderEntryData } from '@/api/models'
+import { inject } from '@/config'
 
-export class CcpCartResource extends CartEndpoint {
-  /**
-   * Returns the configuration of a cart entry and ensures that the entry
-   * can later be updated with the configuration and its changes
-   * @param {string} cartId
-   * @param {string} entryNumber
-   */
-  getConfigForCartEntry(cartId = 'current', entryNumber: string) {
-    return this.get<CCPConfigurationData>(`${cartId}/entries/${entryNumber}/ccpconfigurator`)
-  }
+export abstract class CcpCartResource {
+  getConfigForCartEntry!: (cartId: string, entryNumber: string) => Promise<CCPConfigurationData>
+  updateConfigForCartEntry!: (cartId: string, entryNumber: string, entry: CCPOrderEntryData) => Promise<CartModificationData>
+  addEntryWithConfigToCart!: (cartId: string, entry: CCPOrderEntryData) => Promise<CartModificationData>
+}
 
-  /**
-   * Updates the configuration. The entire configuration attached to the cart entry
-   * is replaced by the configuration specified in the request body.
-   * Possible only if the configuration change has been
-   * initiated by the corresponding GET method before
-   * @param {string} cartId
-   * @param {string} entryNumber
-   * @param {CCPOrderEntryData} entry
-   */
-  updateConfigForCartEntry(cartId = 'current', entryNumber: string, entry: CCPOrderEntryData) {
-    return this.put<CartModificationData>(`${cartId}/entries/${entryNumber}/ccpconfigurator`, entry)
-  }
-
-  /**
-   * Adds a product configuration to the cart. The root product of the configuration
-   * is added as a cart entry,in addition the configuration
-   * is attached to the new entry
-   * @param {string} cartId
-   * @param {CCPOrderEntryData} entry
-   */
-  addEntryWithConfigToCart(cartId = 'current', entry: CCPOrderEntryData) {
-    return this.postAt<CartModificationData>(`${cartId}/entries/ccpconfigurator`, entry)
+const ccpCartResource = (): CcpCartResource => {
+  const rest = getCartRest()
+  return {
+    getConfigForCartEntry: (cartId = 'current', entryNumber: string) =>
+      rest.get<CCPConfigurationData>(`${cartId}/entries/${entryNumber}/ccpconfigurator`),
+    updateConfigForCartEntry: (cartId = 'current', entryNumber: string, entry: CCPOrderEntryData) =>
+      rest.put<CartModificationData>(`${cartId}/entries/${entryNumber}/ccpconfigurator`, entry),
+    addEntryWithConfigToCart: (cartId = 'current', entry: CCPOrderEntryData) =>
+      rest.postAt<CartModificationData>(`${cartId}/entries/ccpconfigurator`, entry)
   }
 }
+
+export const useCcpCartResource = () => inject(CcpCartResource, ccpCartResource())
