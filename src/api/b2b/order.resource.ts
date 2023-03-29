@@ -1,4 +1,5 @@
-import { OrderBaseService } from '@/api/b2c'
+import { useRestClient, useRestContext } from '@/api'
+import { OrderBaseResource, useOrderBaseResource } from '@/api/b2c'
 import type {
   B2BOrderData,
   CartModificationListData,
@@ -7,76 +8,60 @@ import type {
   RequestData,
   ScheduleReplenishmentFormData
 } from '@/api/models'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class OrderResource extends OrderBaseService {
-  /**
-   * Create a cart based on a previous order.
-   * Returns a list of modification applied to the new cart compared to original. e.g lower quantity was added
-   * @param {string} orderCode
-   * @param {RequestData} queryParams
-   */
-  addCart(orderCode: string, queryParams?: RequestData) {
-    return this.postAt<CartModificationListData>(
-      `${this.orgPrefix('users')}/${this.userPath}/cartFromOrder`,
-      {},
-      {
-        params: {
-          ...queryParams,
-          orderCode
+export abstract class OrderResource extends OrderBaseResource {
+  addCart!: (orderCode: string, queryParams?: RequestData) => Promise<CartModificationListData>
+  placeReplenishmentOrder!: (
+    cart: {
+      cartId: string
+      termsChecked: boolean
+    },
+    scheduleReplenishmentForm: ScheduleReplenishmentFormData,
+    queryParams?: RequestData
+  ) => Promise<ReplenishmentOrderData>
+}
+
+const orderResource = (): OrderResource => {
+  const orderBaseResource = useOrderBaseResource()
+  const { sitePath, userPath, orgPrefix, isB2B } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/${orgPrefix('users')}/${userPath.value}`))
+  return {
+    ...orderBaseResource,
+    addCart: (orderCode: string, queryParams?: RequestData) =>
+      rest.postAt<CartModificationListData>(
+        `cartFromOrder`,
+        {},
+        {
+          params: {
+            ...queryParams,
+            orderCode
+          }
         }
-      }
-    )
-  }
-
-  /**
-   * Places a B2B Order. By default, the payment type is ACCOUNT.
-   * Please set payment type to CARD if placing an order using credit card.
-   * @param {OrderSubmitData} orderSubmit
-   * @param {RequestData} queryParams
-   */
-  override placeOrder(orderSubmit: OrderSubmitData, queryParams?: RequestData) {
-    return (
-      (this.isB2B &&
-        this.postAt<B2BOrderData>(
-          `${this.orgPrefix('users')}/${this.userPath}/orders`,
+      ),
+    placeReplenishmentOrder: (
+      cart: {
+        cartId: string
+        termsChecked: boolean
+      },
+      scheduleReplenishmentForm: ScheduleReplenishmentFormData,
+      queryParams?: RequestData
+    ) =>
+      rest.postAt<ReplenishmentOrderData>(`replenishmentOrders`, scheduleReplenishmentForm, {
+        params: { ...cart, ...queryParams }
+      }),
+    placeOrder: (orderSubmit: OrderSubmitData, queryParams?: RequestData) =>
+      (isB2B.value &&
+        rest.postAt<B2BOrderData>(
+          `orders`,
           {},
           {
             params: { ...queryParams, ...orderSubmit }
           }
         )) ||
-      super.placeOrder(orderSubmit, queryParams)
-    )
-  }
-
-  /**
-   * Creates an Order and schedules Replenishment.
-   * Creates an Order and schedules Replenishment.
-   * By default, the payment type is ACCOUNT.
-   * Please set payment type to CARD if placing an order using credit card.
-   * @param {{cartId: string; termsChecked: string}} cart
-   * @param {ScheduleReplenishmentFormData} scheduleReplenishmentForm
-   * @param {RequestData} queryParams
-   */
-  placeReplenishmentOrder(
-    cart: {
-      /**
-       * Cart code for logged-in user, cart GUID for guest checkout
-       */
-      cartId: string
-      /**
-       * Whether terms were accepted or not.
-       */
-      termsChecked: boolean
-    },
-    scheduleReplenishmentForm: ScheduleReplenishmentFormData,
-    queryParams?: RequestData
-  ) {
-    return this.postAt<ReplenishmentOrderData>(
-      `${this.orgPrefix('users')}/${this.userPath}/replenishmentOrders`,
-      scheduleReplenishmentForm,
-      {
-        params: { ...cart, ...queryParams }
-      }
-    )
+      orderBaseResource.placeOrder(orderSubmit, queryParams)
   }
 }
+
+export const useOrderResource = () => inject(OrderResource, orderResource())

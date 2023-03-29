@@ -22,7 +22,7 @@ export const getProductRest = () => {
   return useRestClient(computed(() => `${sitePath.value}/products`))
 }
 
-export abstract class ProductResource {
+export abstract class ProductBaseResource {
   getProduct!: (productCode: string, queryParams?: RequestData) => Promise<ProductData>
   getProductReferences!: (
     productCode?: string,
@@ -61,7 +61,7 @@ export abstract class ProductResource {
   ) => Promise<SuggestionListData>
 }
 
-const productResource = (): ProductResource => {
+const productBaseResource = (): ProductBaseResource => {
   const rest = getProductRest()
   return {
     getProduct: (productCode: string, queryParams?: RequestData) => rest.get<ProductData>(productCode, { params: queryParams }),
@@ -117,4 +117,4 @@ const productResource = (): ProductResource => {
   }
 }
 
-export const useProductResource = () => inject(ProductResource, productResource())
+export const useProductBaseResource = () => inject(ProductBaseResource, productBaseResource())

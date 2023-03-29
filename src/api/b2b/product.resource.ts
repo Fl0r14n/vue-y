@@ -1,24 +1,26 @@
+import { ProductBaseResource, useProductBaseResource } from '@/api'
 import type { ProductData, RequestData } from '@/api/models'
-import type { RequestOptions } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class ProductResource {
-  getEndpoint(options?: RequestOptions) {
-    // return options?.['isOrg'] ? `${this.basePath}/${this.orgPrefix('products')}` : super.getEndpoint()
-  }
+export const getOrgProductRest = () => {
+  const { sitePath, orgPrefix } = useRestContext()
+  return useRestClient(computed(() => `${sitePath.value}/${orgPrefix('products')}`))
+}
 
-  /**
-   * Returns a product, based on the specified product code.
-   * @param {string} productCode. Product identifier
-   * @param {RequestData} queryParams
-   */
-  getProduct(productCode: string, queryParams?: RequestData) {
-    // return (
-    //   (this.isB2B &&
-    //     this.get<ProductData>(productCode, {
-    //       params: queryParams,
-    //       isOrg: true
-    //     })) ||
-    //   super.getProduct(productCode, queryParams)
-    // )
+export abstract class ProductResource extends ProductBaseResource {}
+
+const productResource = (): ProductResource => {
+  const { isB2B } = useRestContext()
+  const rest = getOrgProductRest()
+  const productBaseResource = useProductBaseResource()
+  return {
+    ...productBaseResource,
+    getProduct: (productCode: string, queryParams?: RequestData) =>
+      (isB2B.value && rest.get<ProductData>(productCode, { params: queryParams })) ||
+      productBaseResource.getProduct(productCode, queryParams)
   }
 }
+
+export const useProductResource = () => inject(ProductResource, productResource())

@@ -53,10 +53,10 @@ const cartBaseAddressResource = (): CartBaseAddressResource => {
 export const useCartBaseAddressResource = () => inject(CartBaseAddressResource, cartBaseAddressResource())
 
 export abstract class CartBaseDeliveryResource {
-  getDeliveryModes?: (cartId: string, queryParams?: RequestData) => Promise<DeliveryModeListData>
-  getDeliveryMode?: (cartId: string, queryParams?: RequestData) => Promise<DeliveryModeData>
-  setDeliveryMode?: (cartId: string, deliveryModeId: string, queryParams?: RequestData) => Promise<void>
-  delDeliveryMode?: (cartId: string) => Promise<void>
+  getDeliveryModes!: (cartId: string, queryParams?: RequestData) => Promise<DeliveryModeListData>
+  getDeliveryMode!: (cartId: string, queryParams?: RequestData) => Promise<DeliveryModeData>
+  setDeliveryMode!: (cartId: string, deliveryModeId: string, queryParams?: RequestData) => Promise<void>
+  delDeliveryMode!: (cartId: string) => Promise<void>
 }
 
 const cartBaseDeliveryResource = (): CartBaseDeliveryResource => {
@@ -75,11 +75,11 @@ const cartBaseDeliveryResource = (): CartBaseDeliveryResource => {
 export const useCartBaseDeliveryResource = () => inject(CartBaseDeliveryResource, cartBaseDeliveryResource())
 
 export abstract class CartBaseEntryResource {
-  getEntries?: (cartId: string, queryParams?: RequestData) => Promise<OrderEntryListData>
-  addEntry?: (cartId: string, orderEntry: OrderEntryData, queryParams?: RequestData) => Promise<CartModificationData>
-  getEntry?: (cartId: string, entryNumber: number, queryParams?: RequestData) => Promise<OrderEntryData>
-  setEntry?: (cartId: string, entryNumber: number, orderEntry: OrderEntryData, queryParams?: RequestData) => Promise<CartModificationData>
-  delEntry?: (cartId: string, entryNumber: number) => Promise<void>
+  getEntries!: (cartId: string, queryParams?: RequestData) => Promise<OrderEntryListData>
+  addEntry!: (cartId: string, orderEntry: OrderEntryData, queryParams?: RequestData) => Promise<CartModificationData>
+  getEntry!: (cartId: string, entryNumber: number, queryParams?: RequestData) => Promise<OrderEntryData>
+  setEntry!: (cartId: string, entryNumber: number, orderEntry: OrderEntryData, queryParams?: RequestData) => Promise<CartModificationData>
+  delEntry!: (cartId: string, entryNumber: number) => Promise<void>
 }
 
 const cartBaseEntryResource = (): CartBaseEntryResource => {
@@ -100,13 +100,13 @@ const cartBaseEntryResource = (): CartBaseEntryResource => {
 export const useCartBaseEntryResource = () => inject(CartBaseEntryResource, cartBaseEntryResource())
 
 export abstract class CartBaseEntryGroupResource {
-  addEntryGroup?: (
+  addEntryGroup!: (
     cartId: string,
     entryGroupNumber: number,
     orderEntry: OrderEntryData,
     queryParams?: RequestData
   ) => Promise<CartModificationData>
-  delEntryGroup?: (cartId: string, entryGroupNumber: number) => Promise<void>
+  delEntryGroup!: (cartId: string, entryGroupNumber: number) => Promise<void>
 }
 
 const cartBaseEntryGroupResource = (): CartBaseEntryGroupResource => {
@@ -121,8 +121,8 @@ const cartBaseEntryGroupResource = (): CartBaseEntryGroupResource => {
 export const useCartBaseEntryGroupResource = () => inject(CartBaseEntryGroupResource, cartBaseEntryGroupResource())
 
 export abstract class CartBasePaymentResource {
-  addPaymentDetails?: (cartId: string, paymentDetails: PaymentDetailsData, queryParams?: RequestData) => Promise<PaymentDetailsData>
-  setPaymentDetails?: (cartId: string, paymentDetailsId: string, queryParams?: RequestData) => Promise<void>
+  addPaymentDetails!: (cartId: string, paymentDetails: PaymentDetailsData, queryParams?: RequestData) => Promise<PaymentDetailsData>
+  setPaymentDetails!: (cartId: string, paymentDetailsId: string, queryParams?: RequestData) => Promise<void>
 }
 
 const cartBasePaymentResource = (): CartBasePaymentResource => {
@@ -147,13 +147,13 @@ const cartBasePaymentResource = (): CartBasePaymentResource => {
 export const useCartBasePaymentResource = () => inject(CartBasePaymentResource, cartBasePaymentResource())
 
 export abstract class CartBasePromotionResource {
-  getPromotions?: (cartId: string, queryParams?: RequestData) => Promise<PromotionResultListData>
-  addPromotion?: (cartId: string, promotionId: string, queryParams?: RequestData) => Promise<void>
-  getPromotion?: (cartId: string, promotionId: string, queryParams?: RequestData) => Promise<PromotionResultData>
-  delPromotion?: (cartId: string, promotionId: string) => Promise<void>
-  getVouchers?: (cartId: string, queryParams?: RequestData) => Promise<VoucherListData>
-  addVoucher?: (cartId: string, voucherId: string, queryParams?: RequestData) => Promise<void>
-  delVoucher?: (cartId: string, voucherId: string) => Promise<void>
+  getPromotions!: (cartId: string, queryParams?: RequestData) => Promise<PromotionResultListData>
+  addPromotion!: (cartId: string, promotionId: string, queryParams?: RequestData) => Promise<void>
+  getPromotion!: (cartId: string, promotionId: string, queryParams?: RequestData) => Promise<PromotionResultData>
+  delPromotion!: (cartId: string, promotionId: string) => Promise<void>
+  getVouchers!: (cartId: string, queryParams?: RequestData) => Promise<VoucherListData>
+  addVoucher!: (cartId: string, voucherId: string, queryParams?: RequestData) => Promise<void>
+  delVoucher!: (cartId: string, voucherId: string) => Promise<void>
 }
 
 const cartBasePromotionResource = (): CartBasePromotionResource => {
@@ -195,11 +195,11 @@ const cartBasePromotionResource = (): CartBasePromotionResource => {
 export const useCartBasePromotionResource = () => inject(CartBasePromotionResource, cartBasePromotionResource())
 
 export abstract class CartBaseResource {
-  getCarts?: (queryParams?: { savedCartsOnly?: boolean } & SortableRequestData) => Promise<CartListData>
-  addCart?: (queryParams?: CartRequestData) => Promise<CartData>
-  getCart?: (cartId: string, queryParams?: RequestData) => Promise<CartData>
-  delCart?: (cartId: string) => Promise<void>
-  setEmail?: (cartId: string, email: string, queryParams?: RequestData) => Promise<void>
+  getCarts!: (queryParams?: { savedCartsOnly?: boolean } & SortableRequestData) => Promise<CartListData>
+  addCart!: (queryParams?: CartRequestData) => Promise<CartData>
+  getCart!: (cartId: string, queryParams?: RequestData) => Promise<CartData>
+  delCart!: (cartId: string) => Promise<void>
+  setEmail!: (cartId: string, email: string, queryParams?: RequestData) => Promise<void>
 }
 
 const cartBaseResource = (): CartBaseResource => {

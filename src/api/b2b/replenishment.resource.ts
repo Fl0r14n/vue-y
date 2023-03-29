@@ -5,47 +5,33 @@ import type {
   RequestData,
   SortableRequestData
 } from '@/api/models'
-import { AuthRestClient } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class ReplenishmentResource extends AuthRestClient {
-  getEndpoint() {
-    return `${this.basePath}/users/${this.userPath}/replenishmentOrders`
-  }
+export const getReplenishmentRest = () => {
+  const { sitePath, userPath } = useRestContext()
+  return useRestClient(computed(() => `${sitePath.value}/users/${userPath.value}/replenishmentOrders`))
+}
 
-  /**
-   * Returns the list of replenishment orders accessible to a specified user.
-   * @param {SortableRequestData} queryParams
-   */
-  getReplenishmentOrders(queryParams?: SortableRequestData) {
-    return this.query<ReplenishmentOrderListData>({ params: queryParams })
-  }
+export abstract class ReplenishmentResource {
+  getReplenishmentOrders!: (queryParams?: SortableRequestData) => Promise<ReplenishmentOrderListData>
+  getReplenishmentOrder!: (replenishmentOrderCode: string, queryParams?: RequestData) => Promise<ReplenishmentOrderData>
+  setReplenishmentOrder!: (replenishmentOrderCode: string, queryParams?: RequestData) => Promise<ReplenishmentOrderData>
+  getReplenishmentOrderHistory!: (replenishmentOrderCode: string, queryParams?: SortableRequestData) => Promise<OrderHistoryListData>
+}
 
-  /**
-   * Returns specific replenishment order details accessible for a specified user.
-   * The response contains detailed orders information from the replenishment order.
-   * @param {string} replenishmentOrderCode
-   * @param {RequestData} queryParams
-   */
-  getReplenishmentOrder(replenishmentOrderCode: string, queryParams?: RequestData) {
-    return this.get<ReplenishmentOrderData>(replenishmentOrderCode, { params: queryParams })
-  }
-
-  /**
-   * Updates the replenishment order. Only cancellation of the replenishment order is supported by setting the attribute ‘active’ to FALSE.
-   * Cancellation of the replenishment order cannot be reverted.
-   * @param {string} replenishmentOrderCode
-   * @param {RequestData} queryParams
-   */
-  setReplenishmentOrder(replenishmentOrderCode: string, queryParams?: RequestData) {
-    return this.patch<ReplenishmentOrderData>(replenishmentOrderCode, null, { params: queryParams })
-  }
-
-  /**
-   * Returns order history data from a replenishment order placed by a specified user.
-   * @param {string} replenishmentOrderCode
-   * @param {SortableRequestData} queryParams
-   */
-  getReplenishmentOrderHistory(replenishmentOrderCode: string, queryParams?: SortableRequestData) {
-    return this.get<OrderHistoryListData>(`${replenishmentOrderCode}/orders`, { params: queryParams })
+const replenishmentResource = (): ReplenishmentResource => {
+  const rest = getReplenishmentRest()
+  return {
+    getReplenishmentOrders: (queryParams?: SortableRequestData) => rest.query<ReplenishmentOrderListData>({ params: queryParams }),
+    getReplenishmentOrder: (replenishmentOrderCode: string, queryParams?: RequestData) =>
+      rest.get<ReplenishmentOrderData>(replenishmentOrderCode, { params: queryParams }),
+    setReplenishmentOrder: (replenishmentOrderCode: string, queryParams?: RequestData) =>
+      rest.patch<ReplenishmentOrderData>(replenishmentOrderCode, null, { params: queryParams }),
+    getReplenishmentOrderHistory: (replenishmentOrderCode: string, queryParams?: SortableRequestData) =>
+      rest.get<OrderHistoryListData>(`${replenishmentOrderCode}/orders`, { params: queryParams })
   }
 }
+
+export const useReplenishmentResource = () => inject(ReplenishmentResource, replenishmentResource())

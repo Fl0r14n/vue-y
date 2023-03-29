@@ -1,36 +1,27 @@
-import { UserBaseService } from '@/api/b2c'
+import { UserBaseResource, useUserBaseResource } from '@/api/b2c'
 import type { OrgUserRegistrationData, RequestData, UserData, UserSignUpData } from '@/api/models'
-import type { RequestOptions } from '@/api/rest'
+import { useRestClient, useRestContext } from '@/api/rest'
+import { inject } from '@/config'
+import { computed } from 'vue'
 
-export class UserResource extends UserBaseService {
-  override getEndpoint(options?: RequestOptions) {
-    return options?.['isOrg'] ? `${this.basePath}/${this.orgPrefix('users')}` : super.getEndpoint()
-  }
+export abstract class UserResource extends UserBaseResource {
+  declare addUser: (user: OrgUserRegistrationData | UserSignUpData, queryParams?: RequestData) => Promise<UserData | any>
+}
 
-  /**
-   * Returns customer profile.
-   * @param {RequestData} queryParams
-   */
-  override getUser(queryParams?: RequestData) {
-    return this.get<UserData>(this.userPath, {
-      params: queryParams,
-      isOrg: this.isB2B
-    })
-  }
-
-  /**
-   * Create a registration request for a B2B user.
-   * @param {OrgUserRegistrationData} user
-   * @param {RequestData} queryParams
-   */
-  override addUser(user: OrgUserRegistrationData | UserSignUpData, queryParams?: RequestData) {
-    return (
-      (this.isB2B &&
-        this.post<UserData | any>(user, {
-          params: queryParams,
-          isOrg: true
+const userResource = (): UserResource => {
+  const { sitePath, userPath, orgPrefix, isB2B } = useRestContext()
+  const rest = useRestClient(computed(() => `${sitePath.value}/${orgPrefix('users')}`))
+  const userBaseResource = useUserBaseResource()
+  return {
+    ...userBaseResource,
+    getUser: (queryParams?: RequestData) => rest.get<UserData>(userPath.value, { params: queryParams }),
+    addUser: (user: OrgUserRegistrationData | UserSignUpData, queryParams?: RequestData) =>
+      (isB2B.value &&
+        rest.post<UserData>(user, {
+          params: queryParams
         })) ||
-      super.addUser(user as UserSignUpData, queryParams)
-    )
+      userBaseResource.addUser(user as UserSignUpData, queryParams)
   }
 }
+
+export const useUserResource = () => inject(UserResource, userResource())
