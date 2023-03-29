@@ -1,5 +1,5 @@
+import { useProductResource } from '@/api'
 import type { ProductData, RequestData } from '@/api'
-import { useProductResource } from '@/api/b2c/product.resource'
 import { useLocaleStore } from '@/cms'
 import { useCacheConfig } from '@/config'
 import { defineStore, storeToRefs } from 'pinia'

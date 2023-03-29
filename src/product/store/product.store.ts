@@ -1,6 +1,5 @@
 import type { ProductData } from '@/api'
-import { FieldLevelMapping } from '@/api'
-import { useProductResource } from '@/api/b2c/product.resource'
+import { FieldLevelMapping, useProductResource } from '@/api'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
