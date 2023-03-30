@@ -25,13 +25,13 @@ export const getProductRest = () => {
 export abstract class ProductBaseResource {
   getProduct!: (productCode: string, queryParams?: RequestData) => Promise<ProductData>
   getProductReferences!: (
-    productCode?: string,
+    productCode: string,
     queryParams?: {
       referenceType?: ProductReferenceType | any
     } & PageableRequestData
   ) => Promise<ProductReferenceListData>
   getProductReviews!: (
-    productCode?: string,
+    productCode: string,
     queryParams?: {
       maxCount?: number
     } & RequestData
@@ -66,13 +66,13 @@ const productBaseResource = (): ProductBaseResource => {
   return {
     getProduct: (productCode: string, queryParams?: RequestData) => rest.get<ProductData>(productCode, { params: queryParams }),
     getProductReferences: (
-      productCode?: string,
+      productCode: string,
       queryParams?: {
         referenceType?: ProductReferenceType | any
       } & PageableRequestData
     ) => rest.get<ProductReferenceListData>(`${productCode}/references`, { params: queryParams }),
     getProductReviews: (
-      productCode?: string,
+      productCode: string,
       queryParams?: {
         maxCount?: number
       } & RequestData

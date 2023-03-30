@@ -10,6 +10,7 @@ import { createLayout } from '@/layout'
 import { createLogin } from '@/login'
 import { createProduct } from '@/product'
 import { createSearch } from '@/search'
+import { createUser } from '@/user'
 
 import '@mdi/font/scss/materialdesignicons.scss'
 import { createPinia } from 'pinia'
@@ -37,13 +38,7 @@ const {
 
 const router = createRouter({
   history: createWebHistory(BASE_URL),
-  routes: [
-    {
-      path: '/my-account/:id',
-      name: 'account',
-      component: () => import('./cms/components/CmsPage.vue')
-    }
-  ]
+  routes: []
 })
 
 const config: Config = {
@@ -111,4 +106,5 @@ createApp(App)
   .use(createSearch())
   .use(createCart())
   .use(createCheckout())
+  .use(createUser())
   .mount('#app')

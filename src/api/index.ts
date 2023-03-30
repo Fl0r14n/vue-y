@@ -1,5 +1,6 @@
 export * from './models'
 export * from './rest'
+export * from './request'
 export * from './asm'
 export * from './b2b'
 export * from './b2c'

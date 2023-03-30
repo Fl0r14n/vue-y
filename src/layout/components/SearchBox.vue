@@ -42,7 +42,7 @@
 </template>
 <script setup lang="ts">
   import type { ProductData, SuggestionData } from '@/api'
-  import { useProductResource } from '@/api/b2c/product.resource'
+  import { useProductResource } from '@/api'
   import { B, N, productThumbnailPipe, routerPath } from '@/cms'
   import { debounceRef } from '@/config'
   import { computed, ref, watch } from 'vue'
