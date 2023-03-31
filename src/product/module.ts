@@ -13,6 +13,7 @@ export const createProduct = () => ({
     provideCmsComponent('SearchResultsListComponent')(productListImport)
     provideCmsComponent('ProductGridComponent')(productGridImport)
     provideCmsComponent('SearchResultsGridComponent')(productGridImport)
+    provideCmsComponent('ProductIntroComponent')(() => import('./components/ProductIntro.vue'))
     const router = getRouter(app)
     router.addRoute({
       path: '/:more*/p/:id',

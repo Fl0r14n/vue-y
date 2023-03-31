@@ -1,10 +1,12 @@
 import { PageType } from '@/api'
-import { getRouter, provideCmsTemplate } from '@/config'
+import { getRouter, provideCmsComponent, provideCmsTemplate } from '@/config'
 import { categoryGuard, searchGuard } from '@/search/store'
 import type { App } from 'vue'
 
 const productListPageImport = () => import('./templates/ProductListPageTemplate.vue')
 const searchResultPageImport = () => import('./templates/SearchResultsListPageTemplate.vue')
+const productListComponent = () => import('./components/ProductList.vue')
+const productGridComponent = () => import('./components/ProductGrid.vue')
 export const createSearch = () => ({
   install: (app: App) => {
     provideCmsTemplate('CategoryPageTemplate')(() => import('./templates/CategoryPageTemplate.vue'))
@@ -12,6 +14,11 @@ export const createSearch = () => ({
     provideCmsTemplate('SearchResultsGridPageTemplate')(searchResultPageImport)
     provideCmsTemplate('ProductListPageTemplate')(productListPageImport)
     provideCmsTemplate('ProductGridPageTemplate')(productListPageImport)
+    provideCmsComponent('ProductRefinementComponent')(() => import('./components/ProductRefinement.vue'))
+    provideCmsComponent('CMSProductListComponent')(productListComponent)
+    provideCmsComponent('SearchResultsListComponent')(productListComponent)
+    provideCmsComponent('ProductGridComponent')(productGridComponent)
+    provideCmsComponent('SearchResultsGridComponent')(productGridComponent)
     const router = getRouter(app)
     router.addRoute({
       path: '/search',

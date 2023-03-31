@@ -1,0 +1,1 @@
+<template>ProductRefinementComponent</template>
