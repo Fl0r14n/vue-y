@@ -36,9 +36,26 @@ export const useUserStore = defineStore('UserStore', () => {
     () => isImpersonated.value || Boolean(!isAgent.value && token.value.access_token && token.value.type !== OAuthType.CLIENT_CREDENTIAL)
   )
 
-  watch([isUser, isUserAllowed], ([isUser, isUserAllowed]) => isUser && !isUserAllowed && logout())
+  watch(token, async () => {
+    if (isLogin.value) {
+      await loadUser()
+    } else {
+      user.value = {
+        customerId: UserType.ANONYMOUS
+      }
+    }
+  })
 
-  //TODO watch and fetch user
+  watch(user, u => {
+    if (u?.customerId) {
+      user.value = {
+        ...u,
+        type: (u.customerId === UserType.ANONYMOUS && UserType.ANONYMOUS) || UserType.USER
+      }
+    }
+  })
+
+  watch([isUser, isUserAllowed], ([isUser, isUserAllowed]) => isUser && !isUserAllowed && logout())
 
   const loadUser = async () => {
     user.value = await userResource.getUser()
@@ -117,6 +134,7 @@ export const useUserStore = defineStore('UserStore', () => {
     isB2BUser,
     isAgent,
     isImpersonated,
-    isLogin
+    isLogin,
+    isUserAllowed
   }
 })
