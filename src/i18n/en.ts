@@ -12,5 +12,8 @@ export const en = {
     passwordRequired: 'Password is required',
     usernameLength: 'Name must be less than {0} characters',
     passwordLength: 'Password must be less than {0} characters'
+  },
+  search: {
+    facetApplied: 'Applied facets'
   }
 }
