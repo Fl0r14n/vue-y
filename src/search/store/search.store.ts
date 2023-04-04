@@ -1,13 +1,16 @@
 import type { ProductSearchPageData } from '@/api'
 import { FieldLevelMapping, useProductResource, useQueryable } from '@/api'
 import { defineStore, storeToRefs } from 'pinia'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 
 export const useSearchStore = defineStore('SearchStore', () => {
   const productResource = useProductResource()
   const searchPage = ref<ProductSearchPageData>()
   const { request, sort, query, pageSize, currentPage } = useQueryable()
+  const sorts = computed(() => searchPage.value?.sorts)
+  const products = computed(() => searchPage.value?.products)
+  const pagination = computed(() => searchPage.value?.pagination)
 
   watch(
     request,
@@ -15,15 +18,19 @@ export const useSearchStore = defineStore('SearchStore', () => {
       (searchPage.value = await productResource.search({
         fields: FieldLevelMapping.FULL,
         ...req
-      }))
+      })),
+    { deep: true }
   )
 
   return {
     query,
     sort,
+    sorts,
     pageSize,
     currentPage,
-    searchPage
+    searchPage,
+    products,
+    pagination
   }
 })
 
