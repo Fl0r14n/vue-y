@@ -1,26 +1,27 @@
 <template>
   <div v-for="facet in searchPage?.facets" :key="facet.code">
-    <!-- TODO : applied facets -->
+    <!-- TODO : applied facets ; to render this, need to get breadcrumb (Store should be updated) -->
+
 
     <!-- default facets -->
-    <div v-if="facetVisible(facet)">
-        <div class="facet-name" @click="toggleFacetVisible(facet)">{{ facet.name }} -</div>
-        <div v-if="facet.multiSelect">
-            <div v-for="facetValue in facet.values" :key="facetValue.code">
-                <!-- TODO : add click event handler -->
-                <input type="checkbox" v-model="facetValue.selected"> {{ facetValue.name }} ({{ facetValue.count }})
-            </div>
-        </div>
-        <div v-else>
-            <div v-for="facetValue in facet.values" :key="facetValue.code">
-                <!-- TODO : add click event handler -->
-                <div v-html="facetValue.name + ' (' + facetValue.count + ')'"></div>
-            </div>
-        </div>
-    </div>
-    <div v-else>
-        <div class="facet-name" @click="toggleFacetVisible(facet)">{{ facet.name }} +</div>
-    </div>
+    <v-card>
+      <v-card-title @click="toggleFacetVisible(facet)">{{ getFacetNameWithVisibility(facet) }}</v-card-title>
+      <div v-if="facetVisible(facet)">
+        <v-list v-if="facet.multiSelect">
+          <!-- TODO : change it as checkbox form ; v-checkbox looks ugly here... -->
+          <v-list-item v-for="facetValue in facet.values"
+              :key="facetValue.code"
+              :title="facetValue.name + ' (' + facetValue.count + ')'"
+              :link="true" :href="routerPath(facetValue.query?.url)"></v-list-item>
+        </v-list>
+        <v-list v-else>
+          <v-list-item v-for="facetValue in facet.values"
+              :key="facetValue.code"
+              :title="facetValue.name + ' (' + facetValue.count + ')'"
+              :link="true" :href="routerPath(facetValue.query?.url)"></v-list-item>
+        </v-list>
+      </div>
+    </v-card>
   </div>
 </template>
 
@@ -28,6 +29,7 @@
   import type { FacetData } from '@/api';
   import { useSearchStore } from '@/search'
   import { storeToRefs } from 'pinia'
+  import { routerPath } from '@/cms';
 
   const { searchPage } = storeToRefs(useSearchStore())
 
@@ -40,15 +42,7 @@
     return facet.visible
   }
 
-  // query=:relevance:allCategories:1360:brand:brand_753
-  // query=:relevance:allCategories:1360:price:$0-$49.99
-  // query=:relevance:allCategories:1360:allCategories:brand_4515
-
-</script>
-
-<style scoped lang="scss">
-  .facet-name {
-    font-weight: bold;
-    border-bottom: 1px solid #d3d6db;
+  const getFacetNameWithVisibility = (facet : FacetData) => {
+    return facet.visible ? facet.name + ' - ' : facet.name + ' + ';
   }
-</style>
+</script>
