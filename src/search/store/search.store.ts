@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue'
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 
 const updateQueryUrl = (key: string, value: string) => {
+  console.log(key, value)
   const url = new URL(location.href)
   url.searchParams.set(key, value)
   history.pushState({}, '', url)
@@ -15,24 +16,28 @@ export const useSearchStore = defineStore('SearchStore', () => {
   const productResource = useProductResource()
   const locale = useLocaleConfig()
   const searchPage = ref<ProductSearchPageData>()
-  const { request, sort, query, pageSize, currentPage } = useQueryable()
+  const { request, sort, query, pageSize, currentPage } = useQueryable({
+    sort: 'relevance',
+    pageSize: 20,
+    currentPage: 0
+  })
   const sorts = computed(() => searchPage.value?.sorts)
   const products = computed(() => searchPage.value?.products)
   const pagination = computed(() => searchPage.value?.pagination)
 
   watch(
     [request, locale],
-    async ([req]) =>
-      (searchPage.value = await productResource.search({
+    async ([req]) => {
+      searchPage.value = await productResource.search({
         fields: FieldLevelMapping.FULL,
         ...req
-      })),
+      })
+      updateQueryUrl('s', sort.value)
+      updateQueryUrl('n', `${pageSize.value}`)
+      updateQueryUrl('p', `${currentPage.value}`)
+    },
     { deep: true }
   )
-
-  watch(sort, s => s && updateQueryUrl('s', s as string))
-  watch(pageSize, n => n && updateQueryUrl('n', `${n}`))
-  watch(currentPage, p => p && updateQueryUrl('p', `${p}`))
 
   return {
     query,

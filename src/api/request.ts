@@ -1,8 +1,8 @@
 import type { QueryRequestData, SortableRequestData } from '@/api/models'
 import { computed, ref } from 'vue'
 
-export const usePageable = <T extends SortableRequestData>() => {
-  const request = ref<T>()
+export const usePageable = <T extends SortableRequestData>(value?: T) => {
+  const request = ref<T>(value as T)
   const sort = computed({
     get: () => request.value?.sort,
     set: sort => request.value && (request.value.sort = sort)
@@ -23,8 +23,8 @@ export const usePageable = <T extends SortableRequestData>() => {
   }
 }
 
-export const useQueryable = () => {
-  const { request, sort, pageSize, currentPage } = usePageable<QueryRequestData>()
+export const useQueryable = <T extends QueryRequestData>(value?: T) => {
+  const { request, sort, pageSize, currentPage } = usePageable<T>(value)
   const query = computed({
     get: () => request.value?.query,
     set: query => {
