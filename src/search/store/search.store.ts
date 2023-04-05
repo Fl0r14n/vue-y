@@ -5,6 +5,12 @@ import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 
+const updateQueryUrl = (key: string, value: string) => {
+  const url = new URL(location.href)
+  url.searchParams.set(key, value)
+  history.pushState({}, '', url)
+}
+
 export const useSearchStore = defineStore('SearchStore', () => {
   const productResource = useProductResource()
   const locale = useLocaleConfig()
@@ -24,6 +30,10 @@ export const useSearchStore = defineStore('SearchStore', () => {
     { deep: true }
   )
 
+  watch(sort, s => s && updateQueryUrl('s', s as string))
+  watch(pageSize, n => n && updateQueryUrl('n', `${n}`))
+  watch(currentPage, p => p && updateQueryUrl('p', `${p}`))
+
   return {
     query,
     sort,
@@ -32,20 +42,29 @@ export const useSearchStore = defineStore('SearchStore', () => {
     currentPage,
     searchPage,
     products,
-    pagination
+    pagination,
+    request
   }
 })
 
 export const categoryGuard = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  const { query } = storeToRefs(useSearchStore())
+  const { query, sort, pageSize, currentPage } = storeToRefs(useSearchStore())
   const categoryId = to.params.id
   const searchType = (to.params.more?.includes('Brands') && 'brand') || 'category'
+  const { s, n, p } = to.query
   query.value = `::${searchType}:${categoryId}`
+  s && (sort.value = s as string)
+  n && (pageSize.value = Number(n) || undefined)
+  p && (currentPage.value = Number(p) || undefined)
   return next()
 }
 
 export const searchGuard = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  const { query } = storeToRefs(useSearchStore())
+  const { query, sort, pageSize, currentPage } = storeToRefs(useSearchStore())
+  const { s, n, p } = to.query
   query.value = (to.query.text || to.query.q) as string
+  s && (sort.value = s as string)
+  n && (pageSize.value = Number(n) || undefined)
+  p && (currentPage.value = Number(p) || undefined)
   return next()
 }

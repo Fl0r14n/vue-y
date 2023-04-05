@@ -33,6 +33,19 @@
   import { storeToRefs } from 'pinia'
   import { computed } from 'vue'
 
+  interface ProductList {
+    container?: string | boolean
+    properties?: object
+    name?: string
+    typeCode?: string
+    uid?: string
+    uuid?: string
+    modifiedtime?: string | Date
+    synchronizationBlocked?: any
+  }
+
+  defineProps<ProductList>()
+
   const pageSizes = [5, 10, 15, 20, 30, 50]
   const { pageSize, sort, sorts, currentPage, products, pagination } = storeToRefs(useSearchStore())
 
