@@ -1,11 +1,13 @@
 import type { ProductSearchPageData } from '@/api'
 import { FieldLevelMapping, useProductResource, useQueryable } from '@/api'
+import { useLocaleConfig } from '@/config'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 
 export const useSearchStore = defineStore('SearchStore', () => {
   const productResource = useProductResource()
+  const locale = useLocaleConfig()
   const searchPage = ref<ProductSearchPageData>()
   const { request, sort, query, pageSize, currentPage } = useQueryable()
   const sorts = computed(() => searchPage.value?.sorts)
@@ -13,8 +15,8 @@ export const useSearchStore = defineStore('SearchStore', () => {
   const pagination = computed(() => searchPage.value?.pagination)
 
   watch(
-    request,
-    async req =>
+    [request, locale],
+    async ([req]) =>
       (searchPage.value = await productResource.search({
         fields: FieldLevelMapping.FULL,
         ...req
