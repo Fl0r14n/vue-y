@@ -31,7 +31,7 @@ export const useTicketStore = defineStore('TicketStore', () => {
     }
   })
 
-  watch(request, () => load())
+  watch(request, () => load(), { deep: true })
 
   const create = async (body: TicketStarterData) => {
     ticket.value = await ticketResource.addTicket(body, {
