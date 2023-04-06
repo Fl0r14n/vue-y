@@ -13,7 +13,7 @@ export abstract class SaveCartResource {
   flagCartForDeletion!: (cartId: string, queryParams?: RequestData) => Promise<SaveCartResultData>
   restoreCart!: (cartId: string, queryParams?: RequestData) => Promise<SaveCartResultData>
   saveCart!: (
-    cartId: string,
+    cartId: string | undefined,
     details: {
       saveCartName?: string
       saveCartDescription?: string
@@ -48,4 +48,4 @@ const saveCartResource = (): SaveCartResource => {
   }
 }
 
-const useSaveCartResource = () => inject(SaveCartResource, saveCartResource())
+export const useSaveCartResource = () => inject(SaveCartResource, saveCartResource())
