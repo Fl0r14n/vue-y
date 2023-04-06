@@ -9,14 +9,14 @@ import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
 import { computed } from 'vue'
 
-export abstract class CustomerCouponsResource {
+export abstract class CouponResource {
   getCoupons!: (queryParams?: WithTotalRequestData) => Promise<CustomerCouponSearchPageData>
   addCoupon!: (couponCode: string, queryParams?: RequestData) => Promise<CustomerCoupon2CustomerData>
   addCouponNotification!: (couponCode: string, queryParams?: RequestData) => Promise<CustomerCouponNotificationData>
   delCouponNotification!: (couponCode: string) => Promise<void>
 }
 
-const customerCouponsResource = (): CustomerCouponsResource => {
+const couponResource = (): CouponResource => {
   const { sitePath, userPath } = useRestContext()
   const rest = useRestClient(computed(() => `${sitePath.value}/users/${userPath.value}/customercoupons`))
   return {
@@ -29,4 +29,4 @@ const customerCouponsResource = (): CustomerCouponsResource => {
   }
 }
 
-export const useCustomerCouponsResource = () => inject(CustomerCouponsResource, customerCouponsResource())
+export const useCouponResource = () => inject(CouponResource, couponResource())

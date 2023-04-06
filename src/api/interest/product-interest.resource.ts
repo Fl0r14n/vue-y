@@ -9,13 +9,13 @@ import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
 import { computed } from 'vue'
 
-export abstract class ProductInterestsResource {
+export abstract class ProductInterestResource {
   getProductInterests!: (queryParams?: ProductInterestRequestData & WithTotalRequestData) => Promise<CustomerInterestsSearchPageData>
   addProductInterests!: (interest: ProductInterestRequestData, queryParams?: RequestData) => Promise<ProductInterestRelationData>
   delProductInterests!: (interest: ProductInterestRequestData) => Promise<void>
 }
 
-const productInterestsResource = (): ProductInterestsResource => {
+const productInterestResource = (): ProductInterestResource => {
   const { sitePath, userPath } = useRestContext()
   const rest = useRestClient(computed(() => `${sitePath.value}/users/${userPath.value}`))
   return {
@@ -27,4 +27,4 @@ const productInterestsResource = (): ProductInterestsResource => {
   }
 }
 
-export const useProductInterestsResource = () => inject(ProductInterestsResource, productInterestsResource())
+export const useProductInterestResource = () => inject(ProductInterestResource, productInterestResource())

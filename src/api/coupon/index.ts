@@ -1,4 +1,4 @@
 /**
  * Requires customercouponocc, customercouponservices, customercouponfacades
  */
-export * from './customer-coupons.service'
+export * from './coupon.service'

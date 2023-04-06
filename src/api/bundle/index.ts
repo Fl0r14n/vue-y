@@ -1,4 +1,4 @@
 /**
  * requires configurablebundleocc extension
  */
-export * from './bundles.resource'
+export * from './bundle.resource'

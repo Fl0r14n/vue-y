@@ -3,11 +3,11 @@ import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
 import { computed } from 'vue'
 
-export abstract class SiteMessagesResource {
+export abstract class SiteMessageResource {
   getSiteMessages!: (queryParams?: WithTotalRequestData) => Promise<SiteMessageSearchPageData>
 }
 
-const siteMessagesResource = (): SiteMessagesResource => {
+const siteMessageResource = (): SiteMessageResource => {
   const { sitePath, userPath } = useRestContext()
   const rest = useRestClient(computed(() => `${sitePath.value}/users/${userPath}/notifications/sitemessages`))
   return {
@@ -15,4 +15,4 @@ const siteMessagesResource = (): SiteMessagesResource => {
   }
 }
 
-export const useSiteMessagesResource = () => inject(SiteMessagesResource, siteMessagesResource())
+export const useSiteMessageResource = () => inject(SiteMessageResource, siteMessageResource())

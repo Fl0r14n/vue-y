@@ -3,11 +3,11 @@ import { useRestClient, useRestContext } from '@/api/rest'
 import { inject } from '@/config'
 import { computed } from 'vue'
 
-export abstract class TicketsCategoriesResource {
+export abstract class TicketCategoriesResource {
   getTicketCategories!: (queryParams?: RequestData) => Promise<TicketCategoryListData>
 }
 
-const ticketsCategoriesResource = (): TicketsCategoriesResource => {
+const ticketCategoriesResource = (): TicketCategoriesResource => {
   const { sitePath } = useRestContext()
   const rest = useRestClient(computed(() => `${sitePath.value}/ticketCategories`))
   return {
@@ -15,4 +15,4 @@ const ticketsCategoriesResource = (): TicketsCategoriesResource => {
   }
 }
 
-export const useTicketsCategoriesResource = () => inject(TicketsCategoriesResource, ticketsCategoriesResource())
+export const useTicketCategoriesResource = () => inject(TicketCategoriesResource, ticketCategoriesResource())
