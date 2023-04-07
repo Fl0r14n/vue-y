@@ -15,5 +15,11 @@ export const en = {
   },
   search: {
     facetApplied: 'Applied facets'
+  },
+  carts: {
+    importCart: {
+      savedCartDescription:
+        'This cart was created by CSV import {name}. Successfully imported:{success} lines. Imported but with quantity adjustment: {quantity} lines. Could not import: {failed} lines.'
+    }
   }
 }
