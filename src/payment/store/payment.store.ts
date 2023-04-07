@@ -3,7 +3,7 @@ import { useUserStore } from '@/user'
 import { defineStore, storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
-export const usePaymentStore = defineStore('PaymentStore', async () => {
+export const usePaymentStore = defineStore('PaymentStore', () => {
   const miscResource = useMiscResource()
   const paymentDetailsResource = usePaymentDetailsResource()
   const cardTypes = ref<CardTypeData[]>()
@@ -31,7 +31,7 @@ export const usePaymentStore = defineStore('PaymentStore', async () => {
     cardTypes.value = await miscResource.getCardTypes().then(c => c.cardTypes)
     paymentTypes.value = await miscResource.getPaymentTypes().then(p => p.paymentTypes)
   }
-  await init()
+  init().then()
 
   return {
     cardTypes,
