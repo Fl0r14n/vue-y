@@ -35,4 +35,4 @@ const paymentDetailsResource = (): PaymentDetailsResource => {
   }
 }
 
-export const usePaymentDetailsResource = inject(PaymentDetailsResource, paymentDetailsResource())
+export const usePaymentDetailsResource = () => inject(PaymentDetailsResource, paymentDetailsResource())
