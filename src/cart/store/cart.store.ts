@@ -124,6 +124,7 @@ export const useCartStore = defineStore('CartStore', () => {
     cart,
     code,
     isGuest,
-    setGuestEmail
+    setGuestEmail,
+    addCart
   }
 })
