@@ -15,6 +15,7 @@ export const useCartEntryStore = defineStore('CartEntryStore', () => {
   const { code, cart } = storeToRefs(cartStore)
 
   const entries = computed(() => cart.value?.entries)
+  const isPickUpInStore = computed(() => entries.value?.every(entry => !!entry.deliveryPointOfService))
 
   const addEntries = async (orderEntries: OrderEntryData[]) => {
     await cartResource.addEntries(
@@ -49,6 +50,7 @@ export const useCartEntryStore = defineStore('CartEntryStore', () => {
     addEntry,
     setEntry,
     delEntry,
-    entries
+    entries,
+    isPickUpInStore
   }
 })

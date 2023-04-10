@@ -20,6 +20,8 @@ export const useCartPromotionStore = defineStore('CartPromotionStore', () => {
 
   return {
     addVoucher,
-    appliedVouchers
+    appliedVouchers,
+    potentialOrderPromotions,
+    appliedOrderPromotions
   }
 })

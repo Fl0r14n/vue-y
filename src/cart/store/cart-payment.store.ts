@@ -13,6 +13,12 @@ export const useCartPaymentStore = defineStore('CartPaymentStore', () => {
   const billingAddress = computed(() => paymentDetails.value?.billingAddress)
   const paymentType = computed(() => cart.value?.paymentType)
   const paymentTypeId = computed(() => paymentType.value?.code)
+  const isAccountPayment = computed(() => paymentTypeId.value === B2BPaymentType.ACCOUNT)
+  const hasPaymentType = computed(() => Boolean(paymentTypeId.value))
+  const hasPaymentDetails = computed(() => {
+    const { value } = paymentDetails
+    return !!(value && Object.keys(value).length)
+  })
 
   const addPaymentDetails = async (paymentDetails: PaymentDetailsData) => {
     await cartResource.addPaymentDetails(code.value, paymentDetails)
@@ -36,6 +42,9 @@ export const useCartPaymentStore = defineStore('CartPaymentStore', () => {
     paymentTypeId,
     addPaymentDetails,
     setPaymentDetails,
-    setPaymentType
+    setPaymentType,
+    isAccountPayment,
+    hasPaymentType,
+    hasPaymentDetails
   }
 })

@@ -10,6 +10,7 @@ export const useCartCostCenterStore = defineStore('CartCostCenterStore', () => {
   const { code, cart } = storeToRefs(cartStore)
 
   const costCenter = computed(() => cart.value?.costCenter)
+  const hasCostCenter = computed(() => !!costCenter.value?.code)
   const setCostCenter = async (costCenterId: string) => {
     await cartResource.setCostCenter(code.value, costCenterId)
     await loadCart()
@@ -17,6 +18,7 @@ export const useCartCostCenterStore = defineStore('CartCostCenterStore', () => {
 
   return {
     costCenter,
-    setCostCenter
+    setCostCenter,
+    hasCostCenter
   }
 })
