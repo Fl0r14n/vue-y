@@ -14,7 +14,8 @@ const userResource = (): UserResource => {
   const userBaseResource = useUserBaseResource()
   return {
     ...userBaseResource,
-    getUser: (queryParams?: RequestData) => rest.get<UserData>(userPath.value, { params: queryParams }),
+    getUser: (queryParams?: RequestData) =>
+      (isB2B.value && rest.get<UserData>(userPath.value, { params: queryParams })) || userBaseResource.getUser(queryParams),
     addUser: (user: OrgUserRegistrationData | UserSignUpData, queryParams?: RequestData) =>
       (isB2B.value &&
         rest.post<UserData>(user, {

@@ -68,7 +68,7 @@ watch([isAuthorized, () => (config.value as any)?.userPath], async ([authorized,
 
 export const authorizationInterceptor = async (req: InternalAxiosRequestConfig) => {
   if (!isPathIgnored(req)) {
-    if (isExpired) {
+    if (isExpired.value) {
       token.value = await refresh(token.value)
     }
     if (accessToken.value) {
@@ -79,7 +79,7 @@ export const authorizationInterceptor = async (req: InternalAxiosRequestConfig) 
 }
 
 export const unauthorizedInterceptor = (error: any) => {
-  if (401 === error.response.status) {
+  if (401 === error.response?.status) {
     token.value = error.response.data
   }
   return error

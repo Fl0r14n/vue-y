@@ -6,7 +6,6 @@ import { computed, ref, watch } from 'vue'
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 
 const updateQueryUrl = (key: string, value: string) => {
-  console.log(key, value)
   const url = new URL(location.href)
   url.searchParams.set(key, value)
   history.pushState({}, '', url)

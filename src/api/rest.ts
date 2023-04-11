@@ -51,6 +51,7 @@ const userPath = computed(() => (isLoggedIn.value && (customerId.value || UserTy
 http.interceptors.request.use((req: InternalAxiosRequestConfig) => {
   const { language, currency } = useLocaleConfig().value || {}
   if (language && currency) {
+    !req.params && (req.params = new URLSearchParams())
     req.params.append('lang', language)
     req.params.append('curr', currency)
   }
@@ -75,54 +76,53 @@ export const useRestContext = () => ({
 })
 
 export const useRestClient = (endpoint: Ref<string>) => {
-  // const endpoint = ref<string>('')
   const query = <T>(options?: RequestOptions) => {
     return http
       .get<T>(endpoint.value, fixOptions(options))
       .catch(err => err.response)
-      .then(r => r.data)
+      .then(r => r?.data)
   }
   const get = <T>(id: number | string, options?: RequestOptions) => {
     return http
       .get<T>(`${endpoint.value}/${id}`, fixOptions(options))
       .catch(err => err.response)
-      .then(r => r.data)
+      .then(r => r?.data)
   }
   const head = <T>(id: number | string, options?: RequestOptions) => {
     return http
       .head<T>(`${endpoint.value}/${id}`, fixOptions(options))
       .catch(err => err.response)
-      .then(r => r.data)
+      .then(r => r?.data)
   }
   const postAt = <T>(id: number | string, body: any, options?: RequestOptions) => {
     return http
       .post<T>(`${endpoint.value}/${id}`, body, fixOptions(options))
       .catch(err => err.response)
-      .then(r => r.data)
+      .then(r => r?.data)
   }
   const post = <T>(body: any, options?: RequestOptions) => {
     return http
       .post<T>(endpoint.value, body, fixOptions(options))
       .catch(err => err.response)
-      .then(r => r.data)
+      .then(r => r?.data)
   }
   const put = <T>(id: number | string, body: any, options?: RequestOptions) => {
     return http
       .put<T>(`${endpoint.value}/${id}`, body, fixOptions(options))
       .catch(err => err.response)
-      .then(r => r.data)
+      .then(r => r?.data)
   }
   const patch = <T>(id: number | string, body: any, options?: RequestOptions) => {
     return http
       .patch<T>(`${endpoint.value}/${id}`, body, fixOptions(options))
       .catch(err => err.response)
-      .then(r => r.data)
+      .then(r => r?.data)
   }
   const del = <T>(id: number | string, options?: RequestOptions) => {
     return http
       .delete<T>(`${endpoint.value}/${id}`, fixOptions(options))
       .catch(err => err.response)
-      .then(r => r.data)
+      .then(r => r?.data)
   }
   return {
     query,

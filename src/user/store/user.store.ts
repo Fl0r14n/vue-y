@@ -36,6 +36,12 @@ export const useUserStore = defineStore('UserStore', () => {
     () => isImpersonated.value || Boolean(!isAgent.value && token.value.access_token && token.value.type !== OAuthType.CLIENT_CREDENTIAL)
   )
 
+  const loadUser = async () => {
+    user.value = await userResource.getUser()
+  }
+
+  const logout = async (useLogoutUrl?: boolean) => !isAgent.value && (await oauth.logout(useLogoutUrl))
+
   watch(
     token,
     async () => {
@@ -60,12 +66,6 @@ export const useUserStore = defineStore('UserStore', () => {
   })
 
   watch([isUser, isUserAllowed], ([isUser, isUserAllowed]) => isUser && !isUserAllowed && logout())
-
-  const loadUser = async () => {
-    user.value = await userResource.getUser()
-  }
-
-  const logout = async (useLogoutUrl?: boolean) => !isAgent.value && (await oauth.logout(useLogoutUrl))
 
   const anonymousLogin = async () => {
     if (type.value !== OAuthType.CLIENT_CREDENTIAL) {
@@ -139,6 +139,7 @@ export const useUserStore = defineStore('UserStore', () => {
     isAgent,
     isImpersonated,
     isLogin,
-    isUserAllowed
+    isUserAllowed,
+    token
   }
 })
