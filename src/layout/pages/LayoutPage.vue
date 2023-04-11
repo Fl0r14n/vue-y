@@ -35,7 +35,7 @@
             </cms-slot>
           </v-list>
         </v-menu>
-        <v-oauth :state="'somme_dummy_state'" :type="type" :use-logout-url="true" :responseType="responseType" />
+        <component :is="getComponent('LoginComponent')" />
         <v-btn
           :icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           @click="theme = theme === 'light' ? 'dark' : 'light'"></v-btn>
@@ -69,14 +69,8 @@
 
 <script setup lang="ts">
   import { getComponent, themePipe } from '@/cms'
-  import CmsSlot from '@/cms/components/CmsSlot.vue'
-  import { OAuthType } from '@/oauth/models'
   import { ref } from 'vue'
   import { useDisplay, useTheme } from 'vuetify'
-
-  const type = OAuthType.RESOURCE
-  // const responseType = 'code token id_token'
-  const responseType = 'code'
 
   const theme = useTheme().name
   const drawer = ref(false)

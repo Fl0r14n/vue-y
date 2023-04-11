@@ -36,15 +36,19 @@ export const useUserStore = defineStore('UserStore', () => {
     () => isImpersonated.value || Boolean(!isAgent.value && token.value.access_token && token.value.type !== OAuthType.CLIENT_CREDENTIAL)
   )
 
-  watch(token, async () => {
-    if (isLogin.value) {
-      await loadUser()
-    } else {
-      user.value = {
-        customerId: UserType.ANONYMOUS
+  watch(
+    token,
+    async () => {
+      if (isLogin.value) {
+        await loadUser()
+      } else {
+        user.value = {
+          customerId: UserType.ANONYMOUS
+        }
       }
-    }
-  })
+    },
+    { immediate: true }
+  )
 
   watch(user, u => {
     if (u?.customerId) {
