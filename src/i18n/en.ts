@@ -56,6 +56,16 @@ export const en = {
     },
     resetPasswordForm: {
       title: 'Forgot login password?'
+    },
+    registerForm: {
+      title: 'Title',
+      firstName: 'First Name',
+      lastName: 'Last Name',
+      email: 'Email',
+      password: 'Password',
+      confirmPassword: 'Confirm Password',
+      termsAndConditions: 'I am confirming that I have read and agreed with the <a href="#">Terms & Conditions</a>',
+      register: 'Register'
     }
   }
 }

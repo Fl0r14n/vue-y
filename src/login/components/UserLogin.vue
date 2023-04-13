@@ -25,3 +25,8 @@
   }
   defineProps<UserLogin>()
 </script>
+<style scoped lang="scss">
+  :deep(.v-card-subtitle) {
+    white-space: normal;
+  }
+</style>

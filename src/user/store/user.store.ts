@@ -1,5 +1,5 @@
-import type { UserData, UserSignUpData } from '@/api'
-import { SiteChannel, UserType, useUserResource } from '@/api'
+import type { TitleData, UserData, UserSignUpData } from '@/api'
+import { SiteChannel, useMiscResource, UserType, useUserResource } from '@/api'
 import { useSiteConfig } from '@/config'
 import { OAuthType, useOAuth, useOAuthToken } from '@/oauth'
 import { defineStore } from 'pinia'
@@ -13,6 +13,7 @@ declare module '@/api' {
 }
 
 export const useUserStore = defineStore('UserStore', () => {
+  const miscResource = useMiscResource()
   const userResource = useUserResource()
   const router = useRouter()
   const site = useSiteConfig()
@@ -35,6 +36,9 @@ export const useUserStore = defineStore('UserStore', () => {
   const isLogin = computed(
     () => isImpersonated.value || Boolean(!isAgent.value && token.value.access_token && token.value.type !== OAuthType.CLIENT_CREDENTIAL)
   )
+  const titles = ref<TitleData[]>()
+
+  watch(site, async site => site?.uid && (titles.value = await miscResource.getTitles().then(v => v.titles)), { immediate: true })
 
   const loadUser = async () => {
     user.value = await userResource.getUser()
@@ -140,6 +144,7 @@ export const useUserStore = defineStore('UserStore', () => {
     isImpersonated,
     isLogin,
     isUserAllowed,
-    token
+    token,
+    titles
   }
 })
