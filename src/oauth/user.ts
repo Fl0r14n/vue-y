@@ -69,7 +69,11 @@ watch([isAuthorized, () => (config.value as any)?.userPath], async ([authorized,
 export const authorizationInterceptor = async (req: InternalAxiosRequestConfig) => {
   if (!isPathIgnored(req)) {
     if (isExpired.value) {
-      token.value = await refresh(token.value)
+      const { type } = token.value
+      token.value = {
+        ...(await refresh(token.value)),
+        type
+      }
     }
     if (accessToken.value) {
       req.headers.setAuthorization(accessToken.value)

@@ -1,7 +1,7 @@
-import type { AuthorizationParameters, OAuthParameters, OpenIdConfig, ResourceParameters } from '@/oauth/models'
-import { OAuthType } from '@/oauth/models'
 import { config, oauthConfig } from '@/oauth/config'
 import { authorize, clientCredentialLogin, getOpenIDConfiguration, resourceLogin, revoke } from '@/oauth/http'
+import type { AuthorizationParameters, OAuthParameters, OpenIdConfig, ResourceParameters } from '@/oauth/models'
+import { OAuthType } from '@/oauth/models'
 import { token } from '@/oauth/token'
 import { jwt } from '@/oauth/user'
 import { ref, watch } from 'vue'
@@ -101,11 +101,17 @@ export const state = ref<string>()
 
 export const login = async (parameters?: OAuthParameters) => {
   if (!!parameters && (parameters as ResourceParameters).password) {
-    token.value = await resourceLogin(parameters as ResourceParameters)
+    token.value = {
+      ...(await resourceLogin(parameters as ResourceParameters)),
+      type: OAuthType.RESOURCE
+    }
   } else if (!!parameters && (parameters as AuthorizationParameters).redirectUri && (parameters as AuthorizationParameters).responseType) {
     await toAuthorizationUrl(parameters as AuthorizationParameters)
   } else {
-    token.value = await clientCredentialLogin()
+    token.value = {
+      ...(await clientCredentialLogin()),
+      type: OAuthType.CLIENT_CREDENTIAL
+    }
   }
 }
 
